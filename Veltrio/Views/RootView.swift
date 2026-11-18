@@ -171,7 +171,9 @@ private struct TopNavBar: View {
     private var trailingActions: some View {
         HStack(spacing: Theme.Spacing.md) {
             SearchBarTrigger(action: onSearch)
+                .accessibilityIdentifier("nav.search")
             IconButton(system: "gearshape.fill", tooltip: "Settings", action: onSettings)
+                .accessibilityIdentifier("nav.settings")
         }
     }
 }

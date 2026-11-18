@@ -86,6 +86,7 @@ struct SearchView: View {
                     .tracking(-0.8)
                     .foregroundStyle(Theme.Palette.textPrimary)
                     .focused($fieldFocused)
+                    .accessibilityIdentifier("search.field")
                     .onSubmit { runSearch() }
                     .onChange(of: query) { _, _ in runSearchDebounced() }
                 if !query.isEmpty {

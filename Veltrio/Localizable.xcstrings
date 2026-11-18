@@ -1,6 +1,16 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@  (%lld)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@  (%lld)"
+          }
+        }
+      }
+    },
     "%lld EPISODES · %lld SEASON%@": {
       "localizations": {
         "fr": {
@@ -67,6 +77,16 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "%lld addons installed": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Addons installés : %lld"
           }
         }
       }
@@ -251,6 +271,16 @@
         }
       }
     },
+    "%lld min left": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "encore %lld min"
+          }
+        }
+      }
+    },
     "%lld playlists": {
       "localizations": {
         "en": {
@@ -421,6 +451,16 @@
         }
       }
     },
+    "%lld titles read, %lld updated": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Titres lus : %lld, mis à jour : %lld"
+          }
+        }
+      }
+    },
     "%lld · reorder with the arrows": {
       "localizations": {
         "fr": {
@@ -477,6 +517,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "LES ADDONS RÉPONDENT ENCORE"
+          }
+        }
+      }
+    },
+    "API key": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clé API"
           }
         }
       }
@@ -627,6 +677,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tout"
+          }
+        }
+      }
+    },
+    "All channels": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toutes les chaînes"
           }
         }
       }
@@ -1031,6 +1091,16 @@
         }
       }
     },
+    "Calendar videos": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendrier des sorties"
+          }
+        }
+      }
+    },
     "Cancel": {
       "localizations": {
         "fr": {
@@ -1097,6 +1167,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Replay / timeshift"
+          }
+        }
+      }
+    },
+    "Channels": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaînes"
           }
         }
       }
@@ -1271,6 +1351,16 @@
         }
       }
     },
+    "Connecting to %@…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connexion à %@…"
+          }
+        }
+      }
+    },
     "Connecting to live stream…": {
       "localizations": {
         "fr": {
@@ -1387,6 +1477,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Impossible de joindre %@ : %@"
+          }
+        }
+      }
+    },
+    "Couldn't read the SIMKL lists.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de lire les listes SIMKL."
           }
         }
       }
@@ -1591,6 +1691,26 @@
         }
       }
     },
+    "Earlier": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus tôt"
+          }
+        }
+      }
+    },
+    "Email": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-mail"
+          }
+        }
+      }
+    },
     "Embedded": {
       "localizations": {
         "fr": {
@@ -1637,6 +1757,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Épisode"
+          }
+        }
+      }
+    },
+    "Episode %lld": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épisode %lld"
           }
         }
       }
@@ -1751,6 +1881,16 @@
         }
       }
     },
+    "Find your API key on %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trouver votre clé API sur %@"
+          }
+        }
+      }
+    },
     "Fit": {
       "localizations": {
         "fr": {
@@ -1831,6 +1971,16 @@
         }
       }
     },
+    "Guide": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide"
+          }
+        }
+      }
+    },
     "HLS variant": {
       "localizations": {
         "fr": {
@@ -1901,6 +2051,46 @@
         }
       }
     },
+    "Import library": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importer la bibliothèque"
+          }
+        }
+      }
+    },
+    "Import lists": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importer les listes"
+          }
+        }
+      }
+    },
+    "Import watchlist & history": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importer la liste et l'historique"
+          }
+        }
+      }
+    },
+    "Imports your Stremio library — saved titles, watched films and where you stopped — and can install the addons on your account. Nothing is written back to Stremio.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importe votre bibliothèque Stremio — titres enregistrés, films vus et reprise — et peut installer les addons de votre compte. Rien n'est renvoyé vers Stremio."
+          }
+        }
+      }
+    },
     "In library": {
       "localizations": {
         "fr": {
@@ -1957,6 +2147,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Installez une source pour commencer. Cinemeta couvre tous les grands titres ; ajoutez d'autres sources pour élargir le catalogue."
+          }
+        }
+      }
+    },
+    "Install account addons": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installer les addons du compte"
           }
         }
       }
@@ -2151,6 +2351,16 @@
         }
       }
     },
+    "Later": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus tard"
+          }
+        }
+      }
+    },
     "Legacy": {
       "localizations": {
         "fr": {
@@ -2251,6 +2461,16 @@
         }
       }
     },
+    "Loading the TV guide…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement du guide TV…"
+          }
+        }
+      }
+    },
     "Loading…": {
       "localizations": {
         "fr": {
@@ -2317,6 +2537,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Peu de CPU, peu d'énergie ; sans mise à l'échelle avancée."
+          }
+        }
+      }
+    },
+    "M3U URL": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL M3U"
           }
         }
       }
@@ -2671,6 +2901,16 @@
         }
       }
     },
+    "No TV guide for this playlist.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas de guide TV pour cette playlist."
+          }
+        }
+      }
+    },
     "No channel matches “%@”.": {
       "localizations": {
         "fr": {
@@ -2731,6 +2971,16 @@
         }
       }
     },
+    "No film or series library on this server.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune bibliothèque de films ou de séries sur ce serveur."
+          }
+        }
+      }
+    },
     "No items.": {
       "localizations": {
         "fr": {
@@ -2771,6 +3021,16 @@
         }
       }
     },
+    "No programme information for this channel.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas de programme pour cette chaîne."
+          }
+        }
+      }
+    },
     "No results": {
       "localizations": {
         "fr": {
@@ -2787,6 +3047,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aucun flux"
+          }
+        }
+      }
+    },
+    "No video file in this torrent.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun fichier vidéo dans ce torrent."
           }
         }
       }
@@ -2877,6 +3147,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rien d'enregistré,\npour l'instant."
+          }
+        }
+      }
+    },
+    "Now": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenant"
           }
         }
       }
@@ -3141,6 +3421,16 @@
         }
       }
     },
+    "Playing on %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture sur %@"
+          }
+        }
+      }
+    },
     "Playlist": {
       "localizations": {
         "fr": {
@@ -3267,6 +3557,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sous-titres préférés"
+          }
+        }
+      }
+    },
+    "Premiumize rejected this API key.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premiumize a refusé cette clé API."
           }
         }
       }
@@ -3491,6 +3791,16 @@
         }
       }
     },
+    "SIMKL needs this build to carry a SIMKL client id (VELTRIO_SIMKL_CLIENT_ID, from simkl.com/settings/developer).": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SIMKL nécessite un identifiant client SIMKL dans cette version de l'app (VELTRIO_SIMKL_CLIENT_ID, sur simkl.com/settings/developer)."
+          }
+        }
+      }
+    },
     "Safe defaults — good on any Mac.": {
       "localizations": {
         "fr": {
@@ -3531,6 +3841,16 @@
         }
       }
     },
+    "Scrobbles what you watch to SIMKL and imports your plan-to-watch and completed lists.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoie à SIMKL ce que vous regardez et importe vos listes « à voir » et « terminé »."
+          }
+        }
+      }
+    },
     "Search": {
       "localizations": {
         "fr": {
@@ -3567,6 +3887,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Recherche"
+          }
+        }
+      }
+    },
+    "Searching for Chromecasts on your network…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche de Chromecast sur votre réseau…"
           }
         }
       }
@@ -3811,6 +4141,26 @@
         }
       }
     },
+    "Stop": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter"
+          }
+        }
+      }
+    },
+    "Stop casting": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter la diffusion"
+          }
+        }
+      }
+    },
     "Stop the slow background pan on the home hero.": {
       "localizations": {
         "fr": {
@@ -3877,6 +4227,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Les flux sont quand même demandés à toutes les sources qui reconnaissent cet identifiant."
+          }
+        }
+      }
+    },
+    "Stremio refused the request.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stremio a refusé la requête."
           }
         }
       }
@@ -4001,12 +4361,42 @@
         }
       }
     },
+    "The Chromecast closed the connection.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le Chromecast a fermé la connexion."
+          }
+        }
+      }
+    },
+    "The Chromecast couldn't play this stream.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le Chromecast n'a pas pu lire ce flux."
+          }
+        }
+      }
+    },
     "The Real-Debrid code expired. Please try again.": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Le code Real-Debrid a expiré. Réessayez."
+          }
+        }
+      }
+    },
+    "The SIMKL code expired. Try again.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le code SIMKL a expiré. Réessayez."
           }
         }
       }
@@ -4047,6 +4437,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le fournisseur liste cette série sans aucun épisode."
+          }
+        }
+      }
+    },
+    "The service answered HTTP %lld.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le service a répondu HTTP %lld."
+          }
+        }
+      }
+    },
+    "The service refused the request.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le service a refusé la requête."
           }
         }
       }
@@ -4097,6 +4507,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "C'est un serveur Emby. Connectez-le avec la carte Emby."
+          }
+        }
+      }
+    },
+    "This library is empty.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette bibliothèque est vide."
+          }
+        }
+      }
+    },
+    "This stream plays from this Mac (torrent) and can't be sent to a Chromecast. A debrid service makes it castable.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce flux est lu depuis ce Mac (torrent) et ne peut pas être envoyé à un Chromecast. Un service debrid le rend diffusable."
+          }
+        }
+      }
+    },
+    "This torrent isn't cached on the service.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce torrent n'est pas en cache sur le service."
           }
         }
       }
@@ -4157,6 +4597,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Les mieux notés"
+          }
+        }
+      }
+    },
+    "TorBox rejected this API key.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TorBox a refusé cette clé API."
           }
         }
       }
@@ -4251,12 +4701,12 @@
         }
       }
     },
-    "Type a title. Movies and series from IMDB appear as you type.": {
+    "Type a title. Movies and series from IMDB appear as you type, then your IPTV provider's.": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tapez un titre. Les films et séries IMDB s'affichent pendant la saisie."
+            "value": "Tapez un titre. Les films et séries IMDB s'affichent pendant la saisie, puis ceux de votre fournisseur IPTV."
           }
         }
       }
@@ -4301,6 +4751,16 @@
         }
       }
     },
+    "Up next": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À suivre"
+          }
+        }
+      }
+    },
     "Use": {
       "localizations": {
         "fr": {
@@ -4337,6 +4797,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Valider sur %@"
+          }
+        }
+      }
+    },
+    "Veltrio scrobbles start / pause / stop events to Trakt as you watch, and can import your watchlist and watched history into Collection.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veltrio envoie à Trakt ce que vous regardez, et peut importer votre liste de suivi et votre historique dans la Collection."
           }
         }
       }
@@ -4437,6 +4907,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Avert."
+          }
+        }
+      }
+    },
+    "Watch": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regarder"
           }
         }
       }

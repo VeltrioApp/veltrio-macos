@@ -17,8 +17,8 @@ packages:
 settings:
   base:
     SWIFT_VERSION: "5.10"
-    MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "0.2.0"
+    CURRENT_PROJECT_VERSION: "2"
     CODE_SIGN_STYLE: Manual
     CODE_SIGN_IDENTITY: "-"
     DEVELOPMENT_TEAM: ""
@@ -45,6 +45,11 @@ targets:
     scheme:
       testTargets:
         - VeltrioTests
+        - VeltrioUITests
+      # Tests run in English whatever the Mac's language, so localized
+      # strings compare the same everywhere.
+      commandLineArguments:
+        "-AppleLanguages (en)": true
     sources:
       - path: Veltrio
       - path: Generated/Bindings/veltrio.swift
@@ -93,3 +98,15 @@ targets:
         TEST_HOST: $(BUILT_PRODUCTS_DIR)/Veltrio.app/Contents/MacOS/Veltrio
         BUNDLE_LOADER: $(TEST_HOST)
         SWIFT_INCLUDE_PATHS: $(SRCROOT)/Generated/Bindings
+
+  VeltrioUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources:
+      - path: UITests
+    dependencies:
+      - target: Veltrio
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: Veltrio
