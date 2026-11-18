@@ -40,6 +40,9 @@ targets:
   Veltrio:
     type: application
     platform: macOS
+    scheme:
+      testTargets:
+        - VeltrioTests
     sources:
       - path: Veltrio
       - path: Generated/Bindings/veltrio.swift
@@ -74,3 +77,17 @@ targets:
       - sdk: CoreFoundation.framework
       - sdk: AVFoundation.framework
       - sdk: AVKit.framework
+
+  VeltrioTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: Veltrio
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Veltrio.app/Contents/MacOS/Veltrio
+        BUNDLE_LOADER: $(TEST_HOST)
+        SWIFT_INCLUDE_PATHS: $(SRCROOT)/Generated/Bindings
