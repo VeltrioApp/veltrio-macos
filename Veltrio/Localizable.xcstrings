@@ -1181,6 +1181,16 @@
         }
       }
     },
+    "Channels (L)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaînes (L)"
+          }
+        }
+      }
+    },
     "Chapter %lld": {
       "localizations": {
         "fr": {

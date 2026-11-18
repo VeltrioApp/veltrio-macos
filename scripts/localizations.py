@@ -484,6 +484,7 @@ FR = {
     # 0.2: library browsing, IPTV, debrid, accounts, Chromecast
     "Saved": "Enregistrés",
     "Channels": "Chaînes",
+    "Channels (L)": "Chaînes (L)",
     "Guide": "Guide",
     "Watch": "Regarder",
     "Stop": "Arrêter",

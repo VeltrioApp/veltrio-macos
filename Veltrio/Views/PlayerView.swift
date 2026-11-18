@@ -143,6 +143,9 @@ struct PlayerView: View {
     @State private var nextEpisodeCountdown = 10
 
     @State private var controlsVisible = true
+    /// Channel list beside a live channel. Remembered so it stays open
+    /// from one channel to the next while zapping.
+    @AppStorage("veltrio.player.channelListOpen") private var showChannelList = false
     @State private var hideTask: Task<Void, Never>?
     @State private var showMediaInfo = false
 
@@ -209,6 +212,14 @@ struct PlayerView: View {
             if showNextEpisodeOverlay {
                 nextEpisodeOverlay
                     .transition(.opacity)
+            }
+
+            if showChannelList, let current = liveChannel {
+                PlayerChannelList(current: current, onSelect: zap) {
+                    withAnimation(.easeOut(duration: 0.2)) { showChannelList = false }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
+                .transition(.move(edge: .trailing))
             }
 
             if showMediaInfo {
@@ -307,6 +318,13 @@ struct PlayerView: View {
         .onKeyPress("s")         { controller.skipIntro(); flashControls(); return .handled }
         .onKeyPress("i")         { showMediaInfo.toggle(); return .handled }
         .onKeyPress("a")         { cycleAspect(); return .handled }
+        .onKeyPress("l")         {
+            guard liveChannel != nil else { return .ignored }
+            withAnimation(.easeOut(duration: 0.2)) { showChannelList.toggle() }
+            return .handled
+        }
+        .onKeyPress(.pageUp)     { zap(by: -1) ? .handled : .ignored }
+        .onKeyPress(.pageDown)   { zap(by: 1) ? .handled : .ignored }
         .onKeyPress("g")         {
             if destination.isLive {
                 epgVisible.toggle()
@@ -1072,6 +1090,15 @@ struct PlayerView: View {
 
             Spacer()
 
+            if liveChannel != nil {
+                Button {
+                    withAnimation(.easeOut(duration: 0.2)) { showChannelList.toggle() }
+                } label: {
+                    glassIcon("list.bullet")
+                }
+                .buttonStyle(.plainRect)
+                .help(String(localized: "Channels (L)"))
+            }
             audioTrackMenu
             subtitleTrackMenu
             speedMenu
@@ -1810,6 +1837,32 @@ struct PlayerView: View {
         return h > 0
             ? String(format: "%d:%02d:%02d", h, m, s)
             : String(format: "%d:%02d", m, s)
+    }
+
+    // MARK: - zapping (live channels)
+
+    /// The live channel on screen; nil for films, episodes and addon streams.
+    private var liveChannel: IptvChannel? {
+        if case .liveChannel(let c) = destination.kind, !c.isOnDemand { return c }
+        return nil
+    }
+
+    private func zap(_ channel: IptvChannel) {
+        guard channel.id != liveChannel?.id else { return }
+        NotificationCenter.default.post(
+            name: .veltrioZap,
+            object: PlayerDestination(kind: .liveChannel(channel: channel), title: channel.name)
+        )
+    }
+
+    /// Previous/next channel in the playlist's order.
+    private func zap(by step: Int) -> Bool {
+        guard let current = liveChannel else { return false }
+        let channels = store.iptvChannels
+        guard let index = channels.firstIndex(where: { $0.id == current.id }) else { return false }
+        let next = (index + step + channels.count) % channels.count
+        zap(channels[next])
+        return true
     }
 
     private func flashControls() {

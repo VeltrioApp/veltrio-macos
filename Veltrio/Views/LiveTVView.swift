@@ -175,57 +175,70 @@ private struct LiveChannelHero: View {
 
     @Environment(AppStore.self) private var store
 
+    /// Picture, title and Watch fit the window without scrolling: the
+    /// picture takes at most ~40 % of the height, Watch sits beside the
+    /// title, and only the "Up next" list scrolls.
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 30)) { context in
-            let now = store.epg.current(for: channel, at: context.date)
-            let upcoming = store.epg.schedule(for: channel).filter { $0.start > context.date }.prefix(5)
-            ScrollView {
+        GeometryReader { geo in
+            TimelineView(.periodic(from: .now, by: 30)) { context in
+                let now = store.epg.current(for: channel, at: context.date)
+                let upcoming = store.epg.schedule(for: channel).filter { $0.start > context.date }.prefix(8)
+                let stageWidth = min(geo.size.width, 720, max(280, geo.size.height * 0.42) * 16 / 9)
                 VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                     stage(now: now)
-                    if let now {
-                        programme(now, at: context.date)
-                    } else {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(channel.name)
-                                .font(Theme.Font.displaySerif(34, weight: .bold))
-                                .foregroundStyle(Theme.Palette.textPrimary)
-                            Text(store.epg.hasGuide ? "No programme information for this channel."
-                                                    : "No TV guide for this playlist.")
-                                .font(Theme.Font.body(13))
-                                .foregroundStyle(Theme.Palette.textSecondary)
+                        .frame(width: stageWidth, height: stageWidth * 9 / 16)
+                    HStack(alignment: .top, spacing: Theme.Spacing.lg) {
+                        if let now {
+                            programme(now, at: context.date)
+                        } else {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(channel.name)
+                                    .font(Theme.Font.displaySerif(30, weight: .bold))
+                                    .foregroundStyle(Theme.Palette.textPrimary)
+                                Text(store.epg.hasGuide ? "No programme information for this channel."
+                                                        : "No TV guide for this playlist.")
+                                    .font(Theme.Font.body(13))
+                                    .foregroundStyle(Theme.Palette.textSecondary)
+                            }
                         }
+                        Spacer(minLength: Theme.Spacing.md)
+                        CTAButton(title: "Watch") { play() }
+                            .frame(width: 190)
                     }
-                    CTAButton(title: "Watch") { play() }
-                        .frame(maxWidth: 260)
+                    .frame(maxWidth: 720)
                     if !upcoming.isEmpty {
                         VStack(alignment: .leading, spacing: 0) {
                             Text("Up next").eyebrow(Theme.Palette.accentText, tracking: 2.4)
                                 .padding(.bottom, Theme.Spacing.sm)
-                            ForEach(Array(upcoming)) { p in
-                                HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.md) {
-                                    Text(Self.time.string(from: p.start))
-                                        .font(Theme.Font.mono(12, weight: .semibold))
-                                        .foregroundStyle(Theme.Palette.textTertiary)
-                                        .frame(width: 52, alignment: .leading)
-                                    Text(p.title)
-                                        .font(Theme.Font.body(13))
-                                        .foregroundStyle(Theme.Palette.textPrimary)
-                                        .lineLimit(1)
-                                    Spacer()
-                                    if let category = p.category {
-                                        Text(category).font(Theme.Font.caption(11))
-                                            .foregroundStyle(Theme.Palette.textTertiary)
-                                            .lineLimit(1)
+                            ScrollView {
+                                VStack(spacing: 0) {
+                                    ForEach(Array(upcoming)) { p in
+                                        HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.md) {
+                                            Text(Self.time.string(from: p.start))
+                                                .font(Theme.Font.mono(12, weight: .semibold))
+                                                .foregroundStyle(Theme.Palette.textTertiary)
+                                                .frame(width: 52, alignment: .leading)
+                                            Text(p.title)
+                                                .font(Theme.Font.body(13))
+                                                .foregroundStyle(Theme.Palette.textPrimary)
+                                                .lineLimit(1)
+                                            Spacer()
+                                            if let category = p.category {
+                                                Text(category).font(Theme.Font.caption(11))
+                                                    .foregroundStyle(Theme.Palette.textTertiary)
+                                                    .lineLimit(1)
+                                            }
+                                        }
+                                        .padding(.vertical, 8)
+                                        Rule(color: Theme.Palette.border)
                                     }
                                 }
-                                .padding(.vertical, 8)
-                                Rule(color: Theme.Palette.border)
                             }
                         }
                         .frame(maxWidth: 720)
                     }
                 }
-                .padding(.bottom, Theme.Spacing.xl)
+                .frame(maxHeight: .infinity, alignment: .top)
             }
         }
     }
@@ -264,8 +277,15 @@ private struct LiveChannelHero: View {
             }
             .padding(Theme.Spacing.md)
         }
-        .aspectRatio(16.0 / 9.0, contentMode: .fit)
-        .frame(maxWidth: 720)
+        .overlay {
+            // Play affordance on the picture itself.
+            Image(systemName: "play.fill")
+                .font(.system(size: 22, weight: .black))
+                .foregroundStyle(.black)
+                .frame(width: 58, height: 58)
+                .background(Circle().fill(.white.opacity(0.9)))
+                .shadow(color: .black.opacity(0.4), radius: 10, y: 3)
+        }
         .clipped()
         .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
         .contentShape(Rectangle())
@@ -275,7 +295,7 @@ private struct LiveChannelHero: View {
     private func programme(_ p: EpgProgramme, at date: Date) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(p.title)
-                .font(Theme.Font.displaySerif(34, weight: .bold))
+                .font(Theme.Font.displaySerif(30, weight: .bold))
                 .tracking(-0.6)
                 .foregroundStyle(Theme.Palette.textPrimary)
                 .lineLimit(2)
@@ -291,13 +311,12 @@ private struct LiveChannelHero: View {
                 }
             }
             ProgressLine(value: p.progress(at: date))
-                .frame(maxWidth: 720)
             if let description = p.description {
                 Text(description)
                     .font(Theme.Font.body(13))
                     .foregroundStyle(Theme.Palette.textSecondary)
-                    .lineLimit(4)
-                    .frame(maxWidth: 720, alignment: .leading)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
