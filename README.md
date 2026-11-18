@@ -53,8 +53,7 @@ SwiftUI app on top of [veltrio-core](https://github.com/VeltrioApp/veltrio-core)
 ## Build & run
 
 Prerequisites: Xcode 16+, [`xcodegen`](https://github.com/yonaskolb/XcodeGen)
-(`brew install xcodegen`), and [`gh`](https://cli.github.com) signed in with
-access to `VeltrioApp/veltrio-core`. libmpv comes from
+(`brew install xcodegen`), and [`gh`](https://cli.github.com) signed in. libmpv comes from
 [MPVKit](https://github.com/mpvkit/MPVKit) through Swift Package Manager.
 
 ```bash
@@ -89,17 +88,17 @@ re-run it. Text a component receives as a `String` is looked up with
 
 | Workflow | Runs on | Does |
 | --- | --- | --- |
-| `ci.yml` | pull requests, manual | fetch core, build, unit tests |
+| `ci.yml` | pushes to main, pull requests, manual | fetch core, build, unit tests |
 | `release.yml` | tag `vX.Y.Z`, manual | universal build, signing, notarization, DMG (+ appcast) on the release |
 
-macOS runners cost ten times their minutes on a private repository, so CI
-does not run on every push.
+The repositories are public: Actions minutes (macOS included) are free,
+and organisation secrets reach every repository.
 
 Secrets and variables are set once on the **VeltrioApp organisation**:
 
 | Name | Kind | What |
 | --- | --- | --- |
-| `CORE_RELEASES_TOKEN` | secret | fine-grained token, read access to `veltrio-core` contents |
+| `CORE_RELEASES_TOKEN` | secret | optional — the workflow token can read the public core releases |
 | `MACOS_CERTIFICATE_P12` | secret | Developer ID Application certificate + key, `.p12`, base64 |
 | `MACOS_CERTIFICATE_PASSWORD` | secret | its password |
 | `MACOS_SIGN_IDENTITY` | variable | `Developer ID Application: Name (TEAMID)` |
@@ -110,9 +109,9 @@ Secrets and variables are set once on the **VeltrioApp organisation**:
 | `SPARKLE_PUBLIC_KEY`, `APPCAST_URL` | variables | update feed key and URL |
 
 Without the Apple secrets a release run still produces an ad-hoc signed
-DMG. Note that a private repository's release downloads need a GitHub
-login: the DMG and `appcast.xml` users download from must be hosted
-somewhere public (the URL in `APPCAST_URL`).
+DMG. Releases are public, so they can host the DMG and the Sparkle feed:
+set `APPCAST_URL` to
+`https://github.com/VeltrioApp/veltrio-macos/releases/latest/download/appcast.xml`.
 
 Locally, `scripts/release-macos.sh` does the same with the variables
 documented at its top.
@@ -120,8 +119,5 @@ documented at its top.
 ## Licensing
 
 MPVKit's LGPL build is statically linked. The LGPL requires that people
-who receive the app can relink it against a modified libmpv/FFmpeg. With
-this repository private, that means shipping the app's object files (or
-its source) to users on request — or switching to dynamically linked
-LGPL frameworks before distributing. Decide this before the first public
-release.
+who receive the app can relink it against a modified libmpv/FFmpeg; this
+repository being public, with build instructions, provides that.

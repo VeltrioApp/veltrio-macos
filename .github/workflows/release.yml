@@ -6,7 +6,7 @@ name: Release
 # Without the signing secrets the same run produces an ad-hoc signed DMG,
 # so the pipeline works before the Apple account exists.
 #
-# Organisation secrets:  CORE_RELEASES_TOKEN, MACOS_CERTIFICATE_P12 (base64),
+# Organisation secrets:  CORE_RELEASES_TOKEN (optional), MACOS_CERTIFICATE_P12 (base64),
 #   MACOS_CERTIFICATE_PASSWORD, NOTARY_KEY_P8 (base64), SPARKLE_PRIVATE_KEY
 # Organisation variables: APPLE_TEAM_ID, MACOS_SIGN_IDENTITY, NOTARY_KEY_ID,
 #   NOTARY_ISSUER_ID, APPCAST_URL, SPARKLE_PUBLIC_KEY
@@ -71,7 +71,7 @@ jobs:
       - name: Build, sign, notarize
         run: ./scripts/release-macos.sh
         env:
-          GH_TOKEN: ${{ secrets.CORE_RELEASES_TOKEN }}
+          GH_TOKEN: ${{ secrets.CORE_RELEASES_TOKEN || github.token }}
 
       - name: Publish
         if: startsWith(github.ref, 'refs/tags/')
