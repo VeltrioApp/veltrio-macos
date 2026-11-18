@@ -67,7 +67,7 @@ targets:
       - package: MPVKit
         product: MPVKit
       - package: Sparkle
-      # The Rust core, as a universal dylib (see scripts/build-macos.sh for
+      # The Rust core, as a universal dylib (see veltrio-core's scripts/package-macos.sh for
       # why it isn't static). Embedded in Contents/Frameworks.
       - framework: Generated/Lib/libveltrio_core.dylib
         embed: true

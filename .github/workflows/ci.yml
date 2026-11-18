@@ -1,0 +1,27 @@
+name: CI
+
+# Runs on pull requests and on demand, not on every push: on a private
+# repository a macOS minute counts ten times against the Actions quota.
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Build + unit tests
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+      - name: Fetch veltrio-core
+        run: ./scripts/fetch-core.sh
+        env:
+          # Org secret: a fine-grained token that can read veltrio-core's
+          # releases (the workflow token only sees this repository).
+          GH_TOKEN: ${{ secrets.CORE_RELEASES_TOKEN }}
+      - run: xcodegen generate
+      - run: xcodebuild -project Veltrio.xcodeproj -scheme Veltrio -destination "platform=macOS,arch=arm64" test

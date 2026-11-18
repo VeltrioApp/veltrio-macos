@@ -1,0 +1,89 @@
+name: Release
+
+# Tag vX.Y.Z → universal app, signed with the Developer ID, notarized, DMG
+# (+ Sparkle appcast) attached to this repository's release.
+#
+# Without the signing secrets the same run produces an ad-hoc signed DMG,
+# so the pipeline works before the Apple account exists.
+#
+# Organisation secrets:  CORE_RELEASES_TOKEN, MACOS_CERTIFICATE_P12 (base64),
+#   MACOS_CERTIFICATE_PASSWORD, NOTARY_KEY_P8 (base64), SPARKLE_PRIVATE_KEY
+# Organisation variables: APPLE_TEAM_ID, MACOS_SIGN_IDENTITY, NOTARY_KEY_ID,
+#   NOTARY_ISSUER_ID, APPCAST_URL, SPARKLE_PUBLIC_KEY
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-15
+    env:
+      # Secrets can't appear in step conditions; these flags can.
+      HAS_CERT: ${{ secrets.MACOS_CERTIFICATE_P12 != '' }}
+      HAS_NOTARY_KEY: ${{ secrets.NOTARY_KEY_P8 != '' }}
+      HAS_SPARKLE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+
+      - name: Import the Developer ID certificate
+        if: env.HAS_CERT == 'true'
+        env:
+          CERT: ${{ secrets.MACOS_CERTIFICATE_P12 }}
+          CERT_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(uuidgen)"
+          echo "$CERT" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -P "$CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+          echo "VELTRIO_SIGN_IDENTITY=${{ vars.MACOS_SIGN_IDENTITY }}" >> "$GITHUB_ENV"
+          echo "VELTRIO_TEAM_ID=${{ vars.APPLE_TEAM_ID }}" >> "$GITHUB_ENV"
+
+      - name: Notarization key
+        if: env.HAS_NOTARY_KEY == 'true'
+        env:
+          KEY: ${{ secrets.NOTARY_KEY_P8 }}
+        run: |
+          echo "$KEY" | base64 --decode > "$RUNNER_TEMP/notary.p8"
+          echo "VELTRIO_NOTARY_KEY_PATH=$RUNNER_TEMP/notary.p8" >> "$GITHUB_ENV"
+          echo "VELTRIO_NOTARY_KEY_ID=${{ vars.NOTARY_KEY_ID }}" >> "$GITHUB_ENV"
+          echo "VELTRIO_NOTARY_ISSUER=${{ vars.NOTARY_ISSUER_ID }}" >> "$GITHUB_ENV"
+
+      - name: Sparkle key
+        if: env.HAS_SPARKLE_KEY == 'true'
+        env:
+          KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          echo "$KEY" > "$RUNNER_TEMP/sparkle.key"
+          echo "VELTRIO_SPARKLE_KEY_FILE=$RUNNER_TEMP/sparkle.key" >> "$GITHUB_ENV"
+          echo "VELTRIO_APPCAST_URL=${{ vars.APPCAST_URL }}" >> "$GITHUB_ENV"
+          echo "VELTRIO_SPARKLE_PUBLIC_KEY=${{ vars.SPARKLE_PUBLIC_KEY }}" >> "$GITHUB_ENV"
+
+      - name: Build, sign, notarize
+        run: ./scripts/release-macos.sh
+        env:
+          GH_TOKEN: ${{ secrets.CORE_RELEASES_TOKEN }}
+
+      - name: Publish
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          files=(dist/*.dmg)
+          [ -f dist/appcast.xml ] && files+=(dist/appcast.xml)
+          gh release create "$GITHUB_REF_NAME" "${files[@]}" --title "Veltrio $GITHUB_REF_NAME" --generate-notes
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        with:
+          name: veltrio-macos
+          path: dist/*.dmg
