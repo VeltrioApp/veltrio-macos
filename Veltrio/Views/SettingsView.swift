@@ -220,36 +220,92 @@ private struct DebridSettings: View {
         )
         RealDebridCard()
         AllDebridCard()
-        comingProvider(.premiumize)
-        comingProvider(.torbox)
+        ApiKeyDebridCard(
+            provider: .torbox,
+            keyPage: URL(string: "https://torbox.app/settings")!,
+            isConnected: store.debrid.isTorBoxConnected,
+            account: store.debrid.torBoxUser.map { ($0.email, $0.isPaid) },
+            isConnecting: store.debrid.isConnectingTorBox,
+            error: store.debrid.torBoxError,
+            connect: { await store.debrid.connectTorBox(apiKey: $0) },
+            disconnect: { store.debrid.disconnectTorBox() }
+        )
+        ApiKeyDebridCard(
+            provider: .premiumize,
+            keyPage: URL(string: "https://www.premiumize.me/account")!,
+            isConnected: store.debrid.isPremiumizeConnected,
+            account: store.debrid.premiumizeAccount.map { (nil, $0.isPremium) },
+            isConnecting: store.debrid.isConnectingPremiumize,
+            error: store.debrid.premiumizeError,
+            connect: { await store.debrid.connectPremiumize(apiKey: $0) },
+            disconnect: { store.debrid.disconnectPremiumize() }
+        )
     }
 
-    /// A provider that isn't wired up yet.
-    ///
-    /// It goes through the same `DebridRow` chrome as the live providers
-    /// so the list reads as one set — identical badge geometry, type and
-    /// rule. Only the action slot differs: a "COMING" marker instead of
-    /// a button.
-    private func comingProvider(_ p: DebridProvider) -> some View {
+}
+
+// MARK: - API-key providers (TorBox, Premiumize)
+
+/// Providers that only offer an API key: a link to the page that shows
+/// it, a field to paste it in, and the same row chrome as the others.
+private struct ApiKeyDebridCard: View {
+    let provider: DebridProvider
+    let keyPage: URL
+    let isConnected: Bool
+    /// (email, premium) once connected.
+    let account: (String?, Bool)?
+    let isConnecting: Bool
+    let error: String?
+    let connect: (String) async -> Void
+    let disconnect: () -> Void
+
+    @State private var key = ""
+
+    var body: some View {
         SurfaceCard {
-            DebridRow(
-                brandColor: Color(hex: p.brandColorHex),
-                title: p.displayName,
-                isDimmed: true,
-                status: {
-                    Text(p.shortTagline.localized)
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                DebridRow(
+                    brandColor: Color(hex: provider.brandColorHex),
+                    title: provider.displayName,
+                    status: {
+                        DebridStatusLabel(email: account?.0, isPremium: account?.1 ?? false,
+                                          isConnected: isConnected)
+                    },
+                    action: {
+                        if isConnected {
+                            FrameButton(title: "Disconnect", icon: "xmark", color: Theme.Palette.danger) {
+                                disconnect()
+                            }
+                        }
+                    }
+                )
+                if !isConnected {
+                    Text(provider.shortTagline.localized)
                         .font(Theme.Font.caption(11))
                         .foregroundStyle(Theme.Palette.textTertiary)
-                },
-                action: {
-                    Text("COMING")
-                        .font(Theme.Font.eyebrow(10, weight: .bold))
-                        .tracking(1.8)
-                        .foregroundStyle(Theme.Palette.textTertiary)
-                        .padding(.horizontal, 8).padding(.vertical, 3)
-                        .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
+                    HStack(spacing: Theme.Spacing.sm) {
+                        SecureField(String(localized: "API key"), text: $key)
+                            .textFieldStyle(.plain)
+                            .font(Theme.Font.mono(12))
+                            .padding(.horizontal, 10).padding(.vertical, 8)
+                            .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1))
+                            .onSubmit { Task { await connect(key) } }
+                        FrameButton(title: "Connect", icon: "arrow.right", color: Theme.Palette.accent,
+                                    fill: Theme.Palette.accent, isLoading: isConnecting,
+                                    isEnabled: !isConnecting && !key.isEmpty) {
+                            Task { await connect(key) }
+                        }
+                    }
+                    Link(destination: keyPage) {
+                        Text(String(localized: "Find your API key on \(provider.displayName)"))
+                            .font(Theme.Font.caption(11))
+                            .foregroundStyle(Theme.Palette.accentText)
+                    }
                 }
-            )
+                if let error {
+                    DebridErrorLabel(message: error)
+                }
+            }
         }
     }
 }

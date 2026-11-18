@@ -21,6 +21,16 @@ final class DebridService {
     private(set) var realDebridKey: String?
     private(set) var realDebridUser: RdUser?
 
+    // TorBox and Premiumize: API key pasted from the account page.
+    private(set) var torBoxKey: String?
+    private(set) var torBoxUser: TorBoxClient.User?
+    private(set) var premiumizeKey: String?
+    private(set) var premiumizeAccount: PremiumizeClient.Account?
+    private(set) var isConnectingTorBox = false
+    private(set) var isConnectingPremiumize = false
+    private(set) var torBoxError: String?
+    private(set) var premiumizeError: String?
+
     /// Last availability snapshot across all providers:
     ///   `(provider, info_hash_lower) -> cached?`
     /// Views read the ⚡ badges from here.
@@ -45,15 +55,21 @@ final class DebridService {
     // ---------- deps ----------
     private let ad: AllDebridClient
     private let rd: RealDebridClient
+    private let torBox = TorBoxClient()
+    private let premiumize = PremiumizeClient()
     private var adPollTask: Task<Void, Never>?
     private var rdPollTask: Task<Void, Never>?
 
     var isAllDebridConnected: Bool { allDebridKey != nil }
     var isRealDebridConnected: Bool { realDebridKey != nil }
+    var isTorBoxConnected: Bool { torBoxKey != nil }
+    var isPremiumizeConnected: Bool { premiumizeKey != nil }
 
     /// Any premium provider configured? Drives UI "⚡ cached" filter
     /// visibility and the "no debrid" empty states.
-    var anyProviderConnected: Bool { isAllDebridConnected || isRealDebridConnected }
+    var anyProviderConnected: Bool {
+        isAllDebridConnected || isRealDebridConnected || isTorBoxConnected || isPremiumizeConnected
+    }
 
     init(ad: AllDebridClient? = nil, rd: RealDebridClient? = nil) {
         let ad = ad ?? AllDebridClient()
@@ -74,6 +90,70 @@ final class DebridService {
                 await MainActor.run { self?.realDebridUser = user }
             }
         }
+        torBoxKey = Keychain.get(service: DebridProvider.torbox.keychainService)
+        premiumizeKey = Keychain.get(service: DebridProvider.premiumize.keychainService)
+        if let key = torBoxKey {
+            Task { [weak self, torBox] in
+                let user = try? await torBox.user(apiKey: key)
+                await MainActor.run { self?.torBoxUser = user }
+            }
+        }
+        if let key = premiumizeKey {
+            Task { [weak self, premiumize] in
+                let account = try? await premiumize.account(apiKey: key)
+                await MainActor.run { self?.premiumizeAccount = account }
+            }
+        }
+    }
+
+    // MARK: - TorBox / Premiumize (API key)
+
+    /// Checks the key against the account endpoint before keeping it, so a
+    /// typo shows up here rather than as streams that never resolve.
+    func connectTorBox(apiKey raw: String) async {
+        let key = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else { return }
+        torBoxError = nil
+        isConnectingTorBox = true
+        defer { isConnectingTorBox = false }
+        do {
+            torBoxUser = try await torBox.user(apiKey: key)
+            Keychain.set(key, service: DebridProvider.torbox.keychainService)
+            torBoxKey = key
+        } catch {
+            torBoxError = String(localized: "TorBox rejected this API key.") + " " + error.localizedDescription
+        }
+    }
+
+    func disconnectTorBox() {
+        Keychain.delete(service: DebridProvider.torbox.keychainService)
+        torBoxKey = nil
+        torBoxUser = nil
+        torBoxError = nil
+        pruneCache(for: .torbox)
+    }
+
+    func connectPremiumize(apiKey raw: String) async {
+        let key = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else { return }
+        premiumizeError = nil
+        isConnectingPremiumize = true
+        defer { isConnectingPremiumize = false }
+        do {
+            premiumizeAccount = try await premiumize.account(apiKey: key)
+            Keychain.set(key, service: DebridProvider.premiumize.keychainService)
+            premiumizeKey = key
+        } catch {
+            premiumizeError = String(localized: "Premiumize rejected this API key.") + " " + error.localizedDescription
+        }
+    }
+
+    func disconnectPremiumize() {
+        Keychain.delete(service: DebridProvider.premiumize.keychainService)
+        premiumizeKey = nil
+        premiumizeAccount = nil
+        premiumizeError = nil
+        pruneCache(for: .premiumize)
     }
 
     // MARK: - AllDebrid PIN flow
@@ -243,6 +323,23 @@ final class DebridService {
                 }
             }
         }
+
+        await prefetch(.torbox, key: torBoxKey, hashes: unique) { [torBox] key, hashes in
+            try await torBox.checkCached(hashes: hashes, apiKey: key)
+        }
+        await prefetch(.premiumize, key: premiumizeKey, hashes: unique) { [premiumize] key, hashes in
+            try await premiumize.checkCached(hashes: hashes, apiKey: key)
+        }
+    }
+
+    private func prefetch(_ provider: DebridProvider, key: String?, hashes: [String],
+                          check: (String, [String]) async throws -> [String: Bool]) async {
+        guard let key else { return }
+        let missing = hashes.filter { cachedHashes[.init(provider: provider, hash: $0)] == nil }
+        guard !missing.isEmpty, let result = try? await check(key, missing) else { return }
+        for (h, ready) in result {
+            cachedHashes[.init(provider: provider, hash: h.lowercased())] = ready
+        }
     }
 
     /// Any provider that has this hash cached. Used for the badge on the
@@ -268,11 +365,11 @@ final class DebridService {
     // MARK: - Stream resolution
 
     /// Resolve an infohash via the first provider that can serve it.
-    /// Priority: Real-Debrid (if cached) → AllDebrid → nil (caller falls
-    /// back to the local torrent engine). Not swapping based on cache
-    /// status for AD because AD still resolves non-cached items; RD
-    /// doesn't return anything useful for a non-cached torrent so we
-    /// skip it in that case.
+    /// Priority: Real-Debrid, TorBox, Premiumize (each only when it has the
+    /// torrent cached) → AllDebrid → nil (caller falls back to the local
+    /// torrent engine). AllDebrid is tried without a cache hit because it
+    /// still resolves non-cached items; the others return nothing useful
+    /// for a torrent they haven't cached.
     func resolveStream(
         infoHash: String,
         season: Int32? = nil,
@@ -286,6 +383,20 @@ final class DebridService {
                 )
             } catch {
                 DebugLog.shared.error("real-debrid", "resolve \(infoHash): \(error)")
+            }
+        }
+        if let key = torBoxKey, isCachedOn(.torbox, hash: infoHash) {
+            do {
+                return try await torBox.resolveStream(infoHash: infoHash, season: season, episode: episode, apiKey: key)
+            } catch {
+                DebugLog.shared.error("torbox", "resolve \(infoHash): \(error)")
+            }
+        }
+        if let key = premiumizeKey, isCachedOn(.premiumize, hash: infoHash) {
+            do {
+                return try await premiumize.resolveStream(infoHash: infoHash, season: season, episode: episode, apiKey: key)
+            } catch {
+                DebugLog.shared.error("premiumize", "resolve \(infoHash): \(error)")
             }
         }
         // AllDebrid fallback (also handles non-cached because AD will

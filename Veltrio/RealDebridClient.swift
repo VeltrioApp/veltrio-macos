@@ -279,31 +279,10 @@ final class RealDebridClient {
         return r.download
     }
 
-    /// Pick the right file: for a series with S/E, match the S/E pattern
-    /// in the filename; otherwise pick the biggest video file. Keeps us
-    /// from streaming a "Sample.mkv" out of a season pack.
     private func pickFile(
         from files: [TorrentFile], season: Int32?, episode: Int32?
     ) -> TorrentFile? {
-        let videos = files.filter { f in
-            let ext = (f.path as NSString).pathExtension.lowercased()
-            return ["mkv", "mp4", "avi", "mov", "ts", "m4v", "webm"].contains(ext)
-        }
-        if let s = season, let e = episode, !videos.isEmpty {
-            let patterns = [
-                String(format: "S%02dE%02d", s, e),
-                String(format: "%dx%02d", s, e),
-                "S\(s)E\(e)",
-                " \(s)x\(e)"
-            ]
-            if let match = videos.first(where: { f in
-                let upper = f.path.uppercased()
-                return patterns.contains { upper.contains($0.uppercased()) }
-            }) {
-                return match
-            }
-        }
-        return videos.max(by: { $0.bytes < $1.bytes })
+        DebridFilePicker.pick(files, path: \.path, size: { Int64($0.bytes) }, season: season, episode: episode)
     }
 
     // MARK: - Helpers
