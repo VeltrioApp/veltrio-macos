@@ -107,6 +107,7 @@ final class AppStore {
     let epg = EpgStore()
     /// Accounts whose library can be imported (Trakt lives above).
     let stremioAccount = StremioAccountService()
+    let chromecast = ChromecastService()
     let simkl = SimklService()
 
     init(

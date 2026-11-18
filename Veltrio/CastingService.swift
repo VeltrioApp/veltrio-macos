@@ -13,8 +13,8 @@ import Observation
 ///   the active player away from mpv for the PiP window. This service
 ///   publishes a `supportedByCurrentStream` flag so the UI can enable or
 ///   grey out the PiP action.
-/// - **Chromecast** — gated behind the Google Cast SDK, which is not
-///   bundled; we surface a one-time instruction.
+/// - **Chromecast** — see `ChromecastService`, which speaks the Cast
+///   protocol itself.
 ///
 /// This file keeps the observable state; the actual AVPlayer spin-up
 /// lives next to PlayerView.
@@ -25,13 +25,11 @@ final class CastingService {
     enum CastTarget: String, CaseIterable, Identifiable {
         case airplay    = "AirPlay"
         case pictureInPicture = "Picture in Picture"
-        case chromecast = "Chromecast"
         var id: String { rawValue }
         var icon: String {
             switch self {
             case .airplay:         return "airplayvideo"
             case .pictureInPicture: return "pip"
-            case .chromecast:      return "tv.and.mediabox"
             }
         }
     }
@@ -42,15 +40,10 @@ final class CastingService {
     /// direct URL mpv or AVPlayer can share).
     private(set) var isPipAvailable: Bool = false
 
-    /// True once the user installs the Google Cast SDK and we successfully
-    /// link against it at runtime.
-    private(set) var isChromecastSdkPresent: Bool = false
-
     private var routeDetector: AVRouteDetector?
 
     init() {
         setupAirPlay()
-        detectChromecastSdk()
     }
 
     func setStreamURL(_ url: URL?) {
@@ -90,15 +83,6 @@ final class CastingService {
         self.isAirPlayAvailable = true
     }
 
-    private func detectChromecastSdk() {
-        // Soft probe: if Google's cast SDK bundle is present in the app
-        // bundle, flip the flag. This lets a future build drop the SDK
-        // in without changing any code here.
-        let probe = Bundle.main.bundleURL
-            .appendingPathComponent("Contents/Frameworks/GoogleCast.framework")
-        isChromecastSdkPresent = FileManager.default.fileExists(atPath: probe.path)
-    }
-
     /// Human-readable status for a target, to show in the menu so the
     /// user understands why something is disabled.
     func status(for target: CastTarget) -> String {
@@ -109,10 +93,6 @@ final class CastingService {
             return isPipAvailable
                 ? String(localized: "Ready")
                 : String(localized: "PiP needs a direct URL stream (not available for this source).")
-        case .chromecast:
-            return isChromecastSdkPresent
-                ? String(localized: "Ready")
-                : String(localized: "Install the Google Cast SDK to enable Chromecast. See veltrio.app/cast for details.")
         }
     }
 }

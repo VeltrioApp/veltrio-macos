@@ -246,11 +246,13 @@ struct PlayerView: View {
         .focusable()
         .focused($focused)
         .focusEffectDisabled()
+        .overlay(alignment: .top) { castBanner }
         .onAppear {
             focused = true
             resetHideTimer()
             preventDisplaySleep()
             startProgressReporting()
+            store.chromecast.startDiscovery()
             // Let the app's Playback menu reach this player.
             ActivePlayback.shared.register(controller)
             // Push language preferences into mpv BEFORE the first file is
@@ -343,6 +345,7 @@ struct PlayerView: View {
             }
             hideTask?.cancel()
             progressTask?.cancel()
+            store.chromecast.stopDiscovery()
             ActivePlayback.shared.unregister(controller)
             // One last progress flush so the exact position the user left
             // on lands in the WatchStore (the debounced save picks it up).
@@ -1474,10 +1477,20 @@ struct PlayerView: View {
                     .disabled(isDisabledTarget(target))
                 }
             }
-            Divider()
-            Text("AirPlay is native. PiP spins up a parallel AVPlayer for URL streams. Chromecast needs the Google Cast SDK dropped into the app bundle.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            Section("Chromecast") {
+                if !ChromecastService.canCast(resolvedUrl) {
+                    Text("This stream plays from this Mac (torrent) and can't be sent to a Chromecast. A debrid service makes it castable.")
+                } else if store.chromecast.devices.isEmpty {
+                    Text("Searching for Chromecasts on your network…")
+                } else {
+                    ForEach(store.chromecast.devices) { device in
+                        Button { castTo(device) } label: { Label(device.name, systemImage: "tv") }
+                    }
+                }
+                if store.chromecast.isCasting {
+                    Button { stopCasting() } label: { Label("Stop casting", systemImage: "stop.fill") }
+                }
+            }
         } label: {
             glassIcon("airplayvideo")
         }
@@ -1491,7 +1504,47 @@ struct PlayerView: View {
         switch target {
         case .airplay:          return !store.casting.isAirPlayAvailable
         case .pictureInPicture: return !store.casting.isPipAvailable
-        case .chromecast:       return !store.casting.isChromecastSdkPresent
+        }
+    }
+
+    /// Hands the stream to a Chromecast at the current position and pauses
+    /// it here; stopping resumes it here.
+    private func castTo(_ device: ChromecastService.Device) {
+        guard let url = resolvedUrl else { return }
+        if !controller.isPaused { controller.togglePause() }
+        store.chromecast.cast(url, title: destination.title, poster: destination.artworkUrl,
+                              isLive: destination.isLive, startAt: controller.position, to: device)
+    }
+
+    private func stopCasting() {
+        store.chromecast.stop()
+        if controller.isPaused { controller.togglePause() }
+    }
+
+    @ViewBuilder
+    private var castBanner: some View {
+        switch store.chromecast.state {
+        case .connecting(let name), .casting(let name):
+            HStack(spacing: Theme.Spacing.md) {
+                Image(systemName: "tv").font(.system(size: 14, weight: .bold))
+                Text(store.chromecast.state == .casting(name)
+                     ? String(localized: "Playing on \(name)") : String(localized: "Connecting to \(name)…"))
+                    .font(Theme.Font.label(13, weight: .semibold))
+                FrameButton(title: "Stop", icon: "stop.fill", color: .white) { stopCasting() }
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, Theme.Spacing.lg).padding(.vertical, Theme.Spacing.sm)
+            .background(Rectangle().fill(.black.opacity(0.75)))
+            .padding(.top, 70)
+        case .failed(let why):
+            Text(why)
+                .font(Theme.Font.label(12, weight: .semibold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, Theme.Spacing.lg).padding(.vertical, Theme.Spacing.sm)
+                .background(Rectangle().fill(Theme.Palette.danger.opacity(0.85)))
+                .padding(.top, 70)
+        case .idle:
+            EmptyView()
         }
     }
 
@@ -1503,10 +1556,6 @@ struct PlayerView: View {
             // Future: spawn a secondary AVPlayer window with the same URL
             // at the current position, start PiP there, pause mpv.
             break
-        case .chromecast:
-            if let u = URL(string: "https://veltrio.app/cast") {
-                NSWorkspace.shared.open(u)
-            }
         }
     }
 

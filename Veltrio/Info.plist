@@ -40,6 +40,12 @@
     <string></string>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_googlecast._tcp</string>
+    </array>
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>Veltrio looks for Chromecasts on your network so you can cast to them.</string>
     <key>SimklClientId</key>
     <string>$(VELTRIO_SIMKL_CLIENT_ID)</string>
     <key>SUFeedURL</key>
