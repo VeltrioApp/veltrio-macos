@@ -13,17 +13,11 @@ struct SearchResult: Identifiable, Hashable {
     /// how results are grouped.
     enum Source: String, Hashable {
         case stremio
-        case jellyfin
-        case emby
-        case plex
         case iptv
 
         var label: String {
             switch self {
             case .stremio: return "Addons"
-            case .jellyfin: return "Jellyfin"
-            case .emby:    return "Emby"
-            case .plex:    return "Plex"
             case .iptv:    return "IPTV"
             }
         }
@@ -63,8 +57,6 @@ struct SearchResult: Identifiable, Hashable {
     /// the separator.
     var contentId: String?
 
-    /// Jellyfin/Emby/Plex item id, for library hits.
-    var libraryItemId: String?
 
     /// Xtream film or series row, for IPTV hits.
     var channel: IptvChannel?
@@ -107,7 +99,7 @@ final class UnifiedSearchService {
 
     /// Order results appear in within a group, whichever source answers
     /// first.
-    private static let sourceOrder: [SearchResult.Source] = [.stremio, .jellyfin, .emby, .plex, .iptv]
+    private static let sourceOrder: [SearchResult.Source] = [.stremio, .iptv]
 
     func clear() {
         generation += 1
@@ -220,64 +212,6 @@ final class UnifiedSearchService {
         case "movie":  return .movie
         case "series": return .series
         default:       return nil
-        }
-    }
-
-    // MARK: - Media servers
-    //
-    // Only films are taken from Jellyfin, Emby and Plex. Their series
-    // items have no stream of their own — they need a seasons/episodes
-    // page the app doesn't have yet — and episodes on their own would
-    // flood the Series row.
-
-    private func searchJellyfin(_ query: String) async -> [SearchResult] {
-        guard let store, store.jellyfin.isConnected else { return [] }
-        let items = await store.jellyfin.search(query: query)
-        return items.filter { $0.type == "Movie" }.map { item in
-            SearchResult(
-                id: "jellyfin|\(item.id)",
-                source: .jellyfin,
-                mediaKind: .movie,
-                title: item.name,
-                subtitle: "Jellyfin",
-                posterURL: store.jellyfin.posterUrl(for: item),
-                kind: item.type,
-                libraryItemId: item.id
-            )
-        }
-    }
-
-    private func searchEmby(_ query: String) async -> [SearchResult] {
-        guard let store, store.emby.isConnected else { return [] }
-        let items = await store.emby.search(query: query)
-        return items.filter { $0.type == "Movie" }.map { item in
-            SearchResult(
-                id: "emby|\(item.id)",
-                source: .emby,
-                mediaKind: .movie,
-                title: item.name,
-                subtitle: "Emby",
-                posterURL: store.emby.posterUrl(for: item),
-                kind: item.type,
-                libraryItemId: item.id
-            )
-        }
-    }
-
-    private func searchPlex(_ query: String) async -> [SearchResult] {
-        guard let store, store.plex.isConnected else { return [] }
-        let items = await store.plex.search(query: query)
-        return items.filter { $0.type == "movie" }.map { item in
-            SearchResult(
-                id: "plex|\(item.ratingKey)",
-                source: .plex,
-                mediaKind: .movie,
-                title: item.title,
-                subtitle: item.year.map { "Plex · \($0)" } ?? "Plex",
-                posterURL: nil,
-                kind: item.type,
-                libraryItemId: item.ratingKey
-            )
         }
     }
 

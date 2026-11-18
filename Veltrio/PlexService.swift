@@ -6,9 +6,8 @@ import Observation
 ///   2. Direct user to https://plex.tv/link with the `code`
 ///   3. Poll /api/v2/pins/{id} → eventually has `authToken`
 ///
-/// Streaming goes against the user's home server (resource discovery
-/// via /api/resources endpoint). For this pass we land PIN auth + user
-/// info; library + playback fetchers can hook in later.
+/// Library calls go to the user's Plex Media Server, found through
+/// plex.tv's resources endpoint; playback uses the media part's own URL.
 
 struct PlexPin: Equatable {
     let id: Int
@@ -165,42 +164,7 @@ final class PlexService {
         return PlexUser(username: r.username, email: r.email)
     }
 
-    // MARK: - Library search
-
-    /// One item from a Plex library.
-    struct PlexItem: Identifiable, Hashable, Decodable {
-        let id: String
-        let title: String
-        let type: String          // "movie" | "show" | "episode"
-        let summary: String?
-        let year: Int?
-        let rating: String?
-        let posterPath: String?
-        /// The rating key, used to build the stream URL.
-        let ratingKey: String
-
-        private enum CodingKeys: String, CodingKey {
-            case id = "ratingKey"
-            case title
-            case type
-            case summary
-            case year
-            case rating
-            case posterPath = "thumb"
-        }
-
-        init(from decoder: Decoder) throws {
-            let c = try decoder.container(keyedBy: CodingKeys.self)
-            ratingKey = String(try c.decode(String.self, forKey: .id))
-            id = ratingKey
-            title = try c.decode(String.self, forKey: .title)
-            type = try c.decodeIfPresent(String.self, forKey: .type) ?? "movie"
-            summary = try c.decodeIfPresent(String.self, forKey: .summary)
-            year = try c.decodeIfPresent(Int.self, forKey: .year)
-            rating = try c.decodeIfPresent(String.self, forKey: .rating)
-            posterPath = try c.decodeIfPresent(String.self, forKey: .posterPath)
-        }
-    }
+    // MARK: - Server and sections
 
     /// The user's Plex Media Server, as discovered from plex.tv.
     private struct PlexServer: Decodable {
@@ -217,38 +181,6 @@ final class PlexService {
         var bestConnection: Connection? {
             connections.first { $0.local } ?? connections.first
         }
-    }
-
-    /// Search the Plex library for a title.
-    ///
-    /// Plex has no single "search everything" endpoint. The path is:
-    ///   1. ask plex.tv which servers this account can reach
-    ///   2. ask the server for its library sections
-    ///   3. query each movie / show / episode section
-    ///
-    /// Every step is best-effort: a Plex account with no server, or a
-    /// server that's asleep, simply yields no results rather than an
-    /// error the user has to read.
-    func search(query: String, limit: Int = 40) async -> [PlexItem] {
-        guard let token, !query.isEmpty else { return [] }
-        guard let server = await discoverServer(token: token) else { return [] }
-        guard let base = server.bestConnection?.uri else { return [] }
-        cachedServerUri = base
-
-        let sections = await fetchSections(base: base, token: token)
-        let searchable = sections.filter { $0.type == "movie" || $0.type == "show" || $0.type == "episode" }
-        guard !searchable.isEmpty else { return [] }
-
-        var results: [PlexItem] = []
-        for section in searchable {
-            let items = await fetchSearchResults(
-                base: base, token: token, sectionKey: section.key,
-                type: section.type, query: query, limit: limit
-            )
-            results.append(contentsOf: items)
-            if results.count >= limit { break }
-        }
-        return Array(results.prefix(limit))
     }
 
     /// Find the user's Plex Media Server.
@@ -277,56 +209,6 @@ final class PlexService {
         struct Container: Decodable {
             let Directory: [PlexSection]?
         }
-    }
-
-    /// The `type` filter Plex expects per section kind.
-    private func plexSearchType(for sectionType: String) -> String {
-        switch sectionType {
-        case "movie": return "1"
-        case "show": return "2"
-        case "episode": return "4"
-        default: return "1"
-        }
-    }
-
-    private func fetchSearchResults(base: String, token: String, sectionKey: String,
-                                    type: String, query: String, limit: Int) async -> [PlexItem] {
-        var components = URLComponents(string: base + "/library/sections/\(sectionKey)/all")!
-        components.queryItems = [
-            URLQueryItem(name: "type", value: plexSearchType(for: type)),
-            URLQueryItem(name: "title", value: query),
-            URLQueryItem(name: "X-Plex-Container-Start", value: "0"),
-            URLQueryItem(name: "X-Plex-Container-Size", value: String(limit))
-        ]
-        guard let url = components.url,
-              let data = await get(url: url, token: token),
-              let parsed = try? JSONDecoder().decode(SearchEnvelope.self, from: data) else { return [] }
-        return parsed.MediaContainer.Metadata ?? []
-    }
-
-    private struct SearchEnvelope: Decodable {
-        let MediaContainer: Container
-        struct Container: Decodable {
-            let Metadata: [PlexItem]?
-        }
-    }
-
-    /// The direct-play URL for a library item.
-    ///
-    /// Plex streams a file at `/library/metadata/{ratingKey}` with the
-    /// `X-Plex-Container-Start` header set to the media part. Asking for
-    /// `MPEG4` in the Accept header gets us an MP4 rendition that mpv can
-    /// play directly.
-    func streamUrl(for ratingKey: String, serverUri: String? = nil) -> URL? {
-        guard let token else { return nil }
-        guard let base = serverUri ?? cachedServerUri else { return nil }
-        var components = URLComponents(string: base + "/library/metadata/\(ratingKey)")!
-        components.queryItems = [
-            URLQueryItem(name: "X-Plex-Token", value: token),
-            URLQueryItem(name: "X-Plex-Container-Start", value: "0"),
-            URLQueryItem(name: "X-Plex-Container-Size", value: "1")
-        ]
-        return components.url
     }
 
     // MARK: - Matching an IMDB title
@@ -374,7 +256,6 @@ final class PlexService {
     private func serverAccess() async -> (String, String)? {
         guard let token, let server = await discoverServer(token: token),
               let base = server.bestConnection?.uri else { return nil }
-        cachedServerUri = base
         return (base, server.accessToken ?? token)
     }
 
@@ -443,9 +324,6 @@ final class PlexService {
         )
     }
 
-    /// The server URI discovered during the last search, so a result can
-    /// be turned into a playable URL without a second round-trip.
-    private(set) var cachedServerUri: String?
 
     /// GET with the Plex auth headers, returning the body or nil.
     private func get(url: URL, token: String) async -> Data? {

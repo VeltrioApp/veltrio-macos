@@ -195,40 +195,6 @@ struct SearchView: View {
                 }
                 .buttonStyle(.plain)
             }
-        case .jellyfin:
-            if let itemId = result.libraryItemId,
-               let url = store.jellyfin.streamUrl(for: itemId) {
-                NavigationLink(value: PlayerDestination(
-                    kind: .libraryItem(.init(
-                        url: url,
-                        serverName: "Jellyfin",
-                        itemId: itemId,
-                        poster: result.posterURL?.absoluteString,
-                        itemType: result.kind
-                    )),
-                    title: result.title
-                )) {
-                    poster(result)
-                }
-                .buttonStyle(.plain)
-            }
-        case .emby:
-            if let itemId = result.libraryItemId,
-               let url = store.emby.streamUrl(for: itemId) {
-                NavigationLink(value: PlayerDestination(
-                    kind: .libraryItem(.init(
-                        url: url,
-                        serverName: "Emby",
-                        itemId: itemId,
-                        poster: result.posterURL?.absoluteString,
-                        itemType: result.kind
-                    )),
-                    title: result.title
-                )) {
-                    poster(result)
-                }
-                .buttonStyle(.plain)
-            }
         case .iptv:
             if let channel = result.channel, let series = IptvSeriesDestination(channel: channel) {
                 NavigationLink(value: series) {
@@ -239,23 +205,6 @@ struct SearchView: View {
                 NavigationLink(value: PlayerDestination(
                     kind: .liveChannel(channel: channel),
                     title: channel.name
-                )) {
-                    poster(result)
-                }
-                .buttonStyle(.plain)
-            }
-        case .plex:
-            if let itemId = result.libraryItemId,
-               let url = store.plex.streamUrl(for: itemId) {
-                NavigationLink(value: PlayerDestination(
-                    kind: .libraryItem(.init(
-                        url: url,
-                        serverName: "Plex",
-                        itemId: itemId,
-                        poster: result.posterURL?.absoluteString,
-                        itemType: result.kind
-                    )),
-                    title: result.title
                 )) {
                     poster(result)
                 }
