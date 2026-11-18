@@ -150,13 +150,22 @@ final class AppStore {
         self.addons = persistence.load()
         self.disabledAddonIds = persistence.loadDisabled()
         self.iptvPlaylists = iptvPersistence.load()
-        self.selectedIptvPlaylistId = iptvPlaylists.first?.id
+        // The playlist used last, else the first one.
+        let saved = UserDefaults.standard.string(forKey: Self.selectedPlaylistKey).flatMap(UUID.init)
+        self.selectedIptvPlaylistId = iptvPlaylists.first(where: { $0.id == saved })?.id ?? iptvPlaylists.first?.id
 
         // The search service needs the store, and the store owns the
         // service — the back-reference can only be closed here, once
         // every stored property is initialized.
         self.unifiedSearch.store = self
+
+        // Live TV is ready when the user opens it, with no manual refresh.
+        if selectedIptvPlaylistId != nil {
+            Task { await self.refreshSelectedIptvPlaylist() }
+        }
     }
+
+    private static let selectedPlaylistKey = "veltrio.iptv.selectedPlaylist"
 
     // -------------------- stream resolution ---------------------
 
@@ -577,6 +586,7 @@ final class AppStore {
     func selectIptvPlaylist(id: UUID) async {
         guard let ref = iptvPlaylists.first(where: { $0.id == id }) else { return }
         selectedIptvPlaylistId = id
+        UserDefaults.standard.set(id.uuidString, forKey: Self.selectedPlaylistKey)
         await loadIptvChannels(from: ref)
     }
 

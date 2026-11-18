@@ -83,4 +83,7 @@ struct VeltrioApp: App {
 extension Notification.Name {
     static let veltrioGoto        = Notification.Name("veltrio.goto")
     static let veltrioOpenSearch  = Notification.Name("veltrio.search")
+    /// Open the player; the object is the `PlayerDestination`. For views
+    /// that start playback from a key press rather than a link.
+    static let veltrioPlay        = Notification.Name("veltrio.play")
 }

@@ -24,7 +24,57 @@ struct IPTVView: View {
 
     // MARK: - main content
 
+    @ViewBuilder
     private var content: some View {
+        if store.iptvMode == .live && !(showGuide && guideAvailable) && !store.iptvChannels.isEmpty {
+            // TV-app layout: fixed screen, the channel list scrolls.
+            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                compactHeader
+                if currentIsXtream {
+                    modeSwitcher
+                }
+                filterBar
+                LiveTVView(channels: filteredChannels, numbers: channelNumbers, groups: groups,
+                           selectedGroup: $selectedGroup)
+                    .frame(maxHeight: .infinity)
+            }
+            .pageContainer()
+            .padding(.top, Theme.Spacing.md)
+            .padding(.bottom, Theme.Spacing.lg)
+        } else {
+            scrollingContent
+        }
+    }
+
+    private var compactHeader: some View {
+        HStack(alignment: .lastTextBaseline, spacing: Theme.Spacing.lg) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(String(localized: "Broadcast · \(store.iptvChannels.count) channels"))
+                    .eyebrow(Theme.Palette.accentText, tracking: 2.8)
+                Text(currentPlaylist?.name ?? String(localized: "Live TV"))
+                    .font(Theme.Font.displaySerif(30, weight: .bold))
+                    .tracking(-0.6)
+                    .foregroundStyle(Theme.Palette.textPrimary)
+                    .lineLimit(1)
+            }
+            Spacer()
+            if store.isLoadingIptv {
+                ProgressView().controlSize(.small).tint(Theme.Palette.accent)
+            }
+            playlistMenu
+            TextLinkButton(title: "Add playlist", icon: "plus", color: Theme.Palette.accentText) {
+                showAddSheet = true
+            }
+        }
+    }
+
+    /// Channel numbers follow the playlist's order, so they don't change
+    /// when a group or a search narrows the list.
+    private var channelNumbers: [String: Int] {
+        Dictionary(store.iptvChannels.enumerated().map { ($1.id, $0 + 1) }, uniquingKeysWith: { first, _ in first })
+    }
+
+    private var scrollingContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                 header

@@ -90,6 +90,9 @@ struct RootView: View {
         .onReceive(NotificationCenter.default.publisher(for: .veltrioGoto)) { note in
             if let item = note.object as? NavItem { selection = item }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .veltrioPlay)) { note in
+            if let destination = note.object as? PlayerDestination { path.append(destination) }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .veltrioOpenSearch)) { _ in
             path.append(SearchDestination())
         }

@@ -10,6 +10,8 @@ struct EpgProgramme: Identifiable, Hashable {
     let title: String
     let description: String?
     let category: String?
+    /// Programme still, when the guide has one (`<icon src>`).
+    var image: URL? = nil
 
     var id: String { "\(channelId)|\(start.timeIntervalSince1970)" }
 
@@ -210,6 +212,7 @@ final class EpgParser: NSObject, XMLParserDelegate {
     private var channelId: String?
     private var current: (channel: String, start: Date, end: Date)?
     private var title = "", desc = "", category = ""
+    private var image: URL?
     private var text = ""
     private var inProgrammeField: String?
 
@@ -258,9 +261,11 @@ final class EpgParser: NSObject, XMLParserDelegate {
                 return
             }
             current = (ch, start, end)
-            title = ""; desc = ""; category = ""
+            title = ""; desc = ""; category = ""; image = nil
         case "title", "desc", "category":
             inProgrammeField = current == nil ? nil : name
+        case "icon" where current != nil:
+            image = attributes["src"].flatMap(URL.init(string:))
         default:
             break
         }
@@ -291,7 +296,8 @@ final class EpgParser: NSObject, XMLParserDelegate {
             if let c = current, !title.isEmpty {
                 programmes[c.channel, default: []].append(EpgProgramme(
                     channelId: c.channel, start: c.start, end: c.end, title: title,
-                    description: desc.isEmpty ? nil : desc, category: category.isEmpty ? nil : category
+                    description: desc.isEmpty ? nil : desc, category: category.isEmpty ? nil : category,
+                    image: image
                 ))
             }
             current = nil
