@@ -28,7 +28,9 @@ struct SourcesView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Layout.sectionGap) {
                 PageHeader(
-                    eyebrow: "\(store.addons.count) addon\(store.addons.count == 1 ? "" : "s") · \(connectedServerCount) server\(connectedServerCount == 1 ? "" : "s") · \(store.iptvPlaylists.count) playlist\(store.iptvPlaylists.count == 1 ? "" : "s")",
+                    eyebrow: [String(localized: "\(store.addons.count) addons"),
+                          String(localized: "\(connectedServerCount) servers"),
+                          String(localized: "\(store.iptvPlaylists.count) playlists")].joined(separator: " · "),
                     title: "Sources",
                     subtitle: "Every catalogue, server and stream resolver that feeds this app."
                 ) {
@@ -90,7 +92,7 @@ struct SourcesView: View {
             SectionHeader(
                 "Installed addons",
                 number: 1,
-                subtitle: "\(store.addons.count) · reorder with the arrows"
+                subtitle: String(localized: "\(store.addons.count) · reorder with the arrows")
             )
             VStack(spacing: Theme.Spacing.sm) {
                 ForEach(Array(store.addons.enumerated()), id: \.element.id) { index, addon in
@@ -462,7 +464,7 @@ private struct AddonCatalogSheet: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             Text("Could not load the catalogue")
                 .eyebrow(Theme.Palette.danger, tracking: 2.8)
-            Text(message)
+            Text(message.localized)
                 .font(Theme.Font.body(13))
                 .foregroundStyle(Theme.Palette.textSecondary)
             FrameButton(title: "Try again", icon: "arrow.clockwise",

@@ -130,7 +130,7 @@ struct JellyfinConnectSheet: View {
     @ViewBuilder
     private func field(_ label: String, text: Binding<String>, placeholder: String = "", secure: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(label).eyebrow(Theme.Palette.textTertiary, tracking: 1.8)
+            Text(label.localized).eyebrow(Theme.Palette.textTertiary, tracking: 1.8)
             Group {
                 if secure {
                     SecureField(placeholder, text: text)
@@ -240,7 +240,7 @@ struct EmbyCard: View {
     @ViewBuilder
     private func textField(_ label: String, _ text: Binding<String>, placeholder: String = "", secure: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(label).eyebrow(Theme.Palette.textTertiary, tracking: 1.8)
+            Text(label.localized).eyebrow(Theme.Palette.textTertiary, tracking: 1.8)
             Group {
                 if secure { SecureField(placeholder, text: text) }
                 else { TextField(placeholder, text: text) }

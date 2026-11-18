@@ -58,16 +58,16 @@ struct PageHeader<Trailing: View>: View {
             HStack(alignment: .lastTextBaseline, spacing: Theme.Spacing.lg) {
                 VStack(alignment: .leading, spacing: 10) {
                     if let eyebrow {
-                        Text(eyebrow)
+                        Text(eyebrow.localized)
                             .eyebrow(Theme.Palette.accentText, tracking: 2.8)
                     }
-                    Text(title)
+                    Text(title.localized)
                         .font(Theme.Font.displaySerif(52, weight: .bold))
                         .foregroundStyle(Theme.Palette.textPrimary)
                         .tracking(-1.2)
                         .lineLimit(2)
                     if let subtitle {
-                        Text(subtitle)
+                        Text(subtitle.localized)
                             .font(Theme.Font.body(13))
                             .foregroundStyle(Theme.Palette.textSecondary)
                     }
@@ -103,12 +103,12 @@ struct SectionHeader<Trailing: View>: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .lastTextBaseline, spacing: Theme.Spacing.md) {
                 if let n = number { Numeral(n: n) }
-                Text(title)
+                Text(title.localized)
                     .font(Theme.Font.title(18))
                     .tracking(-0.2)
                     .foregroundStyle(Theme.Palette.textPrimary)
                 if let subtitle {
-                    Text(subtitle)
+                    Text(subtitle.localized)
                         .eyebrow(Theme.Palette.textTertiary, tracking: 1.8)
                 }
                 Spacer(minLength: Theme.Spacing.md)
@@ -141,7 +141,7 @@ struct TextLinkTab: View {
                     .foregroundStyle(
                         isSelected ? Theme.Palette.accentText : Theme.Palette.textTertiary
                     )
-                Text(label)
+                Text(label.localized)
                     .font(Theme.Font.label(12, weight: isSelected ? .bold : .medium))
                     .tracking(1.8)
                     .foregroundStyle(
@@ -188,7 +188,7 @@ struct Chip: View {
                     Image(systemName: icon)
                         .font(.system(size: 10, weight: .bold))
                 }
-                Text(label)
+                Text(label.localized)
                     .font(Theme.Font.eyebrow(11, weight: isSelected ? .bold : .semibold))
                     .tracking(1.6)
                 if let count {
@@ -252,7 +252,7 @@ struct CTAButton: View {
                 } else if let icon {
                     Image(systemName: icon).font(.system(size: 12, weight: .black))
                 }
-                Text(title)
+                Text(title.localized)
                     .font(Theme.Font.eyebrow(11, weight: .heavy))
                     .tracking(2.6)
                     .textCase(.uppercase)
@@ -302,7 +302,7 @@ struct GhostButton: View {
                 if let icon {
                     Image(systemName: icon).font(.system(size: 11, weight: .bold))
                 }
-                Text(title)
+                Text(title.localized)
                     .font(Theme.Font.eyebrow(11, weight: .bold))
                     .tracking(2.4)
                     .textCase(.uppercase)
@@ -365,7 +365,7 @@ struct FrameButton: View {
                 } else if let icon {
                     Image(systemName: icon).font(.system(size: 10, weight: .bold))
                 }
-                Text(title)
+                Text(title.localized)
                     .font(Theme.Font.eyebrow(10, weight: .bold))
                     .tracking(2.2)
                     .textCase(.uppercase)

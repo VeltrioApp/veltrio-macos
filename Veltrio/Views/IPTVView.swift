@@ -65,7 +65,7 @@ struct IPTVView: View {
 
     private var header: some View {
         PageHeader(
-            eyebrow: "Broadcast · \(store.iptvChannels.count) channels",
+            eyebrow: String(localized: "Broadcast · \(store.iptvChannels.count) channels"),
             title: currentPlaylist?.name ?? "Live TV",
             subtitle: subtitleText
         ) {
@@ -87,9 +87,9 @@ struct IPTVView: View {
 
     private var subtitleText: String {
         let total = store.iptvChannels.count
-        let countText = total == 0 ? "No channels yet" : "\(total) channels"
+        let countText = total == 0 ? String(localized: "No channels yet") : String(localized: "\(total) channels")
         if store.iptvPlaylists.count > 1 {
-            return "\(countText) · \(store.iptvPlaylists.count) playlists"
+            return countText + " · " + String(localized: "\(store.iptvPlaylists.count) playlists")
         }
         return countText
     }
@@ -708,7 +708,7 @@ struct AddPlaylistSheet: View {
         case .error(let message):
             HStack(spacing: 6) {
                 Image(systemName: "xmark.octagon.fill")
-                Text(message)
+                Text(message.localized)
                     .lineLimit(1)
             }
             .font(Theme.Font.label(11, weight: .semibold))
@@ -913,7 +913,7 @@ struct AddPlaylistSheet: View {
         focus: Field? = nil
     ) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(label)
+            Text(label.localized)
                 .font(Theme.Font.label(11, weight: .bold))
                 .foregroundStyle(Theme.Palette.textSecondary)
                 .tracking(0.6)

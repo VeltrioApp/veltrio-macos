@@ -67,7 +67,9 @@ struct CatalogGridView: View {
             PageHeader(
                 eyebrow: "\(destination.addon.manifest.name) · \(destination.catalog.type)",
                 title: destination.catalog.name,
-                subtitle: "\(items.count) item\(items.count == 1 ? "" : "s") loaded" + (isExhausted ? " · all pages fetched" : "")
+                subtitle: isExhausted
+                    ? String(localized: "\(items.count) items loaded · all pages fetched")
+                    : String(localized: "\(items.count) items loaded")
             )
         }
     }

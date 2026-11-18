@@ -1,0 +1,3456 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%lld EPISODES · %lld SEASON%@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ÉPISODES · %lld SAISON%@"
+          }
+        }
+      }
+    },
+    "%lld OF %lld SHOWN": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld SUR %lld AFFICHÉS"
+          }
+        }
+      }
+    },
+    "%lld addons": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld addon"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld addons"
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld addon"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld addons"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld channels": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld channel"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld channels"
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld chaîne"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld chaînes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld episodes": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld episode"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld episodes"
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld épisode"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld épisodes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld in progress": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld en cours"
+          }
+        }
+      }
+    },
+    "%lld in progress · curated by you": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld en cours · choisis par vous"
+          }
+        }
+      }
+    },
+    "%lld items loaded": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld item loaded"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld items loaded"
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld élément chargé"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld éléments chargés"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld items loaded · all pages fetched": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld item loaded · all pages fetched"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld items loaded · all pages fetched"
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld élément chargé · toutes les pages"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld éléments chargés · toutes les pages"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld playlists": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld playlist"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld playlists"
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld playlist"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld playlists"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld reports from the last 60 days. Attach them to a bug report.": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld report from the last 60 days. Attach it to a bug report."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld reports from the last 60 days. Attach them to a bug report."
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld rapport des 60 derniers jours. Joignez-le à un signalement de bug."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld rapports des 60 derniers jours. Joignez-les à un signalement de bug."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld result%@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld résultat%@"
+          }
+        }
+      }
+    },
+    "%lld seasons": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld season"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld seasons"
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld saison"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld saisons"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld servers": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld server"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld servers"
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld serveur"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld serveurs"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld · reorder with the arrows": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld · réordonnez avec les flèches"
+          }
+        }
+      }
+    },
+    "100 seeds": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "100 sources"
+          }
+        }
+      }
+    },
+    "A quiet room,\nwith nothing on.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une pièce calme,\nrien à l'écran."
+          }
+        }
+      }
+    },
+    "ACTIVE": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ACTIF"
+          }
+        }
+      }
+    },
+    "ADDONS STILL ANSWERING": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LES ADDONS RÉPONDENT ENCORE"
+          }
+        }
+      }
+    },
+    "About": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À propos"
+          }
+        }
+      }
+    },
+    "Accounts": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comptes"
+          }
+        }
+      }
+    },
+    "Add IPTV playlist": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter une playlist IPTV"
+          }
+        }
+      }
+    },
+    "Add an M3U URL or an Xtream Codes provider. Channels then show up in Live and in search.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez une URL M3U ou un fournisseur Xtream Codes. Les chaînes apparaissent ensuite dans Direct."
+          }
+        }
+      }
+    },
+    "Add an M3U playlist URL to tune in. Xtream providers and local files are supported — credentials never leave this device.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez l'URL d'une playlist M3U pour commencer. Les fournisseurs Xtream et les fichiers locaux sont pris en charge — vos identifiants ne quittent jamais cet appareil."
+          }
+        }
+      }
+    },
+    "Add playlist": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter la playlist"
+          }
+        }
+      }
+    },
+    "Add to library": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter à la collection"
+          }
+        }
+      }
+    },
+    "Addon catalogue": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catalogue d'addons"
+          }
+        }
+      }
+    },
+    "Addons": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Addons"
+          }
+        }
+      }
+    },
+    "AirPlay is native. PiP spins up a parallel AVPlayer for URL streams. Chromecast needs the Google Cast SDK dropped into the app bundle.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AirPlay est natif. Le PiP lance un AVPlayer parallèle pour les flux URL. Chromecast nécessite le SDK Google Cast dans l'app."
+          }
+        }
+      }
+    },
+    "All": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout"
+          }
+        }
+      }
+    },
+    "All sources": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toutes les sources"
+          }
+        }
+      }
+    },
+    "All types": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous les types"
+          }
+        }
+      }
+    },
+    "Any URL that returns an M3U playlist works, including provider-built `/get.php?…&type=m3u` links.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toute URL qui renvoie une playlist M3U fonctionne, y compris les liens fournisseur `/get.php?…&type=m3u`."
+          }
+        }
+      }
+    },
+    "Appearance": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apparence"
+          }
+        }
+      }
+    },
+    "Aspect ratio": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Format d'image"
+          }
+        }
+      }
+    },
+    "Aspect ratio & zoom": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Format d'image et zoom"
+          }
+        }
+      }
+    },
+    "Audio passthrough (DTS / AC3 / EAC3)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passthrough audio (DTS / AC3 / EAC3)"
+          }
+        }
+      }
+    },
+    "Audio track": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piste audio"
+          }
+        }
+      }
+    },
+    "Audio tracks (%lld)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pistes audio (%lld)"
+          }
+        }
+      }
+    },
+    "Audiophile": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audiophile"
+          }
+        }
+      }
+    },
+    "Authorise on Trakt.tv": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser sur Trakt.tv"
+          }
+        }
+      }
+    },
+    "Auto": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto"
+          }
+        }
+      }
+    },
+    "Auto-advance episodes": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enchaîner les épisodes"
+          }
+        }
+      }
+    },
+    "BT.2390 (cinematic)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BT.2390 (cinéma)"
+          }
+        }
+      }
+    },
+    "BT.2446A (balanced)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BT.2446A (équilibré)"
+          }
+        }
+      }
+    },
+    "Back": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour"
+          }
+        }
+      }
+    },
+    "Back to episodes": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour aux épisodes"
+          }
+        }
+      }
+    },
+    "Back to episodes in %llds": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour aux épisodes dans %lld s"
+          }
+        }
+      }
+    },
+    "Balanced": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Équilibré"
+          }
+        }
+      }
+    },
+    "Behaviour": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comportement"
+          }
+        }
+      }
+    },
+    "Best picture, higher CPU; HDR tone-mapping tuned.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meilleure image, plus de CPU ; tone mapping HDR optimisé."
+          }
+        }
+      }
+    },
+    "Bitstream DTS/AC3/EAC3 to AVR; higher audio buffer.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoie le DTS/AC3/EAC3 brut à l'ampli ; tampon audio plus grand."
+          }
+        }
+      }
+    },
+    "Broadcast · %lld channels": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Broadcast · %lld channel"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Broadcast · %lld channels"
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Direct · %lld chaîne"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Direct · %lld chaînes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Browse": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parcourir"
+          }
+        }
+      }
+    },
+    "Browse hundreds of addons from stremio-addons.net and install any of them without leaving the app.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parcourez des centaines d'addons de stremio-addons.net et installez-les sans quitter l'app."
+          }
+        }
+      }
+    },
+    "Buffering": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mise en mémoire tampon"
+          }
+        }
+      }
+    },
+    "Buffering…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement…"
+          }
+        }
+      }
+    },
+    "COMING": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À VENIR"
+          }
+        }
+      }
+    },
+    "Cache size": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taille du cache"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler"
+          }
+        }
+      }
+    },
+    "Cast / AirPlay / PiP": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diffusion / AirPlay / PiP"
+          }
+        }
+      }
+    },
+    "Cast to": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diffuser sur"
+          }
+        }
+      }
+    },
+    "Catchup": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replay"
+          }
+        }
+      }
+    },
+    "Catchup / timeshift": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replay / timeshift"
+          }
+        }
+      }
+    },
+    "Check for Updates…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher les mises à jour…"
+          }
+        }
+      }
+    },
+    "Choose…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir…"
+          }
+        }
+      }
+    },
+    "Clear": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effacer"
+          }
+        }
+      }
+    },
+    "Clip (no tone-map)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrêter (sans tone mapping)"
+          }
+        }
+      }
+    },
+    "Close": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fermer"
+          }
+        }
+      }
+    },
+    "Code": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code"
+          }
+        }
+      }
+    },
+    "Collection": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collection"
+          }
+        }
+      }
+    },
+    "Community catalogue": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catalogue communautaire"
+          }
+        }
+      }
+    },
+    "Connect": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecter"
+          }
+        }
+      }
+    },
+    "Connect an Xtream provider, paste an M3U URL, or load a local file.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez un fournisseur Xtream, collez une URL M3U ou chargez un fichier local."
+          }
+        }
+      }
+    },
+    "Connect to Emby": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter à Emby"
+          }
+        }
+      }
+    },
+    "Connect to Jellyfin": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter à Jellyfin"
+          }
+        }
+      }
+    },
+    "Connected": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecté"
+          }
+        }
+      }
+    },
+    "Connecting to live stream…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connexion au direct…"
+          }
+        }
+      }
+    },
+    "Content not ready on Real-Debrid.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contenu pas encore prêt sur Real-Debrid."
+          }
+        }
+      }
+    },
+    "Copy": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copier"
+          }
+        }
+      }
+    },
+    "Copy code": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copier le code"
+          }
+        }
+      }
+    },
+    "Could not load the catalogue": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger le catalogue"
+          }
+        }
+      }
+    },
+    "Couldn't open this stream": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d'ouvrir ce flux"
+          }
+        }
+      }
+    },
+    "Crash reports": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapports de plantage"
+          }
+        }
+      }
+    },
+    "Credits": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Générique"
+          }
+        }
+      }
+    },
+    "Dead air.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Silence radio."
+          }
+        }
+      }
+    },
+    "Debrid": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debrid"
+          }
+        }
+      }
+    },
+    "Decoder": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Décodeur"
+          }
+        }
+      }
+    },
+    "Defaults applied to every stream.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages appliqués à chaque flux."
+          }
+        }
+      }
+    },
+    "Details": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Détails"
+          }
+        }
+      }
+    },
+    "Direct playback without seeding. Connect any provider; cached torrents fly.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture directe sans partage. Connectez un fournisseur ; les torrents en cache démarrent instantanément."
+          }
+        }
+      }
+    },
+    "Disable addon": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désactiver l'addon"
+          }
+        }
+      }
+    },
+    "Disconnect": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déconnecter"
+          }
+        }
+      }
+    },
+    "Download for offline": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Télécharger pour hors ligne"
+          }
+        }
+      }
+    },
+    "Download location": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emplacement des téléchargements"
+          }
+        }
+      }
+    },
+    "Downloads": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléchargements"
+          }
+        }
+      }
+    },
+    "Downloads, torrent sessions, caches, and the in-session log.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléchargements, sessions torrent, caches et journal de la session."
+          }
+        }
+      }
+    },
+    "Embedded": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intégrés"
+          }
+        }
+      }
+    },
+    "Enable addon": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer l'addon"
+          }
+        }
+      }
+    },
+    "Episode": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épisode"
+          }
+        }
+      }
+    },
+    "Episode finished": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épisode terminé"
+          }
+        }
+      }
+    },
+    "Episodes": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épisodes"
+          }
+        }
+      }
+    },
+    "Error": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreur"
+          }
+        }
+      }
+    },
+    "Every catalogue, server and stream resolver that feeds this app.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous les catalogues, serveurs et résolveurs de flux qui alimentent l'app."
+          }
+        }
+      }
+    },
+    "Every source, one native player.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toutes vos sources, un seul lecteur natif."
+          }
+        }
+      }
+    },
+    "FETCHING FROM EVERY SOURCE": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "INTERROGATION DE TOUTES LES SOURCES"
+          }
+        }
+      }
+    },
+    "Fetch S%lldE%lld": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chercher S%lldE%lld"
+          }
+        }
+      }
+    },
+    "Fetching the catalogue…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement du catalogue…"
+          }
+        }
+      }
+    },
+    "Fill": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remplir"
+          }
+        }
+      }
+    },
+    "Fit": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajuster"
+          }
+        }
+      }
+    },
+    "From addons": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des addons"
+          }
+        }
+      }
+    },
+    "Go": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aller"
+          }
+        }
+      }
+    },
+    "HLS variant": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Variante HLS"
+          }
+        }
+      }
+    },
+    "Hable": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hable"
+          }
+        }
+      }
+    },
+    "Hardware decoder": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Décodeur matériel"
+          }
+        }
+      }
+    },
+    "Home": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accueil"
+          }
+        }
+      }
+    },
+    "How Veltrio looks and feels.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'apparence de Veltrio."
+          }
+        }
+      }
+    },
+    "IPTV · Series": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IPTV · Séries"
+          }
+        }
+      }
+    },
+    "In progress": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En cours"
+          }
+        }
+      }
+    },
+    "In-memory buffer for live and torrent streams.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tampon mémoire pour le direct et les torrents."
+          }
+        }
+      }
+    },
+    "Info": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Info"
+          }
+        }
+      }
+    },
+    "Install a source to start browsing. Cinemeta surfaces every mainstream title; add more sources to widen the catalog.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installez une source pour commencer. Cinemeta couvre tous les grands titres ; ajoutez d'autres sources pour élargir le catalogue."
+          }
+        }
+      }
+    },
+    "Install another source with stream support, or try a different title.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installez une autre source qui fournit des flux, ou essayez un autre titre."
+          }
+        }
+      }
+    },
+    "Install from URL": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installer depuis une URL"
+          }
+        }
+      }
+    },
+    "Internal: %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreur interne : %@"
+          }
+        }
+      }
+    },
+    "Invalid URL: %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL invalide : %@"
+          }
+        }
+      }
+    },
+    "Jump back to any programme from the last 24 hours. Timeshift URL is built on the fly.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revenez à n'importe quel programme des dernières 24 heures."
+          }
+        }
+      }
+    },
+    "LIVE": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DIRECT"
+          }
+        }
+      }
+    },
+    "LOOKING IN YOUR LIBRARIES & IPTV": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RECHERCHE DANS VOS BIBLIOTHÈQUES ET L'IPTV"
+          }
+        }
+      }
+    },
+    "Language": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Langue"
+          }
+        }
+      }
+    },
+    "Languages": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Langues"
+          }
+        }
+      }
+    },
+    "Legacy": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ancien"
+          }
+        }
+      }
+    },
+    "Link your Plex account": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lier votre compte Plex"
+          }
+        }
+      }
+    },
+    "Live": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direct"
+          }
+        }
+      }
+    },
+    "Live TV": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV en direct"
+          }
+        }
+      }
+    },
+    "Load from file…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Charger un fichier…"
+          }
+        }
+      }
+    },
+    "Load more": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Charger plus"
+          }
+        }
+      }
+    },
+    "Loading more…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement…"
+          }
+        }
+      }
+    },
+    "Loading streams": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement des flux"
+          }
+        }
+      }
+    },
+    "Loading stream…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement du flux…"
+          }
+        }
+      }
+    },
+    "Local file": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichier local"
+          }
+        }
+      }
+    },
+    "Local list": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liste locale"
+          }
+        }
+      }
+    },
+    "Local path": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chemin local"
+          }
+        }
+      }
+    },
+    "Log": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Journal"
+          }
+        }
+      }
+    },
+    "Log is empty.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le journal est vide."
+          }
+        }
+      }
+    },
+    "Low CPU, low power; drops advanced scalers.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peu de CPU, peu d'énergie ; sans mise à l'échelle avancée."
+          }
+        }
+      }
+    },
+    "M3U playlist": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlist M3U"
+          }
+        }
+      }
+    },
+    "M3U playlists and Xtream providers": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists M3U et fournisseurs Xtream"
+          }
+        }
+      }
+    },
+    "MANUAL · METADATA MISSING": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MANUEL · MÉTADONNÉES ABSENTES"
+          }
+        }
+      }
+    },
+    "Manage": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gérer"
+          }
+        }
+      }
+    },
+    "Mark as unwatched": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marquer comme non vu"
+          }
+        }
+      }
+    },
+    "Mark as watched": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marquer comme vu"
+          }
+        }
+      }
+    },
+    "Max quality": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qualité maximale"
+          }
+        }
+      }
+    },
+    "Media info": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Infos média"
+          }
+        }
+      }
+    },
+    "Media info (I)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Infos média (I)"
+          }
+        }
+      }
+    },
+    "Metadata couldn't be loaded, but you can still pick an episode. Streams providers only need the IMDb id + season + episode to answer.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les métadonnées n'ont pas pu être chargées, mais vous pouvez choisir un épisode : les sources n'ont besoin que de l'identifiant IMDb, de la saison et de l'épisode."
+          }
+        }
+      }
+    },
+    "Metadata unavailable": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Métadonnées indisponibles"
+          }
+        }
+      }
+    },
+    "Most compatible": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le plus compatible"
+          }
+        }
+      }
+    },
+    "Motion": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animations"
+          }
+        }
+      }
+    },
+    "Movies": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Films"
+          }
+        }
+      }
+    },
+    "Movies, series…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Films, séries…"
+          }
+        }
+      }
+    },
+    "Mute (M)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couper le son (M)"
+          }
+        }
+      }
+    },
+    "My Xtream provider": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mon fournisseur Xtream"
+          }
+        }
+      }
+    },
+    "My provider": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mon fournisseur"
+          }
+        }
+      }
+    },
+    "NEXT": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ENSUITE"
+          }
+        }
+      }
+    },
+    "NOT STARTED": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NON COMMENCÉ"
+          }
+        }
+      }
+    },
+    "NOW": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EN CE MOMENT"
+          }
+        }
+      }
+    },
+    "NOW SELECTED": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SÉLECTIONNÉ"
+          }
+        }
+      }
+    },
+    "Name": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom"
+          }
+        }
+      }
+    },
+    "Name (optional)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom (facultatif)"
+          }
+        }
+      }
+    },
+    "Network: %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réseau : %@"
+          }
+        }
+      }
+    },
+    "Nightfall is tuned for the main app experience; Daybreak is a serviceable light mode for daytime use. Changes apply immediately.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nightfall est le thème principal ; Daybreak est un mode clair pour la journée. Les changements s'appliquent immédiatement."
+          }
+        }
+      }
+    },
+    "No channel matches “%@”.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune chaîne ne correspond à « %@ »."
+          }
+        }
+      }
+    },
+    "No channels in this group": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune chaîne dans ce groupe"
+          }
+        }
+      }
+    },
+    "No channels yet": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore de chaînes"
+          }
+        }
+      }
+    },
+    "No crash or hang reported. If one happens, macOS hands the report over at the next launch and it lands here.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun plantage ni blocage signalé. S'il y en a un, macOS transmet le rapport au lancement suivant et il apparaît ici."
+          }
+        }
+      }
+    },
+    "No downloads yet. Right-click a stream in Detail → Download for offline.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun téléchargement. Clic droit sur un flux dans une fiche → Télécharger pour hors ligne."
+          }
+        }
+      }
+    },
+    "No items.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun élément."
+          }
+        }
+      }
+    },
+    "No playlist yet": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore de playlist"
+          }
+        }
+      }
+    },
+    "No playlist yet. Add an M3U URL or an Xtream Codes provider below.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore de playlist. Ajoutez une URL M3U ou un fournisseur Xtream Codes ci-dessous."
+          }
+        }
+      }
+    },
+    "No results": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun résultat"
+          }
+        }
+      }
+    },
+    "No stream": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun flux"
+          }
+        }
+      }
+    },
+    "No. %lld in your library": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "N° %lld dans votre collection"
+          }
+        }
+      }
+    },
+    "Not connected": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non connecté"
+          }
+        }
+      }
+    },
+    "Not found: %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introuvable : %@"
+          }
+        }
+      }
+    },
+    "Nothing found": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun résultat"
+          }
+        }
+      }
+    },
+    "Nothing matches these filters": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien ne correspond à ces filtres"
+          }
+        }
+      }
+    },
+    "Nothing matches these filters.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien ne correspond à ces filtres."
+          }
+        }
+      }
+    },
+    "Nothing on the line.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien sur la ligne."
+          }
+        }
+      }
+    },
+    "Nothing saved,\nyet.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien d'enregistré,\npour l'instant."
+          }
+        }
+      }
+    },
+    "Now showing": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À l'affiche"
+          }
+        }
+      }
+    },
+    "Off": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désactivés"
+          }
+        }
+      }
+    },
+    "Open %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir %@"
+          }
+        }
+      }
+    },
+    "Open Trakt": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir Trakt"
+          }
+        }
+      }
+    },
+    "Open in YouTube": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir dans YouTube"
+          }
+        }
+      }
+    },
+    "Open in default app": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir dans l'app par défaut"
+          }
+        }
+      }
+    },
+    "Open plex.tv/link": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir plex.tv/link"
+          }
+        }
+      }
+    },
+    "Open sources": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les sources"
+          }
+        }
+      }
+    },
+    "Overview": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aperçu"
+          }
+        }
+      }
+    },
+    "Parse: %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture des données : %@"
+          }
+        }
+      }
+    },
+    "Password": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe"
+          }
+        }
+      }
+    },
+    "Performance": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Performance"
+          }
+        }
+      }
+    },
+    "Pick an episode on the left to query sources.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez un épisode pour interroger les sources."
+          }
+        }
+      }
+    },
+    "Picture in Picture": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image dans l'image"
+          }
+        }
+      }
+    },
+    "Play": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire"
+          }
+        }
+      }
+    },
+    "Play / Pause": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture / Pause"
+          }
+        }
+      }
+    },
+    "Play S%dE%d": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire S%dE%d"
+          }
+        }
+      }
+    },
+    "Playback": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture"
+          }
+        }
+      }
+    },
+    "Playback profile": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil de lecture"
+          }
+        }
+      }
+    },
+    "Playback speed": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitesse de lecture"
+          }
+        }
+      }
+    },
+    "Playlist": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlist"
+          }
+        }
+      }
+    },
+    "Playlist options": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Options de la playlist"
+          }
+        }
+      }
+    },
+    "Playlists": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        }
+      }
+    },
+    "Point Veltrio at your Jellyfin server to stream your personal library through the same player.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez Veltrio à votre serveur Jellyfin pour lire votre bibliothèque dans le même lecteur."
+          }
+        }
+      }
+    },
+    "Point to a `.m3u` / `.m3u8` file on disk. Useful for testing or offline curation.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez un fichier `.m3u` / `.m3u8` sur le disque. Pratique pour tester ou trier hors ligne."
+          }
+        }
+      }
+    },
+    "Preferences": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préférences"
+          }
+        }
+      }
+    },
+    "Preferred audio": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio préféré"
+          }
+        }
+      }
+    },
+    "Preferred audio and subtitle tracks.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pistes audio et sous-titres préférés."
+          }
+        }
+      }
+    },
+    "Preferred subtitles": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sous-titres préférés"
+          }
+        }
+      }
+    },
+    "Preparing torrent — connecting to peers…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préparation du torrent — connexion aux pairs…"
+          }
+        }
+      }
+    },
+    "Profile · %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil · %@"
+          }
+        }
+      }
+    },
+    "Reduce hero motion": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réduire l'animation d'accueil"
+          }
+        }
+      }
+    },
+    "Refresh current": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualiser"
+          }
+        }
+      }
+    },
+    "Reinhard": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinhard"
+          }
+        }
+      }
+    },
+    "Remove": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer"
+          }
+        }
+      }
+    },
+    "Remove addon": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer l'addon"
+          }
+        }
+      }
+    },
+    "Remove from Continue Watching": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retirer de « Reprendre »"
+          }
+        }
+      }
+    },
+    "Remove from library": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retirer de la collection"
+          }
+        }
+      }
+    },
+    "Remove local copy": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer la copie locale"
+          }
+        }
+      }
+    },
+    "Remove playlist": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer la playlist"
+          }
+        }
+      }
+    },
+    "Reset progress": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réinitialiser la progression"
+          }
+        }
+      }
+    },
+    "Retry": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réessayer"
+          }
+        }
+      }
+    },
+    "Safe defaults — good on any Mac.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages sûrs — bien sur tous les Mac."
+          }
+        }
+      }
+    },
+    "Save a title from its detail page and it lands here, alongside everything you've started watching.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrez un titre depuis sa fiche : il arrive ici, avec tout ce que vous avez commencé."
+          }
+        }
+      }
+    },
+    "Saved": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrés"
+          }
+        }
+      }
+    },
+    "Search": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher"
+          }
+        }
+      }
+    },
+    "Search addons by name…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher un addon…"
+          }
+        }
+      }
+    },
+    "Search channels": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher une chaîne"
+          }
+        }
+      }
+    },
+    "Searching": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche"
+          }
+        }
+      }
+    },
+    "Season": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saison"
+          }
+        }
+      }
+    },
+    "Season %d": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saison %d"
+          }
+        }
+      }
+    },
+    "Season %d · Episode %d": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saison %d · Épisode %d"
+          }
+        }
+      }
+    },
+    "Season %lld": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saison %lld"
+          }
+        }
+      }
+    },
+    "Season & episode": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saison et épisode"
+          }
+        }
+      }
+    },
+    "Selected": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionné"
+          }
+        }
+      }
+    },
+    "Series": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Séries"
+          }
+        }
+      }
+    },
+    "Server": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serveur"
+          }
+        }
+      }
+    },
+    "Server URL": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL du serveur"
+          }
+        }
+      }
+    },
+    "Settings": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages"
+          }
+        }
+      }
+    },
+    "Show in Finder": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher dans le Finder"
+          }
+        }
+      }
+    },
+    "Show the next-episode countdown when a series episode ends.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Affiche le compte à rebours de l'épisode suivant à la fin d'un épisode."
+          }
+        }
+      }
+    },
+    "Skip Back 10 s": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reculer de 10 s"
+          }
+        }
+      }
+    },
+    "Skip Forward 10 s": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avancer de 10 s"
+          }
+        }
+      }
+    },
+    "Skip back 10s (←)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reculer de 10 s (←)"
+          }
+        }
+      }
+    },
+    "Skip forward 10s (→)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avancer de 10 s (→)"
+          }
+        }
+      }
+    },
+    "Skip intro": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer l'intro"
+          }
+        }
+      }
+    },
+    "Slow down, retrying…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ralentissement, nouvel essai…"
+          }
+        }
+      }
+    },
+    "Sources": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sources"
+          }
+        }
+      }
+    },
+    "Stay here": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rester ici"
+          }
+        }
+      }
+    },
+    "Stop the slow background pan on the home hero.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrête le lent défilement de l'image d'accueil."
+          }
+        }
+      }
+    },
+    "Storage": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stockage"
+          }
+        }
+      }
+    },
+    "Storage & debug": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stockage et débogage"
+          }
+        }
+      }
+    },
+    "Stream format": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Format du flux"
+          }
+        }
+      }
+    },
+    "Streams": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flux"
+          }
+        }
+      }
+    },
+    "Streams are still being fetched from any source that recognises this ID.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les flux sont quand même demandés à toutes les sources qui reconnaissent cet identifiant."
+          }
+        }
+      }
+    },
+    "Stretch": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Étirer"
+          }
+        }
+      }
+    },
+    "Subtitles (%lld)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sous-titres (%lld)"
+          }
+        }
+      }
+    },
+    "Subtitles (Z / X for delay)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sous-titres (Z / X pour le décalage)"
+          }
+        }
+      }
+    },
+    "Suggested": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggérés"
+          }
+        }
+      }
+    },
+    "Switch playlist": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changer de playlist"
+          }
+        }
+      }
+    },
+    "Sync progress and bridge your personal library.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisez la progression et reliez votre bibliothèque."
+          }
+        }
+      }
+    },
+    "The provider lists this series without any episodes.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le fournisseur liste cette série sans aucun épisode."
+          }
+        }
+      }
+    },
+    "Theme": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thème"
+          }
+        }
+      }
+    },
+    "Toggle fullscreen (F)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plein écran (F)"
+          }
+        }
+      }
+    },
+    "Tone mapping": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tone mapping"
+          }
+        }
+      }
+    },
+    "Tone mapping: %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tone mapping : %@"
+          }
+        }
+      }
+    },
+    "Torrents": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torrents"
+          }
+        }
+      }
+    },
+    "Track %lld": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piste %lld"
+          }
+        }
+      }
+    },
+    "Tracks": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pistes"
+          }
+        }
+      }
+    },
+    "Try a shorter query, or connect a source in Settings → Sources.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essayez une recherche plus courte, ou ajoutez une source dans Réglages → Sources."
+          }
+        }
+      }
+    },
+    "Try again": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réessayer"
+          }
+        }
+      }
+    },
+    "Type": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type"
+          }
+        }
+      }
+    },
+    "Type a title. Movies and series from IMDB appear as you type.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tapez un titre. Les films et séries IMDB s'affichent pendant la saisie."
+          }
+        }
+      }
+    },
+    "Unknown": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inconnu"
+          }
+        }
+      }
+    },
+    "Unsupported: %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non pris en charge : %@"
+          }
+        }
+      }
+    },
+    "Use": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utiliser"
+          }
+        }
+      }
+    },
+    "Username": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom d'utilisateur"
+          }
+        }
+      }
+    },
+    "Uses the Xtream Codes JSON API (`player_api.php`) to fetch categories, logos and streams directly — no M3U dump parsing. Credentials stay on this device.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilise l'API JSON Xtream Codes (`player_api.php`) pour récupérer catégories, logos et flux directement. Les identifiants restent sur cet appareil."
+          }
+        }
+      }
+    },
+    "Validate on %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valider sur %@"
+          }
+        }
+      }
+    },
+    "Veltrio scrobbles start / pause / stop events to Trakt as you watch. Your Trakt library can be pulled into Collection later.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veltrio envoie à Trakt le début, la pause et la fin de ce que vous regardez."
+          }
+        }
+      }
+    },
+    "Video & audio presets": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préréglages vidéo et audio"
+          }
+        }
+      }
+    },
+    "View": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Présentation"
+          }
+        }
+      }
+    },
+    "View all": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout voir"
+          }
+        }
+      }
+    },
+    "Visit plex.tv/link, enter the code. Veltrio is polling and will connect automatically.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allez sur plex.tv/link et saisissez le code. Veltrio se connectera automatiquement."
+          }
+        }
+      }
+    },
+    "Visit the URL, paste the code, and confirm. Veltrio polls until Trakt accepts.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez l'URL, collez le code et confirmez. Veltrio attend l'accord de Trakt."
+          }
+        }
+      }
+    },
+    "Waiting on Real-Debrid confirmation…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En attente de la confirmation Real-Debrid…"
+          }
+        }
+      }
+    },
+    "Warn": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avert."
+          }
+        }
+      }
+    },
+    "Watch now": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regarder"
+          }
+        }
+      }
+    },
+    "Watched": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vus"
+          }
+        }
+      }
+    },
+    "What are we watching?": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On regarde quoi ?"
+          }
+        }
+      }
+    },
+    "Xtream authentication failed — check username and password.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de l'authentification Xtream — vérifiez l'identifiant et le mot de passe."
+          }
+        }
+      }
+    },
+    "Xtream server URL is invalid.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'URL du serveur Xtream est invalide."
+          }
+        }
+      }
+    },
+    "Your Jellyfin library is available in this session. Items appear in a future Library tab integration.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre bibliothèque Jellyfin est connectée. Ses films et épisodes apparaissent comme sources sur les fiches."
+          }
+        }
+      }
+    },
+    "Your own libraries": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos bibliothèques"
+          }
+        }
+      }
+    },
+    "Zoom": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoom"
+          }
+        }
+      }
+    },
+    "Zoom in": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoom avant"
+          }
+        }
+      }
+    },
+    "Zoom out": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoom arrière"
+          }
+        }
+      }
+    },
+    "auto-safe lets mpv pick the best decoder for each codec.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "auto-safe laisse mpv choisir le meilleur décodeur pour chaque codec."
+          }
+        }
+      }
+    },
+    "librqbit downloads live under Application Support. Stop and cleanup happens on player close.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les téléchargements librqbit sont dans Application Support. Ils sont arrêtés et nettoyés à la fermeture du lecteur."
+          }
+        }
+      }
+    },
+    "mpv auto-selects embedded tracks matching your language. Addon subtitles are attached automatically in the chosen language when the player opens.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mpv choisit les pistes intégrées dans votre langue. Les sous-titres des addons sont ajoutés automatiquement dans la langue choisie."
+          }
+        }
+      }
+    },
+    "torrent engine returned bad URL": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "le moteur torrent a renvoyé une URL invalide"
+          }
+        }
+      }
+    },
+    "v%@ · Core %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v%@ · Cœur %@"
+          }
+        }
+      }
+    },
+    "· via %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "· via %@"
+          }
+        }
+      }
+    },
+    "“%@”": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ »"
+          }
+        }
+      }
+    },
+    "⚡ Cached": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚡ En cache"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

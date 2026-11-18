@@ -19,7 +19,7 @@ struct MediaTrack: Hashable, Identifiable {
     var displayName: String {
         if let title, !title.isEmpty { return title }
         if let lang, !lang.isEmpty { return Self.languageName(for: lang) }
-        return "Track \(id)"
+        return String(localized: "Track \(id)")
     }
 
     /// Side caption below the main label (codec / lang code fallback).

@@ -88,7 +88,7 @@ struct IptvSeriesView: View {
     }
 
     private var eyebrow: String {
-        var parts = ["IPTV · Series"]
+        var parts = [String(localized: "IPTV · Series")]
         if let genre = series?.genre { parts.append(genre) }
         if let year = series?.releaseDate?.prefix(4) { parts.append(String(year)) }
         if let rating = series?.rating, rating != "0" { parts.append("★ \(rating)") }
@@ -140,7 +140,7 @@ struct IptvSeriesView: View {
             SectionHeader(
                 "Episodes",
                 number: 1,
-                subtitle: "\(total) episodes · \(series.seasons.count) season\(series.seasons.count == 1 ? "" : "s")"
+                subtitle: String(localized: "\(total) episodes") + " · " + String(localized: "\(series.seasons.count) seasons")
             )
 
             if series.seasons.count > 1 {
@@ -148,7 +148,7 @@ struct IptvSeriesView: View {
                     HStack(spacing: 4) {
                         ForEach(series.seasons) { season in
                             Chip(
-                                label: "Season \(season.number)",
+                                label: String(localized: "Season \(season.number)"),
                                 count: season.episodes.count,
                                 isSelected: active.number == season.number
                             ) { selectedSeason = season.number }
@@ -193,8 +193,8 @@ struct IptvSeriesView: View {
 
     private func message(_ title: String, detail: String, retry: Bool) -> some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            Text(title).eyebrow(Theme.Palette.danger, tracking: 2.8)
-            Text(detail)
+            Text(title.localized).eyebrow(Theme.Palette.danger, tracking: 2.8)
+            Text(detail.localized)
                 .font(Theme.Font.body(13))
                 .foregroundStyle(Theme.Palette.textSecondary)
             if retry {

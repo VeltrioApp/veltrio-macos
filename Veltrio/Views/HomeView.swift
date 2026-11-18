@@ -57,7 +57,7 @@ struct HomeView: View {
             SectionHeader(
                 "Continue Watching",
                 number: number,
-                subtitle: "\(watch.continueWatching.count) in progress"
+                subtitle: String(localized: "\(watch.continueWatching.count) in progress")
             )
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: Theme.Spacing.md) {
@@ -317,7 +317,7 @@ private struct HeroPrimaryLabel: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon).font(.system(size: 12, weight: .black))
-            Text(title)
+            Text(title.localized)
                 .font(Theme.Font.eyebrow(11, weight: .heavy))
                 .tracking(2.6)
                 .textCase(.uppercase)
@@ -337,7 +337,7 @@ private struct HeroSecondaryLabel: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: icon).font(.system(size: 11, weight: .bold))
-            Text(title)
+            Text(title.localized)
                 .font(Theme.Font.eyebrow(11, weight: .bold))
                 .tracking(2.4)
                 .textCase(.uppercase)
@@ -394,7 +394,7 @@ struct CatalogRow: View {
         switch store.catalogs[key] {
         case .loading, .none: LoadingRow()
         case .failed(let message):
-            Text(message)
+            Text(message.localized)
                 .font(Theme.Font.body(12))
                 .foregroundStyle(Theme.Palette.danger)
         case .loaded(let metas):
@@ -520,7 +520,7 @@ private struct ContinueCard: View {
             }
             return (entry.position, entry.duration)
         }()
-        guard dur > 0 else { return "NOT STARTED" }
+        guard dur > 0 else { return String(localized: "NOT STARTED") }
         let remaining = max(0, dur - pos)
         let mins = Int(remaining / 60)
         return mins <= 1 ? "ENDING SOON" : "\(mins) MIN LEFT"

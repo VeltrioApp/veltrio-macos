@@ -625,12 +625,12 @@ final class AppStore {
     private func humanize(_ error: Error) -> String {
         if let v = error as? VeltrioError {
             switch v {
-            case .Network(let message):     return "Network: \(message)"
-            case .Parse(let message):       return "Parse: \(message)"
-            case .InvalidUrl(let message):  return "Invalid URL: \(message)"
-            case .NotFound(let message):    return "Not found: \(message)"
-            case .Unsupported(let message): return "Unsupported: \(message)"
-            case .Internal(let message):    return "Internal: \(message)"
+            case .Network(let message):     return String(localized: "Network: \(message)")
+            case .Parse(let message):       return String(localized: "Parse: \(message)")
+            case .InvalidUrl(let message):  return String(localized: "Invalid URL: \(message)")
+            case .NotFound(let message):    return String(localized: "Not found: \(message)")
+            case .Unsupported(let message): return String(localized: "Unsupported: \(message)")
+            case .Internal(let message):    return String(localized: "Internal: \(message)")
             }
         }
         return error.localizedDescription

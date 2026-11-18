@@ -274,7 +274,7 @@ private struct DebridRow<Status: View, Action: View>: View {
                     Rectangle().fill(brandColor.opacity(isDimmed ? 0.35 : 1))
                 )
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
+                Text(title.localized)
                     .font(Theme.Font.heading(15))
                     .foregroundStyle(isDimmed ? Theme.Palette.textSecondary : Theme.Palette.textPrimary)
                 status()
@@ -321,7 +321,7 @@ private struct DebridStatusLabel: View {
 private struct DebridErrorLabel: View {
     let message: String
     var body: some View {
-        Text(message)
+        Text(message.localized)
             .font(Theme.Font.caption(12))
             .foregroundStyle(Theme.Palette.danger)
     }
@@ -816,9 +816,9 @@ private struct AboutSettings: View {
     private var crashReportSummary: String {
         let count = CrashReports.reports().count
         if count == 0 {
-            return "No crash or hang reported. If one happens, macOS hands the report over at the next launch and it lands here."
+            return String(localized: "No crash or hang reported. If one happens, macOS hands the report over at the next launch and it lands here.")
         }
-        return "\(count) report\(count == 1 ? "" : "s") from the last 60 days. Attach them to a bug report."
+        return String(localized: "\(count) reports from the last 60 days. Attach them to a bug report.")
     }
 }
 
@@ -830,12 +830,12 @@ private struct SettingsPageHeader: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(title)
+            Text(title.localized)
                 .font(Theme.Font.display(26))
                 .tracking(-0.4)
                 .foregroundStyle(Theme.Palette.textPrimary)
             if let subtitle {
-                Text(subtitle)
+                Text(subtitle.localized)
                     .font(Theme.Font.body(13))
                     .foregroundStyle(Theme.Palette.textSecondary)
             }
@@ -868,11 +868,11 @@ private struct SettingRowLabel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
-            Text(title)
+            Text(title.localized)
                 .font(Theme.Font.label(13, weight: .semibold))
                 .foregroundStyle(Theme.Palette.textPrimary)
             if let hint {
-                Text(hint)
+                Text(hint.localized)
                     .font(Theme.Font.caption(11))
                     .foregroundStyle(Theme.Palette.textTertiary)
             }
@@ -1025,7 +1025,7 @@ private struct DebridActivationView: View {
                         .font(Theme.Font.body(12))
                         .foregroundStyle(Theme.Palette.textSecondary)
                     HStack(spacing: Theme.Spacing.sm) {
-                        FrameButton(title: "Open \(providerName)",
+                        FrameButton(title: String(localized: "Open \(providerName)"),
                                     icon: "arrow.up.right",
                                     color: Theme.Palette.accent,
                                     fill: Theme.Palette.accent) {

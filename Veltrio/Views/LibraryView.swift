@@ -32,9 +32,9 @@ struct LibraryView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.Layout.sectionGap) {
                     PageHeader(
-                        eyebrow: "No. \(watch.libraryItems.count) in your library",
+                        eyebrow: String(localized: "No. \(watch.libraryItems.count) in your library"),
                         title: "Collection",
-                        subtitle: "\(watch.continueWatching.count) in progress · curated by you"
+                        subtitle: String(localized: "\(watch.continueWatching.count) in progress · curated by you")
                     )
                     filters
                     grid

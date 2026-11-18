@@ -85,7 +85,7 @@ struct PlayerDestination: Hashable {
         switch kind {
         case .stream(let p):
             if let season = p.season, let episode = p.episode {
-                return "Season \(season) · Episode \(episode) · \(p.addonName)"
+                return String(localized: "Season \(season) · Episode \(episode)") + " · \(p.addonName)"
             }
             return p.addonName
         case .liveChannel(let c):
@@ -608,7 +608,7 @@ struct PlayerView: View {
     private func epgCard(label: String, entry: ShortEPGEntry, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
-                Text(label)
+                Text(label.localized)
                     .font(Theme.Font.eyebrow(10, weight: .black))
                     .tracking(2.4)
                     .foregroundStyle(color)
@@ -943,7 +943,7 @@ struct PlayerView: View {
 
     private func infoLine(_ label: String, _ value: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
-            Text(label)
+            Text(label.localized)
                 .font(Theme.Font.caption(11))
                 .foregroundStyle(.white.opacity(0.55))
                 .frame(width: 110, alignment: .leading)
@@ -1368,7 +1368,7 @@ struct PlayerView: View {
                     if abs(controller.speed - s) < 0.01 {
                         Label(label, systemImage: "checkmark")
                     } else {
-                        Text(label)
+                        Text(label.localized)
                     }
                 }
             }
@@ -1393,9 +1393,9 @@ struct PlayerView: View {
                         flashControls()
                     } label: {
                         if controller.aspectMode == mode {
-                            Label(mode.rawValue, systemImage: "checkmark")
+                            Label(mode.rawValue.localized, systemImage: "checkmark")
                         } else {
-                            Text(mode.rawValue)
+                            Text(mode.rawValue.localized)
                         }
                     }
                 }
@@ -1562,7 +1562,7 @@ struct PlayerView: View {
                 .overlay(Circle().stroke(.white.opacity(0.18), lineWidth: 1))
         }
         .buttonStyle(.plain)
-        .help(help)
+        .help(help.localized)
     }
 
     private var timeLabel: some View {
@@ -1667,7 +1667,7 @@ struct PlayerView: View {
             Image(systemName: "arrow.up.right.square.fill")
                 .font(.system(size: 42))
                 .foregroundStyle(.white)
-            Text(label)
+            Text(label.localized)
                 .font(Theme.Font.heading(18))
                 .foregroundStyle(.white)
             if let url = resolvedUrl {
@@ -1703,11 +1703,11 @@ struct PlayerView: View {
     }
 
     private var statusLabel: String {
-        if destination.isLive { return "Connecting to live stream…" }
+        if destination.isLive { return String(localized: "Connecting to live stream…") }
         if case .torrent = destination.streamSource {
-            return "Preparing torrent — connecting to peers…"
+            return String(localized: "Preparing torrent — connecting to peers…")
         }
-        return "Loading stream…"
+        return String(localized: "Loading stream…")
     }
 
     // MARK: - helpers

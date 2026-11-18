@@ -298,7 +298,7 @@ struct DetailView: View {
 
     private func labeledFact(_ label: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(label).eyebrow(Theme.Palette.textQuaternary, tracking: 1.8)
+            Text(label.localized).eyebrow(Theme.Palette.textQuaternary, tracking: 1.8)
             Text(value)
                 .font(Theme.Font.body(13))
                 .foregroundStyle(Theme.Palette.textPrimary)
@@ -387,12 +387,12 @@ struct DetailView: View {
     }
 
     private var playButtonText: String {
-        if allEntriesEmpty && isLoadingAny { return "Loading streams" }
-        if allEntriesEmpty { return "No stream" }
+        if allEntriesEmpty && isLoadingAny { return String(localized: "Loading streams") }
+        if allEntriesEmpty { return String(localized: "No stream") }
         if isSeries, let ep = currentEpisode, let season = currentSeason {
-            return "Play S\(season)E\(ep)"
+            return String(localized: "Play S\(season)E\(ep)")
         }
-        return "Watch now"
+        return String(localized: "Watch now")
     }
 
     private func castBlock(cast: [String], director: [String], writer: [String]) -> some View {
@@ -554,7 +554,7 @@ struct DetailView: View {
                                             set: { manualEpisode = max(1, $0) }))
                 Spacer()
                 CTAButton(
-                    title: "Fetch S\(manualSeason)E\(manualEpisode)",
+                    title: String(localized: "Fetch S\(manualSeason)E\(manualEpisode)"),
                     icon: "arrow.right",
                     tint: Theme.Palette.accent,
                     textColor: Theme.Palette.background
@@ -567,7 +567,7 @@ struct DetailView: View {
 
     private func stepperBlock(label: String, value: Binding<Int>) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(label).eyebrow(Theme.Palette.textTertiary, tracking: 2.0)
+            Text(label.localized).eyebrow(Theme.Palette.textTertiary, tracking: 2.0)
             HStack(spacing: 0) {
                 Button { value.wrappedValue = max(1, value.wrappedValue - 1) } label: {
                     Image(systemName: "minus")
@@ -634,7 +634,7 @@ struct DetailView: View {
                     HStack(spacing: 4) {
                         ForEach(seasons, id: \.self) { season in
                             Chip(
-                                label: "Season \(season)",
+                                label: String(localized: "Season \(season)"),
                                 count: bySeason[season]?.count ?? 0,
                                 isSelected: activeSeason == season
                             ) { selectedSeason = season }
@@ -731,10 +731,10 @@ struct DetailView: View {
 
     private var streamsSubtitle: String {
         let total = streams.count + direct.count
-        if isLoadingAny && total == 0 { return "FETCHING FROM EVERY SOURCE" }
-        var text = "\(visibleEntries.count) OF \(total) SHOWN"
-        if isLoadingDirect { text += " · LOOKING IN YOUR LIBRARIES & IPTV" }
-        else if isLoadingStreams { text += " · ADDONS STILL ANSWERING" }
+        if isLoadingAny && total == 0 { return String(localized: "FETCHING FROM EVERY SOURCE") }
+        var text = String(localized: "\(visibleEntries.count) OF \(total) SHOWN")
+        if isLoadingDirect { text += " · " + String(localized: "LOOKING IN YOUR LIBRARIES & IPTV") }
+        else if isLoadingStreams { text += " · " + String(localized: "ADDONS STILL ANSWERING") }
         return text
     }
 
@@ -916,7 +916,7 @@ struct DetailView: View {
                 }
                 .buttonStyle(.plain)
             }
-            Text(message)
+            Text(message.localized)
                 .font(Theme.Font.body(12))
                 .foregroundStyle(Theme.Palette.textSecondary)
                 .lineLimit(3)
