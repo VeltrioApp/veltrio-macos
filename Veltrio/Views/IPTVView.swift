@@ -6,6 +6,8 @@ struct IPTVView: View {
     @State private var showAddSheet = false
     @State private var searchText = ""
     @State private var selectedGroup: String?
+    /// Channel grid, or the XMLTV guide when the playlist has one.
+    @State private var showGuide = false
 
     var body: some View {
         ZStack {
@@ -33,7 +35,11 @@ struct IPTVView: View {
                 if !groups.isEmpty {
                     groupPills
                 }
-                channelGrid
+                if showGuide && guideAvailable {
+                    EpgGuideView(channels: filteredChannels)
+                } else {
+                    channelGrid
+                }
             }
             .pageContainer()
             .padding(.bottom, Theme.Spacing.xxl)
@@ -165,6 +171,18 @@ struct IPTVView: View {
                 Rectangle().fill(Theme.Palette.surface)
             )
             .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
+
+            if guideAvailable {
+                HStack(spacing: 4) {
+                    Chip(label: "Channels", icon: "square.grid.2x2", isSelected: !showGuide) { showGuide = false }
+                    Chip(label: "Guide", icon: "calendar", isSelected: showGuide) { showGuide = true }
+                }
+            } else if store.epg.isLoading && store.iptvMode == .live {
+                HStack(spacing: 6) {
+                    ProgressView().controlSize(.small)
+                    Text("Loading the TV guide…").eyebrow(Theme.Palette.textTertiary)
+                }
+            }
 
             if let error = store.iptvError {
                 HStack(spacing: 6) {
@@ -340,6 +358,8 @@ struct IPTVView: View {
             .sorted { $0.name < $1.name }
     }
 
+    private var guideAvailable: Bool { store.iptvMode == .live && store.epg.hasGuide }
+
     private var filteredChannels: [IptvChannel] {
         var list = store.iptvChannels
         if let group = selectedGroup {
@@ -358,6 +378,7 @@ struct IPTVView: View {
 private struct ChannelTile: View {
     let channel: IptvChannel
 
+    @Environment(AppStore.self) private var store
     @State private var isHovering = false
 
     var body: some View {
@@ -368,7 +389,25 @@ private struct ChannelTile: View {
                     .font(Theme.Font.label(13, weight: .semibold))
                     .foregroundStyle(Theme.Palette.textPrimary)
                     .lineLimit(1)
-                if let group = channel.group {
+                if let now = store.epg.current(for: channel) {
+                    // What's on now, with how far into it we are.
+                    TimelineView(.periodic(from: .now, by: 60)) { context in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(now.title)
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundStyle(Theme.Palette.textSecondary)
+                                .lineLimit(1)
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    Rectangle().fill(Theme.Palette.hairline)
+                                    Rectangle().fill(Theme.Palette.accent)
+                                        .frame(width: geo.size.width * now.progress(at: context.date))
+                                }
+                            }
+                            .frame(height: 2)
+                        }
+                    }
+                } else if let group = channel.group {
                     Text(group)
                         .font(.system(size: 11))
                         .foregroundStyle(Theme.Palette.textTertiary)

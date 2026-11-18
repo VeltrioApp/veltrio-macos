@@ -497,7 +497,16 @@ struct PlayerView: View {
         guard case .liveChannel(let channel) = destination.kind else { return }
         // Parse the xtream stream id from the id convention "xtream-<sid>".
         let prefix = "xtream-"
-        guard channel.id.hasPrefix(prefix) else { return }
+        guard channel.id.hasPrefix(prefix) else {
+            // M3U channels: now/next from the playlist's XMLTV guide.
+            if let now = store.epg.current(for: channel) {
+                epgNow = Self.shortEntry(now)
+                epgNext = store.epg.next(for: channel).map(Self.shortEntry)
+                epgVisible = true
+                scheduleEPGHide()
+            }
+            return
+        }
         let streamId = String(channel.id.dropFirst(prefix.count))
 
         guard let selId = store.selectedIptvPlaylistId,
@@ -527,6 +536,22 @@ struct PlayerView: View {
             epgVisible = epgNow != nil
             scheduleEPGHide()
         }
+    }
+
+    /// The overlay renders Xtream's short-EPG entries; an XMLTV programme
+    /// is shown through the same shape (UTC "yyyy-MM-dd HH:mm:ss"). Title
+    /// and description are base64-encoded like Xtream's: the overlay
+    /// decodes them, and a plain four-letter title can otherwise pass for
+    /// base64 and come out as garbage.
+    private static func shortEntry(_ p: EpgProgramme) -> ShortEPGEntry {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone(identifier: "UTC")
+        f.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let b64 = { (s: String) in Data(s.utf8).base64EncodedString() }
+        return ShortEPGEntry(id: nil, epgId: nil, title: b64(p.title), lang: nil,
+                             start: f.string(from: p.start), end: f.string(from: p.end),
+                             description: p.description.map(b64), channelId: p.channelId)
     }
 
     private func scheduleEPGHide() {

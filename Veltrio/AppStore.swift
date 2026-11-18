@@ -103,6 +103,8 @@ final class AppStore {
     /// Cross-source search. Lives here so the search page and any future
     /// search surface share one fan-out implementation.
     let unifiedSearch = UnifiedSearchService()
+    /// XMLTV guide of the selected playlist's live channels.
+    let epg = EpgStore()
 
     init(
         client: StremioClient = StremioClient(),
@@ -561,6 +563,7 @@ final class AppStore {
             iptvLoadTask?.cancel()
             selectedIptvPlaylistId = iptvPlaylists.first?.id
             iptvChannels = []
+            epg.clear()
             if let next = selectedIptvPlaylistId {
                 Task { await selectIptvPlaylist(id: next) }
             }
@@ -611,6 +614,7 @@ final class AppStore {
                     guard self.selectedIptvPlaylistId == targetId else { return }
                     self.iptvChannels = channels
                     self.isLoadingIptv = false
+                    if mode == .live { self.epg.load(for: ref, channels: channels) }
                 }
             } catch is CancellationError {
                 // The caller moved on to another playlist; stay quiet.

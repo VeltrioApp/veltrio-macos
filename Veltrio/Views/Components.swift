@@ -365,10 +365,13 @@ struct FrameButton: View {
                 } else if let icon {
                     Image(systemName: icon).font(.system(size: 10, weight: .bold))
                 }
-                Text(title.localized)
-                    .font(Theme.Font.eyebrow(10, weight: .bold))
-                    .tracking(2.2)
-                    .textCase(.uppercase)
+                // Icon-only buttons (guide arrows) pass an empty title.
+                if !title.isEmpty {
+                    Text(title.localized)
+                        .font(Theme.Font.eyebrow(10, weight: .bold))
+                        .tracking(2.2)
+                        .textCase(.uppercase)
+                }
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 9)
