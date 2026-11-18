@@ -7,6 +7,8 @@ struct VeltrioApp: App {
 
     init() {
         initLogging()
+        CrashReports.shared.start()
+        _ = AppUpdater.shared
         _store = State(initialValue: AppStore())
     }
 
@@ -24,6 +26,10 @@ struct VeltrioApp: App {
         .windowToolbarStyle(.unified(showsTitle: false))
         .commands {
             CommandGroup(replacing: .newItem) {}
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates…") { AppUpdater.shared.checkForUpdates() }
+                    .disabled(!AppUpdater.shared.isConfigured)
+            }
             CommandGroup(after: .appSettings) {
                 Divider()
                 Text("Veltrio") // category hint

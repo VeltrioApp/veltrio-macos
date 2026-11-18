@@ -35,9 +35,15 @@
     <string></string>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>SUFeedURL</key>
+    <string>$(VELTRIO_APPCAST_URL)</string>
+    <key>SUPublicEDKey</key>
+    <string>$(VELTRIO_SPARKLE_PUBLIC_KEY)</string>
+    <key>SUEnableAutomaticChecks</key>
+    <true/>
     <key>NSSupportsAutomaticTermination</key>
-    <true/>
+    <false/>
     <key>NSSupportsSuddenTermination</key>
-    <true/>
+    <false/>
 </dict>
 </plist>

@@ -248,139 +248,22 @@ final class JellyfinService {
 
     // MARK: - Matching an IMDB title
 
-    /// A library copy of a title, with what the stream list shows about it.
-    struct Match: Identifiable {
-        let item: JellyfinItem
-        /// "1080p HEVC SDR", as Jellyfin labels the video stream.
-        let video: String?
-        /// Audio languages as ISO 639-2 codes ("fre", "eng").
-        let audioLanguages: [String]
-        var id: String { item.id }
+    func findMovie(imdbId: String, title: String, year: Int?) async -> [MediaServerMatch] {
+        await matcher?.findMovie(imdbId: imdbId, title: title, year: year) ?? []
     }
 
-    /// The library's copies of one film. Matched on the IMDB id Jellyfin
-    /// stores from its metadata providers; title and year are the
-    /// fallback for items it couldn't identify.
-    func findMovie(imdbId: String, title: String, year: Int?) async -> [Match] {
-        await findItems(type: "Movie", imdbId: imdbId, title: title, year: year)
-    }
-
-    /// The library's copies of one episode: the series is matched like a
-    /// film, then the episode is looked up by season and number.
     func findEpisode(seriesImdbId: String, title: String, year: Int?,
-                     season: Int, episode: Int) async -> [Match] {
-        guard let uid = userId else { return [] }
-        let series = await findItems(type: "Series", imdbId: seriesImdbId, title: title, year: year)
-        var found: [Match] = []
-        for s in series {
-            var comps = URLComponents(string: "\(serverUrl)/Shows/\(s.item.id)/Episodes")
-            comps?.queryItems = [
-                URLQueryItem(name: "UserId", value: uid),
-                URLQueryItem(name: "Season", value: String(season)),
-                URLQueryItem(name: "Fields", value: "Overview,MediaStreams"),
-            ]
-            guard let url = comps?.url, let rows = await fetchRaw(url) else { continue }
-            found += rows.filter { $0.parentIndex == season && $0.episodeIndex == episode }
-                .map(Self.match)
-        }
-        return found
+                     season: Int, episode: Int) async -> [MediaServerMatch] {
+        await matcher?.findEpisode(seriesImdbId: seriesImdbId, title: title, year: year,
+                                   season: season, episode: episode) ?? []
     }
 
-    private func findItems(type: String, imdbId: String, title: String, year: Int?) async -> [Match] {
-        guard let uid = userId else { return [] }
-        var comps = URLComponents(string: "\(serverUrl)/Users/\(uid)/Items")
-        comps?.queryItems = [
-            URLQueryItem(name: "SearchTerm", value: title),
-            URLQueryItem(name: "IncludeItemTypes", value: type),
-            URLQueryItem(name: "Recursive", value: "true"),
-            URLQueryItem(name: "Fields", value: "ProviderIds,ProductionYear,MediaStreams,Overview"),
-            URLQueryItem(name: "Limit", value: "20"),
-        ]
-        guard let url = comps?.url, let rows = await fetchRaw(url) else { return [] }
-        let wanted = imdbId.lowercased()
-        return rows.filter { r in
-            let ids = r.providerIds ?? [:]
-            if let imdb = ids.first(where: { $0.key.lowercased() == "imdb" })?.value {
-                return imdb.lowercased() == wanted
-            }
-            guard r.name.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
-                    == title.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
-            else { return false }
-            if let year, let theirs = r.productionYear { return abs(theirs - year) <= 1 }
-            return true
-        }
-        .map(Self.match)
-    }
-
-    private struct RawItem: Decodable {
-        let id: String
-        let name: String
-        let itemType: String
-        let overview: String?
-        let imageTags: [String: String]?
-        let runtimeTicks: Int64?
-        let seriesName: String?
-        let parentIndex: Int?
-        let episodeIndex: Int?
-        let productionYear: Int?
-        let providerIds: [String: String]?
-        let mediaStreams: [RawStream]?
-        enum CodingKeys: String, CodingKey {
-            case id = "Id"
-            case name = "Name"
-            case itemType = "Type"
-            case overview = "Overview"
-            case imageTags = "ImageTags"
-            case runtimeTicks = "RunTimeTicks"
-            case seriesName = "SeriesName"
-            case parentIndex = "ParentIndexNumber"
-            case episodeIndex = "IndexNumber"
-            case productionYear = "ProductionYear"
-            case providerIds = "ProviderIds"
-            case mediaStreams = "MediaStreams"
-        }
-    }
-
-    private struct RawStream: Decodable {
-        let type: String?
-        let language: String?
-        let displayTitle: String?
-        enum CodingKeys: String, CodingKey {
-            case type = "Type"
-            case language = "Language"
-            case displayTitle = "DisplayTitle"
-        }
-    }
-
-    private func fetchRaw(_ url: URL) async -> [RawItem]? {
-        guard let token = accessToken else { return nil }
-        var req = URLRequest(url: url)
+    private var matcher: MediaBrowserMatcher? {
+        guard let token = accessToken, let uid = userId else { return nil }
+        var req = URLRequest(url: URL(string: "about:blank")!)
         setAuthHeaders(on: &req, token: token)
-        struct Envelope: Decodable {
-            let items: [RawItem]
-            enum CodingKeys: String, CodingKey { case items = "Items" }
-        }
-        guard let (data, resp) = try? await session.data(for: req),
-              let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode)
-        else { return nil }
-        return (try? JSONDecoder().decode(Envelope.self, from: data))?.items
-    }
-
-    private static func match(_ r: RawItem) -> Match {
-        let streams = r.mediaStreams ?? []
-        var languages: [String] = []
-        for s in streams where s.type == "Audio" {
-            if let l = s.language, !l.isEmpty, !languages.contains(l) { languages.append(l) }
-        }
-        return Match(
-            item: JellyfinItem(
-                id: r.id, name: r.name, type: r.itemType, overview: r.overview,
-                primaryImageTag: r.imageTags?["Primary"], runtimeTicks: r.runtimeTicks,
-                seriesName: r.seriesName, seasonIndex: r.parentIndex, episodeIndex: r.episodeIndex
-            ),
-            video: streams.first(where: { $0.type == "Video" })?.displayTitle,
-            audioLanguages: languages
-        )
+        return MediaBrowserMatcher(serverUrl: serverUrl, userId: uid, session: session,
+                                   headers: req.allHTTPHeaderFields ?? [:])
     }
 
     /// Decode the `{Items: [...]}` envelope that both `/Items` and

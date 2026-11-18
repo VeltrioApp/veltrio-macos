@@ -1,5 +1,0 @@
-module mpv [system] {
-    header "shim.h"
-    link "mpv"
-    export *
-}

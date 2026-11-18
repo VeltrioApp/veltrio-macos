@@ -9,8 +9,8 @@ import Observation
 /// Keeping a single top-level entry per title (with an `episodes` dict)
 /// lets us answer "have I started this show?" in one lookup.
 struct WatchEntry: Codable, Hashable, Identifiable {
-    let type: String          // "movie" | "series" | "channel"
-    let contentId: String     // Stremio/IMDB id, or `xtream-<id>` for live TV
+    let type: String          // "movie" | "series" | "iptv"
+    let contentId: String     // Stremio/IMDB id, or `xvod-<id>` / `xep-<id>` for "iptv"
     var name: String
     var poster: String?
     var background: String?
@@ -114,8 +114,10 @@ final class WatchStore {
     /// Everything currently in "Continue Watching" — in-progress or just
     /// finished, most-recent first.
     var continueWatching: [WatchEntry] {
+        // "iptv" entries (provider films opened from the IPTV tab) only
+        // exist for resume: they have no page to open.
         entries.values
-            .filter { $0.isStarted && !$0.watched }
+            .filter { ($0.type == "movie" || $0.type == "series") && $0.isStarted && !$0.watched }
             .sorted { $0.lastWatchedAt > $1.lastWatchedAt }
     }
 

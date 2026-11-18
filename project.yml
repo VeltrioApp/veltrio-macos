@@ -6,6 +6,14 @@ options:
   xcodeVersion: "15.0"
   createIntermediateGroups: true
 
+packages:
+  MPVKit:
+    url: https://github.com/mpvkit/MPVKit
+    exactVersion: 1.1.0-n9.0.2
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    exactVersion: 2.10.1
+
 settings:
   base:
     SWIFT_VERSION: "5.10"
@@ -14,8 +22,19 @@ settings:
     CODE_SIGN_STYLE: Manual
     CODE_SIGN_IDENTITY: "-"
     DEVELOPMENT_TEAM: ""
-    ENABLE_HARDENED_RUNTIME: NO
     ENABLE_APP_SANDBOX: NO
+    # Sparkle update feed and EdDSA public key. Empty = updates off (the
+    # menu item stays disabled); scripts/release-macos.sh fills them from
+    # VELTRIO_APPCAST_URL and VELTRIO_SPARKLE_PUBLIC_KEY.
+    VELTRIO_APPCAST_URL: ""
+    VELTRIO_SPARKLE_PUBLIC_KEY: ""
+    # Distribution is outside the App Store (built-in torrent engine), so
+    # the app is signed with a Developer ID and notarized. Notarization
+    # requires the hardened runtime; scripts/release-macos.sh passes the
+    # identity and team.
+  configs:
+    Release:
+      ENABLE_HARDENED_RUNTIME: YES
 
 targets:
   Veltrio:
@@ -31,14 +50,25 @@ targets:
         INFOPLIST_FILE: Veltrio/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
-        SWIFT_INCLUDE_PATHS: $(SRCROOT)/Generated/Bindings $(SRCROOT)/MPV
-        HEADER_SEARCH_PATHS: $(SRCROOT)/Generated/Bindings /opt/homebrew/include
-        LIBRARY_SEARCH_PATHS: $(SRCROOT)/Generated/Lib /opt/homebrew/lib
-        LD_RUNPATH_SEARCH_PATHS: /opt/homebrew/lib
-        OTHER_LDFLAGS: -lveltrio_core -lmpv
+        SWIFT_INCLUDE_PATHS: $(SRCROOT)/Generated/Bindings
+        HEADER_SEARCH_PATHS: $(SRCROOT)/Generated/Bindings
+        LIBRARY_SEARCH_PATHS: $(SRCROOT)/Generated/Lib
+        LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
+        CODE_SIGN_ENTITLEMENTS: Veltrio/Veltrio.entitlements
         GCC_PREPROCESSOR_DEFINITIONS: GL_SILENCE_DEPRECATION=1 OPENGL_SILENCE_DEPRECATION=1
         COMBINE_HIDPI_IMAGES: YES
     dependencies:
+      # libmpv + FFmpeg and friends, prebuilt for macOS 12+ (arm64 and
+      # x86_64). The LGPL build: the GPL one would put the whole app
+      # under the GPL when distributed.
+      - package: MPVKit
+        product: MPVKit
+      - package: Sparkle
+      # The Rust core, as a universal dylib (see scripts/build-macos.sh for
+      # why it isn't static). Embedded in Contents/Frameworks.
+      - framework: Generated/Lib/libveltrio_core.dylib
+        embed: true
+        codeSign: true
       - sdk: SystemConfiguration.framework
       - sdk: Security.framework
       - sdk: CoreFoundation.framework

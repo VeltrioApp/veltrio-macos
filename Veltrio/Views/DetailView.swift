@@ -14,7 +14,7 @@ struct DetailView: View {
     @State private var isLoadingStreams = false
     @State private var loadError: String?
 
-    /// Jellyfin and IPTV copies of this title (or of the selected episode).
+    /// Media-server and IPTV copies of this title (or of the selected episode).
     @State private var direct: [DirectStream] = []
     @State private var isLoadingDirect = false
     /// Bumped per lookup so a slow answer for a previous episode can't
@@ -46,8 +46,7 @@ struct DetailView: View {
     /// so a single addon's results can be singled out.
     private enum SourceFilter: Hashable {
         case all
-        case jellyfin
-        case iptv
+        case direct(DirectStream.Origin)
         case addon(String)
     }
 
@@ -721,7 +720,7 @@ struct DetailView: View {
                     .buttonStyle(.plain)
                     .contextMenu { downloadMenu(for: labeled) }
                 case .direct(let d):
-                    NavigationLink(value: d.destination) {
+                    NavigationLink(value: playerDestination(for: d)) {
                         DirectStreamRow(stream: d)
                     }
                     .buttonStyle(.plain)
@@ -734,7 +733,7 @@ struct DetailView: View {
         let total = streams.count + direct.count
         if isLoadingAny && total == 0 { return "FETCHING FROM EVERY SOURCE" }
         var text = "\(visibleEntries.count) OF \(total) SHOWN"
-        if isLoadingDirect { text += " · LOOKING IN JELLYFIN & IPTV" }
+        if isLoadingDirect { text += " · LOOKING IN YOUR LIBRARIES & IPTV" }
         else if isLoadingStreams { text += " · ADDONS STILL ANSWERING" }
         return text
     }
@@ -742,14 +741,14 @@ struct DetailView: View {
     private var isLoadingAny: Bool { isLoadingStreams || isLoadingDirect }
     private var allEntriesEmpty: Bool { streams.isEmpty && direct.isEmpty }
 
-    /// Source chips: everything, the user's library, the IPTV provider,
+    /// Source chips: everything, the user's libraries, the IPTV provider,
     /// then each addon that answered.
     private var sourceOptions: [(filter: SourceFilter, label: String, count: Int)] {
         var out: [(SourceFilter, String, Int)] = [(.all, "All sources", streams.count + direct.count)]
-        let jellyfin = direct.filter { $0.origin == .jellyfin }.count
-        if jellyfin > 0 { out.append((.jellyfin, "Jellyfin", jellyfin)) }
-        let iptv = direct.filter { $0.origin == .iptv }.count
-        if iptv > 0 { out.append((.iptv, "IPTV", iptv)) }
+        for origin in [DirectStream.Origin.jellyfin, .emby, .plex, .iptv] {
+            let count = direct.filter { $0.origin == origin }.count
+            if count > 0 { out.append((.direct(origin), origin.label, count)) }
+        }
         var addonCounts: [String: Int] = [:]
         var addonOrder: [String] = []
         for s in streams {
@@ -780,10 +779,9 @@ struct DetailView: View {
         let directs = direct
             .filter { d in
                 switch sourceFilter {
-                case .all:      return true
-                case .jellyfin: return d.origin == .jellyfin
-                case .iptv:     return d.origin == .iptv
-                case .addon:    return false
+                case .all:                return true
+                case .direct(let origin): return d.origin == origin
+                case .addon:              return false
                 }
             }
             .filter { d in
@@ -795,7 +793,10 @@ struct DetailView: View {
                 case .hd:     return text.contains("1080P")
                 }
             }
-            .sorted { ($0.origin == .jellyfin ? 0 : 1) < ($1.origin == .jellyfin ? 0 : 1) }
+            // Stable: library copies keep their order ahead of IPTV.
+            .enumerated()
+            .sorted { ($0.element.origin.isLibrary ? 0 : 1, $0.offset) < ($1.element.origin.isLibrary ? 0 : 1, $1.offset) }
+            .map(\.element)
         let addons = sortedStreams.filter { s in
             switch sourceFilter {
             case .all:             return true
@@ -966,8 +967,26 @@ struct DetailView: View {
     private func playerDestination(for entry: StreamEntry) -> PlayerDestination {
         switch entry {
         case .addon(let labeled): return playerDestination(for: labeled)
-        case .direct(let d):      return d.destination
+        case .direct(let d):      return playerDestination(for: d)
         }
+    }
+
+    /// A media-server or IPTV copy, recording progress under this title.
+    private func playerDestination(for d: DirectStream) -> PlayerDestination {
+        let isSeriesType = (meta?.type ?? destination.type) == "series"
+        var dest = d.destination
+        dest.watchContext = .init(
+            contentType: isSeriesType ? "series" : "movie",
+            contentId: destination.id,
+            videoId: isSeriesType ? selectedVideoId : nil,
+            season: currentSeason ?? (canFallbackSeries ? Int32(manualSeason) : nil),
+            episode: currentEpisode ?? (canFallbackSeries ? Int32(manualEpisode) : nil),
+            poster: meta?.poster,
+            background: meta?.background,
+            addonId: destination.addon.id,
+            addonName: destination.addon.manifest.name
+        )
+        return dest
     }
 
     private func playerDestination(for labeled: LabeledStream) -> PlayerDestination {
@@ -1033,7 +1052,7 @@ struct DetailView: View {
         await lookup
     }
 
-    /// Jellyfin and IPTV copies for a Stremio video id: `tt123` for a
+    /// Media-server and IPTV copies for a Stremio video id: `tt123` for a
     /// film, `tt123:season:episode` for an episode.
     private func loadDirect(for id: String) async {
         directRequest += 1
@@ -1320,7 +1339,7 @@ private struct StreamRow: View {
     }
 }
 
-// MARK: - Direct stream row (Jellyfin / IPTV)
+// MARK: - Direct stream row (media servers / IPTV)
 //
 // Same frame as `StreamRow`. Language tags lead, since on an IPTV
 // provider the language is usually what tells two copies apart.
@@ -1331,7 +1350,7 @@ private struct DirectStreamRow: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: Theme.Spacing.md) {
-            Image(systemName: stream.origin == .jellyfin ? "server.rack" : "dot.radiowaves.left.and.right")
+            Image(systemName: stream.origin.isLibrary ? "server.rack" : "dot.radiowaves.left.and.right")
                 .font(.system(size: 18, weight: .bold))
                 .foregroundStyle(Theme.Palette.textSecondary)
                 .frame(width: 44, height: 44)

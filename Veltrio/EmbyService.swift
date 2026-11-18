@@ -34,7 +34,14 @@ final class EmbyService {
 
     private let session: URLSession
     private let appName = "Veltrio"
-    private let deviceId = "veltrio-emby-\(ProcessInfo.processInfo.globallyUniqueString.prefix(10))"
+    /// Stable per install: Emby ties tokens and its device list to it.
+    private let deviceId: String = {
+        let key = "veltrio.emby.deviceId"
+        if let id = UserDefaults.standard.string(forKey: key) { return id }
+        let id = "veltrio-emby-\(UUID().uuidString.prefix(12).lowercased())"
+        UserDefaults.standard.set(id, forKey: key)
+        return id
+    }()
 
     var isConnected: Bool { accessToken != nil && userId != nil }
 
@@ -55,22 +62,56 @@ final class EmbyService {
         isConnecting = true
         defer { isConnecting = false }
         let normalized = normalizeHost(host)
-        guard let url = URL(string: "\(normalized)/emby/Users/AuthenticateByName")
-              ?? URL(string: "\(normalized)/Users/AuthenticateByName") else {
+        guard let probeUrl = URL(string: "\(normalized)/System/Info/Public"),
+              let url = URL(string: "\(normalized)/Users/AuthenticateByName") else {
             connectionError = "Invalid server URL"
             return
         }
+
+        // Check an Emby server answers here before sending credentials, so
+        // a wrong address isn't reported as a wrong password.
+        do {
+            let (data, resp) = try await session.data(from: probeUrl)
+            struct Info: Decodable { let ProductName: String?; let Version: String? }
+            guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode),
+                  let info = try? JSONDecoder().decode(Info.self, from: data),
+                  info.Version != nil else {
+                connectionError = "No Emby server answered at \(normalized). Check the address and port (8096 by default)."
+                return
+            }
+            if info.ProductName?.localizedCaseInsensitiveContains("jellyfin") == true {
+                connectionError = "This is a Jellyfin server. Connect it with the Jellyfin card instead."
+                return
+            }
+        } catch {
+            connectionError = "Couldn't reach \(normalized): \(error.localizedDescription)"
+            return
+        }
+
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.setValue(authHeader(), forHTTPHeaderField: "X-Emby-Authorization")
+        setAuthHeaders(on: &req, token: nil)
         let body = ["Username": user, "Pw": password]
         do {
             req.httpBody = try JSONSerialization.data(withJSONObject: body)
             let (data, resp) = try await session.data(for: req)
-            guard let http = resp as? HTTPURLResponse,
-                  (200...299).contains(http.statusCode) else {
-                connectionError = "Server rejected credentials"
+            guard let http = resp as? HTTPURLResponse else {
+                connectionError = "Unexpected response from the server"
+                return
+            }
+            guard (200...299).contains(http.statusCode) else {
+                switch http.statusCode {
+                case 401:
+                    connectionError = "Wrong username or password"
+                case 403:
+                    connectionError = "This account isn't allowed to sign in"
+                default:
+                    let detail = String(data: data.prefix(200), encoding: .utf8)?
+                        .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                    connectionError = "Emby refused the sign-in (HTTP \(http.statusCode))"
+                        + (detail.isEmpty ? "" : ": \(detail)")
+                }
                 return
             }
             struct R: Decodable {
@@ -130,7 +171,7 @@ final class EmbyService {
         guard let url = comps?.url else { return [] }
 
         var req = URLRequest(url: url)
-        req.setValue("MediaBrowser Token=\(token)", forHTTPHeaderField: "X-Emby-Authorization")
+        setAuthHeaders(on: &req, token: token)
         do {
             let (data, _) = try await session.data(for: req)
             return try Self.decodeItems(data)
@@ -195,7 +236,32 @@ final class EmbyService {
         return h
     }
 
-    private func authHeader() -> String {
-        "MediaBrowser Client=\"\(appName)\", Device=\"Mac\", DeviceId=\"\(deviceId)\", Version=\"0.1.0\""
+    private func setAuthHeaders(on req: inout URLRequest, token: String?) {
+        var value = "MediaBrowser Client=\"\(appName)\", Device=\"Mac\", DeviceId=\"\(deviceId)\", Version=\"0.1.0\""
+        if let token {
+            value += ", Token=\"\(token)\""
+            req.setValue(token, forHTTPHeaderField: "X-Emby-Token")
+        }
+        req.setValue(value, forHTTPHeaderField: "X-Emby-Authorization")
+    }
+
+    // MARK: - Matching an IMDB title
+
+    func findMovie(imdbId: String, title: String, year: Int?) async -> [MediaServerMatch] {
+        await matcher?.findMovie(imdbId: imdbId, title: title, year: year) ?? []
+    }
+
+    func findEpisode(seriesImdbId: String, title: String, year: Int?,
+                     season: Int, episode: Int) async -> [MediaServerMatch] {
+        await matcher?.findEpisode(seriesImdbId: seriesImdbId, title: title, year: year,
+                                   season: season, episode: episode) ?? []
+    }
+
+    private var matcher: MediaBrowserMatcher? {
+        guard let token = accessToken, let uid = userId else { return nil }
+        var req = URLRequest(url: URL(string: "about:blank")!)
+        setAuthHeaders(on: &req, token: token)
+        return MediaBrowserMatcher(serverUrl: serverUrl, userId: uid, session: session,
+                                   headers: req.allHTTPHeaderFields ?? [:])
     }
 }

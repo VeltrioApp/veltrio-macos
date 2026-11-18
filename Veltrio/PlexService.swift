@@ -24,7 +24,15 @@ struct PlexUser: Equatable {
 @MainActor
 @Observable
 final class PlexService {
-    private let clientId = "veltrio-\(ProcessInfo.processInfo.globallyUniqueString.prefix(10))"
+    /// Stable per install: plex.tv lists each client id as a device, and
+    /// the auth token is issued to it.
+    private let clientId: String = {
+        let key = "veltrio.plex.clientId"
+        if let id = UserDefaults.standard.string(forKey: key) { return id }
+        let id = "veltrio-\(UUID().uuidString.prefix(12).lowercased())"
+        UserDefaults.standard.set(id, forKey: key)
+        return id
+    }()
     private let product  = "Veltrio"
     private let device   = "Mac"
 
@@ -319,6 +327,120 @@ final class PlexService {
             URLQueryItem(name: "X-Plex-Container-Size", value: "1")
         ]
         return components.url
+    }
+
+    // MARK: - Matching an IMDB title
+
+    /// The library's copies of one film. Plex keeps the IMDB id among an
+    /// item's `Guid`s (`imdb://tt…`) when asked with `includeGuids`;
+    /// title and year are the fallback.
+    func findMovie(imdbId: String, title: String, year: Int?) async -> [MediaServerMatch] {
+        guard let (base, token) = await serverAccess() else { return [] }
+        var out: [MediaServerMatch] = []
+        for section in await fetchSections(base: base, token: token) where section.type == "movie" {
+            let items = await metadata(base: base, token: token,
+                                       path: "/library/sections/\(section.key)/all",
+                                       query: ["type": "1", "title": title, "includeGuids": "1"])
+            for item in items where Self.isSame(item, imdbId: imdbId, title: title, year: year) {
+                if let m = await match(item, base: base, token: token) { out.append(m) }
+            }
+        }
+        return out
+    }
+
+    /// The library's copies of one episode: the show is matched like a
+    /// film, then its episodes are listed and the right one picked.
+    func findEpisode(seriesImdbId: String, title: String, year: Int?,
+                     season: Int, episode: Int) async -> [MediaServerMatch] {
+        guard let (base, token) = await serverAccess() else { return [] }
+        var out: [MediaServerMatch] = []
+        for section in await fetchSections(base: base, token: token) where section.type == "show" {
+            let shows = await metadata(base: base, token: token,
+                                       path: "/library/sections/\(section.key)/all",
+                                       query: ["type": "2", "title": title, "includeGuids": "1"])
+            for show in shows where Self.isSame(show, imdbId: seriesImdbId, title: title, year: year) {
+                let episodes = await metadata(base: base, token: token,
+                                              path: "/library/metadata/\(show.ratingKey)/allLeaves", query: [:])
+                for ep in episodes where ep.parentIndex == season && ep.index == episode {
+                    if let m = await match(ep, base: base, token: token, seriesName: show.title) { out.append(m) }
+                }
+            }
+        }
+        return out
+    }
+
+    /// The server's address and the token to use with it. A server shared
+    /// by someone else only accepts its own access token.
+    private func serverAccess() async -> (String, String)? {
+        guard let token, let server = await discoverServer(token: token),
+              let base = server.bestConnection?.uri else { return nil }
+        cachedServerUri = base
+        return (base, server.accessToken ?? token)
+    }
+
+    private struct Meta: Decodable {
+        let ratingKey: String
+        let title: String
+        let type: String?
+        let year: Int?
+        let parentIndex: Int?
+        let index: Int?
+        let Guid: [GuidEntry]?
+        let Media: [MediaEntry]?
+
+        struct GuidEntry: Decodable { let id: String }
+        struct MediaEntry: Decodable {
+            let videoResolution: String?
+            let videoCodec: String?
+            let Part: [PartEntry]?
+        }
+        struct PartEntry: Decodable {
+            let key: String?
+            let Stream: [StreamEntry]?
+        }
+        struct StreamEntry: Decodable {
+            let streamType: Int?
+            let languageCode: String?
+        }
+    }
+
+    private struct MetaEnvelope: Decodable {
+        let MediaContainer: Container
+        struct Container: Decodable { let Metadata: [Meta]? }
+    }
+
+    private func metadata(base: String, token: String, path: String, query: [String: String]) async -> [Meta] {
+        guard var comps = URLComponents(string: base + path) else { return [] }
+        if !query.isEmpty { comps.queryItems = query.map { URLQueryItem(name: $0.key, value: $0.value) } }
+        guard let url = comps.url, let data = await get(url: url, token: token) else { return [] }
+        return (try? JSONDecoder().decode(MetaEnvelope.self, from: data))?.MediaContainer.Metadata ?? []
+    }
+
+    private static func isSame(_ item: Meta, imdbId: String, title: String, year: Int?) -> Bool {
+        let imdb = item.Guid?.first(where: { $0.id.hasPrefix("imdb://") })?.id.dropFirst("imdb://".count)
+        if let imdb { return imdb.lowercased() == imdbId.lowercased() }
+        return MediaServerTitles.same(item.title, title, theirYear: item.year, year: year)
+    }
+
+    /// Turns a matched item into a stream entry. The listing omits audio
+    /// streams, so the item's own metadata is fetched for its languages;
+    /// the playable file is the media part.
+    private func match(_ item: Meta, base: String, token: String, seriesName: String? = nil) async -> MediaServerMatch? {
+        let full = await metadata(base: base, token: token, path: "/library/metadata/\(item.ratingKey)", query: [:]).first ?? item
+        guard let media = full.Media?.first, let part = media.Part?.first, let key = part.key,
+              var comps = URLComponents(string: base + key) else { return nil }
+        comps.queryItems = [URLQueryItem(name: "X-Plex-Token", value: token)]
+        var languages: [String] = []
+        for stream in part.Stream ?? [] where stream.streamType == 2 {
+            if let l = stream.languageCode, !languages.contains(l) { languages.append(l) }
+        }
+        let video = [media.videoResolution.map { $0.lowercased() == "4k" ? "4K" : "\($0)p" },
+                     media.videoCodec?.uppercased()].compactMap { $0 }.joined(separator: " ")
+        return MediaServerMatch(
+            itemId: item.ratingKey, name: item.title, type: item.type ?? "movie",
+            seriesName: seriesName, video: video.isEmpty ? nil : video,
+            audioLanguages: languages, streamURL: comps.url
+        )
     }
 
     /// The server URI discovered during the last search, so a result can

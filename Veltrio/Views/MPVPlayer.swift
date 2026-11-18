@@ -4,7 +4,7 @@ import OpenGL.GL
 import OpenGL.GL3
 import Darwin
 import Observation
-import mpv
+import Libmpv
 
 /// One audio or subtitle track reported by mpv.
 struct MediaTrack: Hashable, Identifiable {
@@ -548,7 +548,7 @@ final class MPVOpenGLView: NSOpenGLView {
                     let prefix = String(cString: log.prefix)
                     let text = String(cString: log.text).trimmingCharacters(in: .whitespacesAndNewlines)
                     if !text.isEmpty {
-                        NSLog("MPV[%@] %@", prefix, text)
+                        NSLog("MPV[%@] %@", prefix, DebugLog.redact(text))
                     }
                 }
 

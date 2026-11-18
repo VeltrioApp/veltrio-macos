@@ -1,20 +1,26 @@
 import Foundation
 
 /// A ready-to-play copy of an IMDB title that doesn't come from a Stremio
-/// addon: a file in the user's Jellyfin library, or a film or episode on
-/// their IPTV provider. Listed beside the addon streams on the detail
+/// addon: a file in the user's Jellyfin, Emby or Plex library, or a film
+/// or episode on their IPTV provider. Listed beside the addon streams on the detail
 /// page.
 struct DirectStream: Identifiable {
     enum Origin: Hashable {
         case jellyfin
+        case emby
+        case plex
         case iptv
 
         var label: String {
             switch self {
             case .jellyfin: return "Jellyfin"
+            case .emby:     return "Emby"
+            case .plex:     return "Plex"
             case .iptv:     return "IPTV"
             }
         }
+
+        var isLibrary: Bool { self != .iptv }
     }
 
     let id: String
@@ -30,7 +36,7 @@ struct DirectStream: Identifiable {
     let destination: PlayerDestination
 }
 
-/// Finds the Jellyfin and IPTV copies of an IMDB title.
+/// Finds the media-server and IPTV copies of an IMDB title.
 @MainActor
 enum DirectSourceFinder {
     /// - Parameters:
@@ -38,39 +44,81 @@ enum DirectSourceFinder {
     ///   - season, episode: set for an episode, nil for a film.
     static func find(store: AppStore, imdbId: String, title: String, year: Int?,
                      season: Int?, episode: Int?, poster: String?) async -> [DirectStream] {
-        async let library = jellyfin(store: store, imdbId: imdbId, title: title, year: year,
-                                     season: season, episode: episode, poster: poster)
+        let lookup = Lookup(imdbId: imdbId, title: title, year: year,
+                            season: season, episode: episode, poster: poster)
+        async let jellyfin = jellyfinStreams(store, lookup)
+        async let emby = embyStreams(store, lookup)
+        async let plex = plexStreams(store, lookup)
         async let provider = iptv(store: store, title: title, year: year,
                                   season: season, episode: episode)
-        return await library + provider
+        return await jellyfin + emby + plex + provider
     }
 
-    private static func jellyfin(store: AppStore, imdbId: String, title: String, year: Int?,
-                                 season: Int?, episode: Int?, poster: String?) async -> [DirectStream] {
+    private struct Lookup {
+        let imdbId: String
+        let title: String
+        let year: Int?
+        let season: Int?
+        let episode: Int?
+        let poster: String?
+    }
+
+    private static func jellyfinStreams(_ store: AppStore, _ l: Lookup) async -> [DirectStream] {
         let service = store.jellyfin
         guard service.isConnected else { return [] }
-        let matches: [JellyfinService.Match]
-        if let season, let episode {
-            matches = await service.findEpisode(seriesImdbId: imdbId, title: title, year: year,
+        let matches: [MediaServerMatch]
+        if let season = l.season, let episode = l.episode {
+            matches = await service.findEpisode(seriesImdbId: l.imdbId, title: l.title, year: l.year,
                                                 season: season, episode: episode)
         } else {
-            matches = await service.findMovie(imdbId: imdbId, title: title, year: year)
+            matches = await service.findMovie(imdbId: l.imdbId, title: l.title, year: l.year)
         }
-        return matches.compactMap { m in
-            guard let url = service.streamUrl(for: m.item.id) else { return nil }
-            let name = m.item.seriesName.map { "\($0) · \(m.item.name)" } ?? m.item.name
+        return streams(.jellyfin, l, matches) { service.streamUrl(for: $0.itemId) }
+    }
+
+    private static func embyStreams(_ store: AppStore, _ l: Lookup) async -> [DirectStream] {
+        let service = store.emby
+        guard service.isConnected else { return [] }
+        let matches: [MediaServerMatch]
+        if let season = l.season, let episode = l.episode {
+            matches = await service.findEpisode(seriesImdbId: l.imdbId, title: l.title, year: l.year,
+                                                season: season, episode: episode)
+        } else {
+            matches = await service.findMovie(imdbId: l.imdbId, title: l.title, year: l.year)
+        }
+        return streams(.emby, l, matches) { service.streamUrl(for: $0.itemId) }
+    }
+
+    private static func plexStreams(_ store: AppStore, _ l: Lookup) async -> [DirectStream] {
+        let service = store.plex
+        guard service.isConnected else { return [] }
+        let matches: [MediaServerMatch]
+        if let season = l.season, let episode = l.episode {
+            matches = await service.findEpisode(seriesImdbId: l.imdbId, title: l.title, year: l.year,
+                                                season: season, episode: episode)
+        } else {
+            matches = await service.findMovie(imdbId: l.imdbId, title: l.title, year: l.year)
+        }
+        return streams(.plex, l, matches) { $0.streamURL }
+    }
+
+    private static func streams(_ origin: DirectStream.Origin, _ l: Lookup, _ matches: [MediaServerMatch],
+                                urlFor: (MediaServerMatch) -> URL?) -> [DirectStream] {
+        matches.compactMap { m in
+            guard let url = urlFor(m) else { return nil }
+            let name = m.seriesName.map { "\($0) · \(m.name)" } ?? m.name
             return DirectStream(
-                id: "jellyfin|\(m.item.id)",
-                origin: .jellyfin,
+                id: "\(origin.label.lowercased())|\(m.itemId)",
+                origin: origin,
                 title: name,
                 detail: m.video,
                 languages: m.audioLanguages.map(shortLanguage),
                 destination: PlayerDestination(
                     kind: .libraryItem(.init(
-                        url: url, serverName: "Jellyfin", itemId: m.item.id,
-                        poster: poster, itemType: m.item.type
+                        url: url, serverName: origin.label, itemId: m.itemId,
+                        poster: l.poster, itemType: m.type
                     )),
-                    title: title
+                    title: l.title
                 )
             )
         }

@@ -780,21 +780,45 @@ private struct StorageSettings: View {
 }
 
 private struct AboutSettings: View {
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
+    }
+
     var body: some View {
         SettingsPageHeader(title: "About")
         SurfaceCard {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Veltrio").font(Theme.Font.heading(18))
                     .foregroundStyle(Theme.Palette.textPrimary)
-                Text("v0.1.0 · Core \(coreVersion())")
+                Text("v\(appVersion) · Core \(coreVersion())")
                     .font(Theme.Font.mono(11))
                     .foregroundStyle(Theme.Palette.textTertiary)
-                Text("The top-tier Stremio client. Native UI per platform, one shared Rust core.")
+                Text("Every source, one native player.")
                     .font(Theme.Font.body(13))
                     .foregroundStyle(Theme.Palette.textSecondary)
                     .padding(.top, 6)
             }
         }
+        SurfaceCard {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Crash reports").font(Theme.Font.heading(15))
+                    .foregroundStyle(Theme.Palette.textPrimary)
+                Text(crashReportSummary)
+                    .font(Theme.Font.body(13))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+                FrameButton(title: "Show in Finder", icon: "folder") {
+                    CrashReports.revealInFinder()
+                }
+            }
+        }
+    }
+
+    private var crashReportSummary: String {
+        let count = CrashReports.reports().count
+        if count == 0 {
+            return "No crash or hang reported. If one happens, macOS hands the report over at the next launch and it lands here."
+        }
+        return "\(count) report\(count == 1 ? "" : "s") from the last 60 days. Attach them to a bug report."
     }
 }
 

@@ -44,8 +44,26 @@ struct PlayerDestination: Hashable {
         case libraryItem(LibraryPayload)
     }
 
+    /// Where progress is recorded for a non-addon item. A media-server or
+    /// IPTV copy opened from a title's page records under that title's
+    /// IMDB id, so resume, "watched", Continue Watching and Trakt behave
+    /// exactly as for an addon stream. (Addon streams carry this in their
+    /// payload.)
+    struct WatchContext: Hashable {
+        let contentType: String   // "movie" | "series"
+        let contentId: String
+        let videoId: String?
+        let season: Int32?
+        let episode: Int32?
+        let poster: String?
+        let background: String?
+        let addonId: String?
+        let addonName: String?
+    }
+
     let kind: Kind
     let title: String
+    var watchContext: WatchContext? = nil
 
     /// Live TV only. Xtream films and episodes travel as `.liveChannel`
     /// too but have a timeline, so they get the seek bar and track menus.
@@ -336,8 +354,30 @@ struct PlayerView: View {
     /// (type, id, videoId) for the WatchStore. Nil for anything we don't
     /// track (live channels).
     private func watchIdentity() -> (String, String, String?)? {
-        guard case .stream(let p) = destination.kind else { return nil }
-        return (p.contentType, p.contentId, p.videoId)
+        guard let c = watchContext else { return nil }
+        return (c.contentType, c.contentId, c.videoId)
+    }
+
+    /// The progress record for what's playing: the addon payload, the
+    /// title context a detail page attached, or — for an IPTV film or
+    /// episode opened from the IPTV tab, which has no IMDB id — the
+    /// provider's own id under the "iptv" type, kept for resume only.
+    private var watchContext: PlayerDestination.WatchContext? {
+        switch destination.kind {
+        case .stream(let p):
+            return .init(contentType: p.contentType, contentId: p.contentId, videoId: p.videoId,
+                         season: p.season, episode: p.episode, poster: p.poster,
+                         background: p.background, addonId: p.addonId, addonName: p.addonName)
+        case .liveChannel(let c) where c.isOnDemand:
+            return destination.watchContext ?? .init(
+                contentType: "iptv", contentId: c.id, videoId: nil, season: nil, episode: nil,
+                poster: c.logoUrl, background: nil, addonId: nil, addonName: nil
+            )
+        case .liveChannel:
+            return nil
+        case .libraryItem:
+            return destination.watchContext
+        }
     }
 
     private func startProgressReporting() {
@@ -656,7 +696,7 @@ struct PlayerView: View {
     }
 
     private func reportProgress() {
-        guard case .stream(let p) = destination.kind else { return }
+        guard let p = watchContext else { return }
         guard controller.duration > 0, controller.position > 0 else { return }
         watch.reportProgress(
             type: p.contentType,
