@@ -65,7 +65,7 @@ struct CatalogGridView: View {
             .keyboardShortcut(.escape, modifiers: [])
 
             PageHeader(
-                eyebrow: "\(destination.addon.manifest.name) · \(destination.catalog.type)",
+                eyebrow: "\(destination.addon.manifest.name) · \(destination.catalog.type.localized)",
                 title: destination.catalog.name,
                 subtitle: isExhausted
                     ? String(localized: "\(items.count) items loaded · all pages fetched")

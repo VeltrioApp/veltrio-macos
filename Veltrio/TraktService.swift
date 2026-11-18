@@ -131,7 +131,7 @@ final class TraktService {
         }
         guard self.pendingDevice?.deviceCode == code.deviceCode else { return }
         self.pendingDevice = nil
-        self.connectionError = "Trakt code expired. Try again."
+        self.connectionError = String(localized: "Trakt code expired. Try again.")
     }
 
     private func exchangeToken(deviceCode: String) async throws -> String? {

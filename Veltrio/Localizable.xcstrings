@@ -11,6 +11,16 @@
         }
       }
     },
+    "%lld MIN LEFT": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld MIN RESTANTES"
+          }
+        }
+      }
+    },
     "%lld OF %lld SHOWN": {
       "localizations": {
         "fr": {
@@ -421,6 +431,16 @@
         }
       }
     },
+    "/path/to/playlist.m3u": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "/chemin/vers/playlist.m3u"
+          }
+        }
+      }
+    },
     "100 seeds": {
       "localizations": {
         "fr": {
@@ -481,6 +501,16 @@
         }
       }
     },
+    "Add": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter"
+          }
+        }
+      }
+    },
     "Add IPTV playlist": {
       "localizations": {
         "fr": {
@@ -521,12 +551,42 @@
         }
       }
     },
+    "Add source": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter une source"
+          }
+        }
+      }
+    },
     "Add to library": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Ajouter à la collection"
+          }
+        }
+      }
+    },
+    "Addon %@ is already installed.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'addon %@ est déjà installé."
+          }
+        }
+      }
+    },
+    "Addon catalog": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catalogue d'addons"
           }
         }
       }
@@ -611,6 +671,16 @@
         }
       }
     },
+    "Arabic": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arabe"
+          }
+        }
+      }
+    },
     "Aspect ratio": {
       "localizations": {
         "fr": {
@@ -627,6 +697,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Format d'image et zoom"
+          }
+        }
+      }
+    },
+    "Audio codec": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codec audio"
           }
         }
       }
@@ -671,6 +751,16 @@
         }
       }
     },
+    "Authenticated": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authentifié"
+          }
+        }
+      }
+    },
     "Authorise on Trakt.tv": {
       "localizations": {
         "fr": {
@@ -697,6 +787,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enchaîner les épisodes"
+          }
+        }
+      }
+    },
+    "Automatic": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatique"
+          }
+        }
+      }
+    },
+    "Automatic (aggressive)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatique (agressif)"
+          }
+        }
+      }
+    },
+    "Automatic (safe)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatique (sûr)"
           }
         }
       }
@@ -871,6 +991,16 @@
         }
       }
     },
+    "CODE": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CODE"
+          }
+        }
+      }
+    },
     "COMING": {
       "localizations": {
         "fr": {
@@ -891,12 +1021,32 @@
         }
       }
     },
+    "Calendar": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendrier"
+          }
+        }
+      }
+    },
     "Cancel": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Annuler"
+          }
+        }
+      }
+    },
+    "Cast": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distribution"
           }
         }
       }
@@ -921,6 +1071,16 @@
         }
       }
     },
+    "Catalogs": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catalogues"
+          }
+        }
+      }
+    },
     "Catchup": {
       "localizations": {
         "fr": {
@@ -941,12 +1101,32 @@
         }
       }
     },
+    "Chapter %lld": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chapitre %lld"
+          }
+        }
+      }
+    },
     "Check for Updates…": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Rechercher les mises à jour…"
+          }
+        }
+      }
+    },
+    "Chinese": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chinois"
           }
         }
       }
@@ -991,6 +1171,16 @@
         }
       }
     },
+    "Cloud downloads and reader-mode torrent indexer.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléchargements cloud et indexeur de torrents."
+          }
+        }
+      }
+    },
     "Code": {
       "localizations": {
         "fr": {
@@ -1017,6 +1207,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Catalogue communautaire"
+          }
+        }
+      }
+    },
+    "Community site": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Site communautaire"
           }
         }
       }
@@ -1081,6 +1281,16 @@
         }
       }
     },
+    "Connection OK": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connexion OK"
+          }
+        }
+      }
+    },
     "Content not ready on Real-Debrid.": {
       "localizations": {
         "fr": {
@@ -1091,12 +1301,32 @@
         }
       }
     },
+    "Continue Watching": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reprendre"
+          }
+        }
+      }
+    },
     "Copy": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Copier"
+          }
+        }
+      }
+    },
+    "Copy PIN": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copier le PIN"
           }
         }
       }
@@ -1121,12 +1351,42 @@
         }
       }
     },
+    "Could not parse Xtream response: %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réponse Xtream illisible : %@"
+          }
+        }
+      }
+    },
+    "Couldn't load episodes": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger les épisodes"
+          }
+        }
+      }
+    },
     "Couldn't open this stream": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Impossible d'ouvrir ce flux"
+          }
+        }
+      }
+    },
+    "Couldn't reach %@: %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de joindre %@ : %@"
           }
         }
       }
@@ -1147,6 +1407,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Générique"
+          }
+        }
+      }
+    },
+    "Daybreak (light)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daybreak (clair)"
           }
         }
       }
@@ -1181,12 +1451,32 @@
         }
       }
     },
+    "Default": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Par défaut"
+          }
+        }
+      }
+    },
     "Defaults applied to every stream.": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Réglages appliqués à chaque flux."
+          }
+        }
+      }
+    },
+    "Delay: %+.1fs — reset": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Décalage : %+.1f s — réinitialiser"
           }
         }
       }
@@ -1207,6 +1497,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lecture directe sans partage. Connectez un fournisseur ; les torrents en cache démarrent instantanément."
+          }
+        }
+      }
+    },
+    "Directed": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réalisation"
           }
         }
       }
@@ -1271,6 +1571,26 @@
         }
       }
     },
+    "Dutch": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Néerlandais"
+          }
+        }
+      }
+    },
+    "ENDING SOON": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BIENTÔT FINI"
+          }
+        }
+      }
+    },
     "Embedded": {
       "localizations": {
         "fr": {
@@ -1281,12 +1601,32 @@
         }
       }
     },
+    "Emby refused the sign-in (HTTP %lld)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emby a refusé la connexion (HTTP %lld)"
+          }
+        }
+      }
+    },
     "Enable addon": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Activer l'addon"
+          }
+        }
+      }
+    },
+    "English": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anglais"
           }
         }
       }
@@ -1331,6 +1671,16 @@
         }
       }
     },
+    "European service with a generous cache window.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Service européen avec un cache généreux."
+          }
+        }
+      }
+    },
     "Every catalogue, server and stream resolver that feeds this app.": {
       "localizations": {
         "fr": {
@@ -1357,6 +1707,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "INTERROGATION DE TOUTES LES SOURCES"
+          }
+        }
+      }
+    },
+    "Featured": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À la une"
           }
         }
       }
@@ -1401,12 +1761,62 @@
         }
       }
     },
+    "Forced": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forcés"
+          }
+        }
+      }
+    },
+    "Frame rate": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Images/s"
+          }
+        }
+      }
+    },
+    "French": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Français"
+          }
+        }
+      }
+    },
     "From addons": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Des addons"
+          }
+        }
+      }
+    },
+    "Genres": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Genres"
+          }
+        }
+      }
+    },
+    "German": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allemand"
           }
         }
       }
@@ -1451,6 +1861,16 @@
         }
       }
     },
+    "Hindi": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hindi"
+          }
+        }
+      }
+    },
     "Home": {
       "localizations": {
         "fr": {
@@ -1477,6 +1897,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "IPTV · Séries"
+          }
+        }
+      }
+    },
+    "In library": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans la collection"
           }
         }
       }
@@ -1511,6 +1941,16 @@
         }
       }
     },
+    "Install": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installer"
+          }
+        }
+      }
+    },
     "Install a source to start browsing. Cinemeta surfaces every mainstream title; add more sources to widen the catalog.": {
       "localizations": {
         "fr": {
@@ -1541,6 +1981,46 @@
         }
       }
     },
+    "Install the Google Cast SDK to enable Chromecast. See veltrio.app/cast for details.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installez le SDK Google Cast pour activer Chromecast."
+          }
+        }
+      }
+    },
+    "Installed": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installé"
+          }
+        }
+      }
+    },
+    "Installed addons": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Addons installés"
+          }
+        }
+      }
+    },
+    "Installing…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installation…"
+          }
+        }
+      }
+    },
     "Internal: %@": {
       "localizations": {
         "fr": {
@@ -1561,12 +2041,62 @@
         }
       }
     },
+    "Invalid server URL": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL du serveur invalide"
+          }
+        }
+      }
+    },
+    "Italian": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Italien"
+          }
+        }
+      }
+    },
+    "Japanese": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Japonais"
+          }
+        }
+      }
+    },
+    "Jellyfin refused the sign-in (HTTP %lld)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jellyfin a refusé la connexion (HTTP %lld)"
+          }
+        }
+      }
+    },
     "Jump back to any programme from the last 24 hours. Timeshift URL is built on the fly.": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Revenez à n'importe quel programme des dernières 24 heures."
+          }
+        }
+      }
+    },
+    "Korean": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coréen"
           }
         }
       }
@@ -1611,12 +2141,32 @@
         }
       }
     },
+    "Last videos": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dernières vidéos"
+          }
+        }
+      }
+    },
     "Legacy": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Ancien"
+          }
+        }
+      }
+    },
+    "Legal streaming links from Apple TV, Prime, etc.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liens légaux vers Apple TV, Prime, etc."
           }
         }
       }
@@ -1697,6 +2247,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chargement du flux…"
+          }
+        }
+      }
+    },
+    "Loading…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement…"
           }
         }
       }
@@ -1801,6 +2361,16 @@
         }
       }
     },
+    "Manage playlists": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gérer les playlists"
+          }
+        }
+      }
+    },
     "Mark as unwatched": {
       "localizations": {
         "fr": {
@@ -1817,6 +2387,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Marquer comme vu"
+          }
+        }
+      }
+    },
+    "Match system": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comme le système"
           }
         }
       }
@@ -1847,6 +2427,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Infos média (I)"
+          }
+        }
+      }
+    },
+    "Media servers": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serveurs multimédia"
+          }
+        }
+      }
+    },
+    "Metadata": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Métadonnées"
           }
         }
       }
@@ -2011,12 +2611,62 @@
         }
       }
     },
+    "New": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouveautés"
+          }
+        }
+      }
+    },
+    "Newer service, Usenet + torrents, fast mirrors.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Service récent, Usenet + torrents, miroirs rapides."
+          }
+        }
+      }
+    },
+    "Nightfall (dark)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nightfall (sombre)"
+          }
+        }
+      }
+    },
     "Nightfall is tuned for the main app experience; Daybreak is a serviceable light mode for daytime use. Changes apply immediately.": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Nightfall est le thème principal ; Daybreak est un mode clair pour la journée. Les changements s'appliquent immédiatement."
+          }
+        }
+      }
+    },
+    "No Emby server answered at %@. Check the address and port (8096 by default).": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun serveur Emby n'a répondu à %@. Vérifiez l'adresse et le port (8096 par défaut)."
+          }
+        }
+      }
+    },
+    "No Jellyfin server answered at %@. Check the address and port (8096 by default), and add the base path if your server uses one, e.g. /jellyfin.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun serveur Jellyfin n'a répondu à %@. Vérifiez l'adresse et le port (8096 par défaut), et ajoutez le chemin de base si votre serveur en utilise un, par ex. /jellyfin."
           }
         }
       }
@@ -2071,12 +2721,32 @@
         }
       }
     },
+    "No episodes": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun épisode"
+          }
+        }
+      }
+    },
     "No items.": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Aucun élément."
+          }
+        }
+      }
+    },
+    "No meta provider could answer.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune source de métadonnées n'a répondu."
           }
         }
       }
@@ -2127,6 +2797,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "N° %lld dans votre collection"
+          }
+        }
+      }
+    },
+    "Normal": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Normale"
           }
         }
       }
@@ -2221,6 +2901,26 @@
         }
       }
     },
+    "Official catalogs for movies and series (TMDB-powered).": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catalogues officiels de films et séries (via TMDB)."
+          }
+        }
+      }
+    },
+    "Official collection": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collection officielle"
+          }
+        }
+      }
+    },
     "Open %@": {
       "localizations": {
         "fr": {
@@ -2281,12 +2981,42 @@
         }
       }
     },
+    "Open the link, enter the PIN, and confirm. Veltrio is polling — the connection completes automatically.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez le lien, saisissez le PIN et confirmez. La connexion se termine automatiquement."
+          }
+        }
+      }
+    },
+    "Open the link, enter the code, and confirm. Veltrio is polling — the connection completes automatically.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez le lien, saisissez le code et confirmez. La connexion se termine automatiquement."
+          }
+        }
+      }
+    },
     "Overview": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Aperçu"
+          }
+        }
+      }
+    },
+    "PIN": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PIN"
           }
         }
       }
@@ -2317,6 +3047,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Performance"
+          }
+        }
+      }
+    },
+    "PiP needs a direct URL stream (not available for this source).": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le PiP a besoin d'un flux URL direct (indisponible pour cette source)."
           }
         }
       }
@@ -2431,6 +3171,16 @@
         }
       }
     },
+    "Plex code expired. Try again.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le code Plex a expiré. Réessayez."
+          }
+        }
+      }
+    },
     "Point Veltrio at your Jellyfin server to stream your personal library through the same player.": {
       "localizations": {
         "fr": {
@@ -2447,6 +3197,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Choisissez un fichier `.m3u` / `.m3u8` sur le disque. Pratique pour tester ou trier hors ligne."
+          }
+        }
+      }
+    },
+    "Polish": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polonais"
+          }
+        }
+      }
+    },
+    "Popular": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Populaires"
+          }
+        }
+      }
+    },
+    "Portuguese": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Portugais"
           }
         }
       }
@@ -2511,6 +3291,16 @@
         }
       }
     },
+    "Ready": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prêt"
+          }
+        }
+      }
+    },
     "Reduce hero motion": {
       "localizations": {
         "fr": {
@@ -2537,6 +3327,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reinhard"
+          }
+        }
+      }
+    },
+    "Released": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sortie"
           }
         }
       }
@@ -2601,12 +3401,52 @@
         }
       }
     },
+    "Request timed out": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La requête a expiré"
+          }
+        }
+      }
+    },
+    "Reset  (%+.1f)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réinitialiser  (%+.1f)"
+          }
+        }
+      }
+    },
     "Reset progress": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Réinitialiser la progression"
+          }
+        }
+      }
+    },
+    "Resolution": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résolution"
+          }
+        }
+      }
+    },
+    "Resume": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reprendre"
           }
         }
       }
@@ -2621,12 +3461,52 @@
         }
       }
     },
+    "Runtime": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durée"
+          }
+        }
+      }
+    },
+    "Russian": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Russe"
+          }
+        }
+      }
+    },
+    "S%lld · E%lld": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S%lld · É%lld"
+          }
+        }
+      }
+    },
     "Safe defaults — good on any Mac.": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Réglages sûrs — bien sur tous les Mac."
+          }
+        }
+      }
+    },
+    "Save": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer"
           }
         }
       }
@@ -2691,6 +3571,16 @@
         }
       }
     },
+    "Searching for devices…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche d'appareils…"
+          }
+        }
+      }
+    },
     "Season": {
       "localizations": {
         "fr": {
@@ -2737,6 +3627,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Saison et épisode"
+          }
+        }
+      }
+    },
+    "Select the Xtream playlist this series comes from in the IPTV tab.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionnez dans l'onglet Direct la playlist Xtream d'où vient cette série."
           }
         }
       }
@@ -2871,12 +3771,32 @@
         }
       }
     },
+    "Software only": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logiciel uniquement"
+          }
+        }
+      }
+    },
     "Sources": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Sources"
+          }
+        }
+      }
+    },
+    "Spanish": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Espagnol"
           }
         }
       }
@@ -2921,6 +3841,16 @@
         }
       }
     },
+    "Stream": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flux"
+          }
+        }
+      }
+    },
     "Stream format": {
       "localizations": {
         "fr": {
@@ -2961,6 +3891,16 @@
         }
       }
     },
+    "Subtitles": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sous-titres"
+          }
+        }
+      }
+    },
     "Subtitles (%lld)": {
       "localizations": {
         "fr": {
@@ -2981,12 +3921,32 @@
         }
       }
     },
+    "Subtitles in 50+ languages.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sous-titres dans plus de 50 langues."
+          }
+        }
+      }
+    },
     "Suggested": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Suggérés"
+          }
+        }
+      }
+    },
+    "Swedish": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suédois"
           }
         }
       }
@@ -3011,6 +3971,76 @@
         }
       }
     },
+    "Test connection": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tester la connexion"
+          }
+        }
+      }
+    },
+    "Testing…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test…"
+          }
+        }
+      }
+    },
+    "The AllDebrid PIN expired. Please try again.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le PIN AllDebrid a expiré. Réessayez."
+          }
+        }
+      }
+    },
+    "The Real-Debrid code expired. Please try again.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le code Real-Debrid a expiré. Réessayez."
+          }
+        }
+      }
+    },
+    "The addon catalogue came back empty.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le catalogue d'addons est vide."
+          }
+        }
+      }
+    },
+    "The channel URL is not valid.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'URL de la chaîne est invalide."
+          }
+        }
+      }
+    },
+    "The classic — EU + US servers, deep catalog.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le classique — serveurs UE + US, catalogue profond."
+          }
+        }
+      }
+    },
     "The provider lists this series without any episodes.": {
       "localizations": {
         "fr": {
@@ -3031,12 +4061,62 @@
         }
       }
     },
+    "This account isn't allowed to sign in": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce compte n'est pas autorisé à se connecter"
+          }
+        }
+      }
+    },
+    "This account isn't allowed to sign in (disabled, or remote access is off for it)": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce compte n'est pas autorisé à se connecter (désactivé, ou accès distant coupé)"
+          }
+        }
+      }
+    },
+    "This is a Jellyfin server. Connect it with the Jellyfin card instead.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C'est un serveur Jellyfin. Connectez-le avec la carte Jellyfin."
+          }
+        }
+      }
+    },
+    "This is an Emby server. Connect it with the Emby card instead.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C'est un serveur Emby. Connectez-le avec la carte Emby."
+          }
+        }
+      }
+    },
     "Toggle fullscreen (F)": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Plein écran (F)"
+          }
+        }
+      }
+    },
+    "Token rejected: %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeton refusé : %@"
           }
         }
       }
@@ -3057,6 +4137,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tone mapping : %@"
+          }
+        }
+      }
+    },
+    "Top": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top"
+          }
+        }
+      }
+    },
+    "Top Rated": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les mieux notés"
           }
         }
       }
@@ -3091,6 +4191,26 @@
         }
       }
     },
+    "Trakt code expired. Try again.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le code Trakt a expiré. Réessayez."
+          }
+        }
+      }
+    },
+    "Trending": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tendances"
+          }
+        }
+      }
+    },
     "Try a shorter query, or connect a source in Settings → Sources.": {
       "localizations": {
         "fr": {
@@ -3107,6 +4227,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Réessayer"
+          }
+        }
+      }
+    },
+    "Turkish": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turc"
           }
         }
       }
@@ -3131,12 +4261,32 @@
         }
       }
     },
+    "Unexpected response from the server": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réponse inattendue du serveur"
+          }
+        }
+      }
+    },
     "Unknown": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Inconnu"
+          }
+        }
+      }
+    },
+    "Unknown playback error": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreur de lecture inconnue"
           }
         }
       }
@@ -3207,6 +4357,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Préréglages vidéo et audio"
+          }
+        }
+      }
+    },
+    "Video bitrate": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Débit vidéo"
+          }
+        }
+      }
+    },
+    "Video codec": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codec vidéo"
           }
         }
       }
@@ -3301,6 +4471,36 @@
         }
       }
     },
+    "Written": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scénario"
+          }
+        }
+      }
+    },
+    "Wrong username or password": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom d'utilisateur ou mot de passe incorrect"
+          }
+        }
+      }
+    },
+    "Xtream Codes": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xtream Codes"
+          }
+        }
+      }
+    },
     "Xtream authentication failed — check username and password.": {
       "localizations": {
         "fr": {
@@ -3317,6 +4517,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "L'URL du serveur Xtream est invalide."
+          }
+        }
+      }
+    },
+    "Xtream server returned HTTP %lld.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le serveur Xtream a répondu HTTP %lld."
           }
         }
       }
@@ -3381,12 +4591,32 @@
         }
       }
     },
+    "channel": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "chaîne"
+          }
+        }
+      }
+    },
     "librqbit downloads live under Application Support. Stop and cleanup happens on player close.": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Les téléchargements librqbit sont dans Application Support. Ils sont arrêtés et nettoyés à la fermeture du lecteur."
+          }
+        }
+      }
+    },
+    "movie": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "film"
           }
         }
       }
@@ -3401,6 +4631,16 @@
         }
       }
     },
+    "series": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série"
+          }
+        }
+      }
+    },
     "torrent engine returned bad URL": {
       "localizations": {
         "fr": {
@@ -3411,12 +4651,32 @@
         }
       }
     },
+    "tv": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV"
+          }
+        }
+      }
+    },
     "v%@ · Core %@": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "v%@ · Cœur %@"
+          }
+        }
+      }
+    },
+    "· Premium": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "· Premium"
           }
         }
       }
@@ -3437,6 +4697,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "« %@ »"
+          }
+        }
+      }
+    },
+    "⚡ CACHED": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚡ EN CACHE"
           }
         }
       }

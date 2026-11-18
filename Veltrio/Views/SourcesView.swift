@@ -224,7 +224,7 @@ struct SourcesView: View {
                                     Text(ref.name)
                                         .font(Theme.Font.label(13, weight: .semibold))
                                         .foregroundStyle(Theme.Palette.textPrimary)
-                                    Text(ref.isXtream ? "Xtream Codes" : "M3U playlist")
+                                    Text((ref.isXtream ? "Xtream Codes" : "M3U playlist").localized)
                                         .font(Theme.Font.caption(11))
                                         .foregroundStyle(Theme.Palette.textTertiary)
                                 }
@@ -304,7 +304,7 @@ struct SourcesView: View {
                 if let err = store.lastError {
                     HStack(spacing: 6) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                        Text(err).lineLimit(2)
+                        Text(err.localized).lineLimit(2)
                     }
                     .font(Theme.Font.caption(12))
                     .foregroundStyle(Theme.Palette.danger)
@@ -671,7 +671,7 @@ private struct IPTVManagerSheet: View {
                                     Text(ref.name)
                                         .font(Theme.Font.label(13, weight: .semibold))
                                         .foregroundStyle(Theme.Palette.textPrimary)
-                                    Text(ref.isXtream ? "Xtream Codes" : "M3U playlist")
+                                    Text((ref.isXtream ? "Xtream Codes" : "M3U playlist").localized)
                                         .font(Theme.Font.caption(11))
                                         .foregroundStyle(Theme.Palette.textTertiary)
                                 }

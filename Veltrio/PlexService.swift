@@ -138,7 +138,7 @@ final class PlexService {
         }
         guard self.pendingPin?.id == pin.id else { return }
         self.pendingPin = nil
-        self.connectionError = "Plex code expired. Try again."
+        self.connectionError = String(localized: "Plex code expired. Try again.")
     }
 
     private func checkPin(id: Int) async throws -> String? {

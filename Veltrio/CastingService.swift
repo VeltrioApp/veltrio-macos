@@ -104,15 +104,15 @@ final class CastingService {
     func status(for target: CastTarget) -> String {
         switch target {
         case .airplay:
-            return isAirPlayAvailable ? "Ready" : "Searching for devices…"
+            return isAirPlayAvailable ? String(localized: "Ready") : String(localized: "Searching for devices…")
         case .pictureInPicture:
             return isPipAvailable
-                ? "Ready"
-                : "PiP needs a direct URL stream (not available for this source)."
+                ? String(localized: "Ready")
+                : String(localized: "PiP needs a direct URL stream (not available for this source).")
         case .chromecast:
             return isChromecastSdkPresent
-                ? "Ready"
-                : "Install the Google Cast SDK to enable Chromecast. See veltrio.app/cast for details."
+                ? String(localized: "Ready")
+                : String(localized: "Install the Google Cast SDK to enable Chromecast. See veltrio.app/cast for details.")
         }
     }
 }

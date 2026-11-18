@@ -153,10 +153,10 @@ struct XtreamClient {
         case invalidServer
         var errorDescription: String? {
             switch self {
-            case .http(let c):     return "Xtream server returned HTTP \(c)."
-            case .decoding(let m): return "Could not parse Xtream response: \(m)"
-            case .authFailed:      return "Xtream authentication failed — check username and password."
-            case .invalidServer:   return "Xtream server URL is invalid."
+            case .http(let c):     return String(localized: "Xtream server returned HTTP \(c).")
+            case .decoding(let m): return String(localized: "Could not parse Xtream response: \(m)")
+            case .authFailed:      return String(localized: "Xtream authentication failed — check username and password.")
+            case .invalidServer:   return String(localized: "Xtream server URL is invalid.")
             }
         }
     }

@@ -35,7 +35,9 @@ struct SettingsView: View {
             sidebar
                 .frame(width: 220)
                 .background(Theme.Palette.backgroundAlt)
-            Divider().background(Theme.Palette.hairline)
+            Rule(color: Theme.Palette.hairline)
+                .frame(width: 1)
+                .frame(maxHeight: .infinity)
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                     content
@@ -49,9 +51,10 @@ struct SettingsView: View {
 
     private var sidebar: some View {
         VStack(alignment: .leading, spacing: 2) {
-            ForEach(Section.allCases) { section in
+            ForEach(Array(Section.allCases.enumerated()), id: \.element) { index, section in
                 SidebarRow(
                     section: section,
+                    number: index + 1,
                     isSelected: selection == section
                 ) {
                     selection = section
@@ -59,8 +62,8 @@ struct SettingsView: View {
             }
             Spacer()
         }
-        .padding(.vertical, Theme.Spacing.md)
-        .padding(.horizontal, Theme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.lg)
+        .padding(.horizontal, Theme.Spacing.lg)
     }
 
     @ViewBuilder
@@ -78,9 +81,14 @@ struct SettingsView: View {
 }
 
 // MARK: - Sidebar row
+//
+// Same grammar as the top navigation: a mono numeral and a tracked
+// upper-case label, an amber hairline marking the current section. No
+// filled pills — nothing else in the app uses them.
 
 private struct SidebarRow: View {
     let section: SettingsView.Section
+    let number: Int
     let isSelected: Bool
     let action: () -> Void
 
@@ -89,31 +97,30 @@ private struct SidebarRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 10) {
-                Image(systemName: section.icon)
-                    .font(.system(size: 13, weight: .semibold))
+                Rectangle()
+                    .fill(isSelected ? Theme.Palette.accent : .clear)
+                    .frame(width: 2, height: 16)
+                Text(String(format: "%02d", number))
+                    .font(Theme.Font.mono(10, weight: .semibold))
+                    .tracking(1.4)
+                    .foregroundStyle(isSelected ? Theme.Palette.accentText : Theme.Palette.textQuaternary)
+                Text(section.rawValue.localized)
+                    .font(Theme.Font.label(12, weight: isSelected ? .bold : .medium))
+                    .tracking(1.6)
+                    .textCase(.uppercase)
                     .foregroundStyle(
-                        isSelected ? Theme.Palette.onAccent : Theme.Palette.textSecondary
-                    )
-                    .frame(width: 20)
-                Text(section.rawValue)
-                    .font(Theme.Font.label(13, weight: isSelected ? .bold : .semibold))
-                    .foregroundStyle(
-                        isSelected ? Theme.Palette.onAccent : Theme.Palette.textSecondary
+                        isSelected
+                            ? Theme.Palette.textPrimary
+                            : (isHovering ? Theme.Palette.textSecondary : Theme.Palette.textTertiary)
                     )
                 Spacer()
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 9, style: .continuous).fill(
-                    isSelected
-                        ? Theme.Palette.accent
-                        : (isHovering ? Theme.Palette.surfaceHover : Color.clear)
-                )
-            )
+            .padding(.vertical, 9)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .onHover { isHovering = $0 }
+        .animation(.easeOut(duration: 0.12), value: isSelected)
     }
 }
 
@@ -230,7 +237,7 @@ private struct DebridSettings: View {
                 title: p.displayName,
                 isDimmed: true,
                 status: {
-                    Text(p.shortTagline)
+                    Text(p.shortTagline.localized)
                         .font(Theme.Font.caption(11))
                         .foregroundStyle(Theme.Palette.textTertiary)
                 },
@@ -350,7 +357,7 @@ private struct AccountsSettings: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(name).font(Theme.Font.label(13, weight: .semibold))
                     .foregroundStyle(Theme.Palette.textPrimary)
-                Text(blurb).font(Theme.Font.caption(11))
+                Text(blurb.localized).font(Theme.Font.caption(11))
                     .foregroundStyle(Theme.Palette.textTertiary)
                     .lineLimit(2)
             }
@@ -397,7 +404,7 @@ private struct TraktCard: View {
                     })
                 }
                 if let err = store.trakt.connectionError {
-                    Text(err)
+                    Text(err.localized)
                         .font(Theme.Font.caption(12))
                         .foregroundStyle(Theme.Palette.danger)
                 }
@@ -519,7 +526,7 @@ private struct DownloadRow: View {
                             .foregroundStyle(Theme.Palette.textTertiary)
                     }
                     if let err = item.errorMessage {
-                        Text(err)
+                        Text(err.localized)
                             .font(Theme.Font.mono(10))
                             .foregroundStyle(Theme.Palette.danger)
                             .lineLimit(1)
@@ -623,7 +630,7 @@ private struct AppearanceSettings: View {
                             lineWidth: isSelected ? 2 : 1
                         )
                     )
-                Text(opt.label)
+                Text(opt.label.localized)
                     .font(Theme.Font.eyebrow(10, weight: .bold))
                     .tracking(1.8)
                     .foregroundStyle(
@@ -829,16 +836,19 @@ private struct SettingsPageHeader: View {
     var subtitle: String? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title.localized)
-                .font(Theme.Font.display(26))
-                .tracking(-0.4)
-                .foregroundStyle(Theme.Palette.textPrimary)
-            if let subtitle {
-                Text(subtitle.localized)
-                    .font(Theme.Font.body(13))
-                    .foregroundStyle(Theme.Palette.textSecondary)
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(title.localized)
+                    .font(Theme.Font.displaySerif(34, weight: .bold))
+                    .tracking(-0.6)
+                    .foregroundStyle(Theme.Palette.textPrimary)
+                if let subtitle {
+                    Text(subtitle.localized)
+                        .font(Theme.Font.body(13))
+                        .foregroundStyle(Theme.Palette.textSecondary)
+                }
             }
+            Rule()
         }
     }
 }
@@ -849,10 +859,8 @@ private struct SettingsSection<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            Text(title.uppercased())
-                .font(Theme.Font.label(10, weight: .bold))
-                .tracking(1.6)
-                .foregroundStyle(Theme.Palette.textTertiary)
+            Text(title.localized)
+                .eyebrow(Theme.Palette.accentText, tracking: 2.4)
             SurfaceCard {
                 VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                     content()
@@ -891,7 +899,7 @@ private struct SettingsPicker: View {
             SettingRowLabel(title: title, hint: hint)
             Picker("", selection: selection) {
                 ForEach(options, id: \.0) { option in
-                    Text(option.1).tag(option.0)
+                    Text(option.1.localized).tag(option.0)
                 }
             }
             .pickerStyle(.menu)
@@ -1004,7 +1012,7 @@ private struct DebridActivationView: View {
             Rule()
             HStack(alignment: .top, spacing: Theme.Spacing.md) {
                 VStack(spacing: 4) {
-                    Text(codeLabel)
+                    Text(codeLabel.localized)
                         .font(Theme.Font.eyebrow(10, weight: .bold))
                         .tracking(1.6)
                         .foregroundStyle(Theme.Palette.textTertiary)
@@ -1021,7 +1029,7 @@ private struct DebridActivationView: View {
                     Text("Validate on \(providerName)")
                         .font(Theme.Font.heading(14))
                         .foregroundStyle(Theme.Palette.textPrimary)
-                    Text(instructions)
+                    Text(instructions.localized)
                         .font(Theme.Font.body(12))
                         .foregroundStyle(Theme.Palette.textSecondary)
                     HStack(spacing: Theme.Spacing.sm) {

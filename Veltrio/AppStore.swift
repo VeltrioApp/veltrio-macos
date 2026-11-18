@@ -264,7 +264,7 @@ final class AppStore {
         do {
             let manifest = try await client.fetchManifest(transportUrl: trimmed)
             if addons.contains(where: { $0.manifest.id == manifest.id }) {
-                lastError = "Addon \(manifest.name) is already installed."
+                lastError = String(localized: "Addon \(manifest.name) is already installed.")
                 return
             }
             let installed = InstalledAddon(manifest: manifest, addedAt: Date())
@@ -342,14 +342,14 @@ final class AppStore {
                 }
                 return .success(addon: addon, meta: meta)
             } catch is CancellationError {
-                lastError = "Request timed out"
+                lastError = String(localized: "Request timed out")
                 continue
             } catch {
                 lastError = humanize(error)
                 continue
             }
         }
-        return .failure(message: lastError ?? "No meta provider could answer.")
+        return .failure(message: lastError ?? String(localized: "No meta provider could answer."))
     }
 
     // -------------------- search -------------------

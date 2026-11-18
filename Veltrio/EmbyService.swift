@@ -64,7 +64,7 @@ final class EmbyService {
         let normalized = normalizeHost(host)
         guard let probeUrl = URL(string: "\(normalized)/System/Info/Public"),
               let url = URL(string: "\(normalized)/Users/AuthenticateByName") else {
-            connectionError = "Invalid server URL"
+            connectionError = String(localized: "Invalid server URL")
             return
         }
 
@@ -76,15 +76,15 @@ final class EmbyService {
             guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode),
                   let info = try? JSONDecoder().decode(Info.self, from: data),
                   info.Version != nil else {
-                connectionError = "No Emby server answered at \(normalized). Check the address and port (8096 by default)."
+                connectionError = String(localized: "No Emby server answered at \(normalized). Check the address and port (8096 by default).")
                 return
             }
             if info.ProductName?.localizedCaseInsensitiveContains("jellyfin") == true {
-                connectionError = "This is a Jellyfin server. Connect it with the Jellyfin card instead."
+                connectionError = String(localized: "This is a Jellyfin server. Connect it with the Jellyfin card instead.")
                 return
             }
         } catch {
-            connectionError = "Couldn't reach \(normalized): \(error.localizedDescription)"
+            connectionError = String(localized: "Couldn't reach \(normalized): \(error.localizedDescription)")
             return
         }
 
@@ -97,19 +97,19 @@ final class EmbyService {
             req.httpBody = try JSONSerialization.data(withJSONObject: body)
             let (data, resp) = try await session.data(for: req)
             guard let http = resp as? HTTPURLResponse else {
-                connectionError = "Unexpected response from the server"
+                connectionError = String(localized: "Unexpected response from the server")
                 return
             }
             guard (200...299).contains(http.statusCode) else {
                 switch http.statusCode {
                 case 401:
-                    connectionError = "Wrong username or password"
+                    connectionError = String(localized: "Wrong username or password")
                 case 403:
-                    connectionError = "This account isn't allowed to sign in"
+                    connectionError = String(localized: "This account isn't allowed to sign in")
                 default:
                     let detail = String(data: data.prefix(200), encoding: .utf8)?
                         .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-                    connectionError = "Emby refused the sign-in (HTTP \(http.statusCode))"
+                    connectionError = String(localized: "Emby refused the sign-in (HTTP \(http.statusCode))")
                         + (detail.isEmpty ? "" : ": \(detail)")
                 }
                 return

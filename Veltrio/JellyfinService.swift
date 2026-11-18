@@ -82,7 +82,7 @@ final class JellyfinService {
         let normalized = normalizeHost(host)
         guard let probeUrl = URL(string: "\(normalized)/System/Info/Public"),
               let url = URL(string: "\(normalized)/Users/AuthenticateByName") else {
-            connectionError = "Invalid server URL"
+            connectionError = String(localized: "Invalid server URL")
             return
         }
 
@@ -95,15 +95,15 @@ final class JellyfinService {
             guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode),
                   let info = try? JSONDecoder().decode(Info.self, from: data),
                   info.Version != nil else {
-                connectionError = "No Jellyfin server answered at \(normalized). Check the address and port (8096 by default), and add the base path if your server uses one, e.g. /jellyfin."
+                connectionError = String(localized: "No Jellyfin server answered at \(normalized). Check the address and port (8096 by default), and add the base path if your server uses one, e.g. /jellyfin.")
                 return
             }
             if info.ProductName?.localizedCaseInsensitiveContains("emby") == true {
-                connectionError = "This is an Emby server. Connect it with the Emby card instead."
+                connectionError = String(localized: "This is an Emby server. Connect it with the Emby card instead.")
                 return
             }
         } catch {
-            connectionError = "Couldn't reach \(normalized): \(error.localizedDescription)"
+            connectionError = String(localized: "Couldn't reach \(normalized): \(error.localizedDescription)")
             return
         }
 
@@ -116,19 +116,19 @@ final class JellyfinService {
             req.httpBody = try JSONSerialization.data(withJSONObject: body)
             let (data, resp) = try await session.data(for: req)
             guard let http = resp as? HTTPURLResponse else {
-                connectionError = "Unexpected response from the server"
+                connectionError = String(localized: "Unexpected response from the server")
                 return
             }
             guard (200...299).contains(http.statusCode) else {
                 switch http.statusCode {
                 case 401:
-                    connectionError = "Wrong username or password"
+                    connectionError = String(localized: "Wrong username or password")
                 case 403:
-                    connectionError = "This account isn't allowed to sign in (disabled, or remote access is off for it)"
+                    connectionError = String(localized: "This account isn't allowed to sign in (disabled, or remote access is off for it)")
                 default:
                     let detail = String(data: data.prefix(200), encoding: .utf8)?
                         .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-                    connectionError = "Jellyfin refused the sign-in (HTTP \(http.statusCode))"
+                    connectionError = String(localized: "Jellyfin refused the sign-in (HTTP \(http.statusCode))")
                         + (detail.isEmpty ? "" : ": \(detail)")
                 }
                 return

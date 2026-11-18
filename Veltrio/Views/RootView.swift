@@ -79,6 +79,9 @@ struct RootView: View {
         .sheet(isPresented: $showSettings) {
             SettingsSheet()
                 .frame(minWidth: 860, idealWidth: 920, minHeight: 580, idealHeight: 680)
+                // Sheets don't inherit the stack's tint: switches and
+                // pickers would fall back to the system blue.
+                .tint(Theme.Palette.accent)
         }
         .onChange(of: selection) { _, _ in path = NavigationPath() }
         .onReceive(NotificationCenter.default.publisher(for: .veltrioGoto)) { note in

@@ -1331,7 +1331,7 @@ struct PlayerView: View {
                     Button {
                         controller.setSubDelay(0)
                     } label: {
-                        Text(String(format: "Delay: %+.1fs — reset", controller.subDelay))
+                        Text(String(format: "Delay: %+.1fs — reset".localized, controller.subDelay))
                     }
                 }
             } label: {
@@ -1364,7 +1364,7 @@ struct PlayerView: View {
                     controller.setSpeed(s)
                     flashControls()
                 } label: {
-                    let label = s == 1.0 ? "Normal" : String(format: "%g×", s)
+                    let label = s == 1.0 ? String(localized: "Normal") : String(format: "%g×", s)
                     if abs(controller.speed - s) < 0.01 {
                         Label(label, systemImage: "checkmark")
                     } else {
@@ -1405,7 +1405,7 @@ struct PlayerView: View {
                 Button { controller.bumpZoom(by: 0.1); flashControls() } label: { Label("Zoom in", systemImage: "plus.magnifyingglass") }
                 Button { controller.bumpZoom(by: -0.1); flashControls() } label: { Label("Zoom out", systemImage: "minus.magnifyingglass") }
                 Button { controller.resetZoom(); flashControls() } label: {
-                    Label(String(format: "Reset  (%+.1f)", controller.videoZoom), systemImage: "arrow.counterclockwise")
+                    Label(String(format: "Reset  (%+.1f)".localized, controller.videoZoom), systemImage: "arrow.counterclockwise")
                 }
             }
         } label: {
@@ -1638,7 +1638,7 @@ struct PlayerView: View {
             Text("Couldn't open this stream")
                 .font(Theme.Font.heading(18))
                 .foregroundStyle(.white)
-            Text(error)
+            Text(error.localized)
                 .foregroundStyle(.white.opacity(0.8))
                 .font(.system(size: 12))
                 .multilineTextAlignment(.center)
@@ -1805,7 +1805,7 @@ struct PlayerView: View {
             if let u = URL(string: channel.streamUrl) {
                 resolvedUrl = u
             } else {
-                resolveError = "The channel URL is not valid."
+                resolveError = String(localized: "The channel URL is not valid.")
             }
         case .libraryItem(let item):
             // Jellyfin and Emby hand out a ready-to-play URL; nothing to

@@ -130,7 +130,7 @@ final class DebridService {
         await MainActor.run {
             guard self.pendingPin?.checkToken == pin.checkToken else { return }
             self.pendingPin = nil
-            self.allDebridError = "The AllDebrid PIN expired. Please try again."
+            self.allDebridError = String(localized: "The AllDebrid PIN expired. Please try again.")
         }
     }
 
@@ -196,7 +196,7 @@ final class DebridService {
         }
         guard self.pendingRdDevice?.deviceCode == code.deviceCode else { return }
         self.pendingRdDevice = nil
-        self.realDebridError = "The Real-Debrid code expired. Please try again."
+        self.realDebridError = String(localized: "The Real-Debrid code expired. Please try again.")
     }
 
     @MainActor
@@ -337,7 +337,7 @@ final class DebridService {
             case .decode(let m):       return "Parse: \(m)"
             case .authPending:         return "Waiting on Real-Debrid confirmation…"
             case .authSlowDown:        return "Slow down, retrying…"
-            case .tokenRejected(let m):return "Token rejected: \(m)"
+            case .tokenRejected(let m):return String(localized: "Token rejected: \(m)")
             case .notReady:            return "Content not ready on Real-Debrid."
             case .apiError(let c, let m): return "Real-Debrid \(c): \(m)"
             }

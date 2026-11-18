@@ -221,7 +221,7 @@ struct DetailView: View {
                 Rectangle().fill(Theme.Palette.accent).frame(width: 28, height: 1)
                 Text(destination.addon.manifest.name)
                     .eyebrow(Theme.Palette.accentText, tracking: 2.8)
-                Text("· \((meta?.type ?? destination.type).capitalized)")
+                Text(verbatim: "· " + (meta?.type ?? destination.type).localized.capitalized)
                     .eyebrow(Theme.Palette.textTertiary, tracking: 1.8)
             }
             Text(meta?.name ?? destination.name)
@@ -1234,7 +1234,7 @@ private struct StreamRow: View {
                         tagChip(tag, color: Theme.Palette.accentText)
                     }
                     if isCached {
-                        tagChip("⚡ CACHED", color: Theme.Palette.success)
+                        tagChip(String(localized: "⚡ CACHED"), color: Theme.Palette.success)
                     }
                 }
                 Text(primaryLabel)

@@ -157,7 +157,7 @@ struct SuggestedCard: View {
                 Text(suggestion.name)
                     .font(Theme.Font.label(14, weight: .bold))
                     .foregroundStyle(Theme.Palette.textPrimary)
-                Text(suggestion.blurb)
+                Text(suggestion.blurb.localized)
                     .font(Theme.Font.body(12))
                     .foregroundStyle(Theme.Palette.textSecondary)
                     .lineLimit(2)

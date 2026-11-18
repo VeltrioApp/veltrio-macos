@@ -169,7 +169,7 @@ struct IPTVView: View {
             if let error = store.iptvError {
                 HStack(spacing: 6) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                    Text(error).lineLimit(1)
+                    Text(error.localized).lineLimit(1)
                 }
                 .font(Theme.Font.label(11, weight: .semibold))
                 .foregroundStyle(Theme.Palette.danger)
@@ -700,7 +700,7 @@ struct AddPlaylistSheet: View {
         case .ok(let detail):
             HStack(spacing: 6) {
                 Image(systemName: "checkmark.circle.fill")
-                Text(detail ?? "Connection OK")
+                Text((detail ?? "Connection OK").localized)
                     .lineLimit(1)
             }
             .font(Theme.Font.label(11, weight: .semibold))
@@ -771,7 +771,7 @@ struct AddPlaylistSheet: View {
                         VStack(spacing: 1) {
                             Text(out.rawValue.uppercased())
                                 .font(Theme.Font.label(12, weight: xtreamOutput == out ? .bold : .semibold))
-                            Text(out.blurb)
+                            Text(out.blurb.localized)
                                 .font(.system(size: 10))
                                 .foregroundStyle(xtreamOutput == out ? .white.opacity(0.85) : Theme.Palette.textTertiary)
                         }
@@ -835,7 +835,7 @@ struct AddPlaylistSheet: View {
         if let error = await store.verifyXtream(creds) {
             testResult = .error(error)
         } else {
-            testResult = .ok("Authenticated")
+            testResult = .ok(String(localized: "Authenticated"))
         }
     }
 

@@ -535,7 +535,7 @@ final class MPVOpenGLView: NSOpenGLView {
                     if end.reason == MPV_END_FILE_REASON_ERROR {
                         // Translate the mpv error code into a readable string.
                         let cmsg = mpv_error_string(end.error)
-                        let msg = cmsg.map { String(cString: $0) } ?? "Unknown playback error"
+                        let msg = cmsg.map { String(cString: $0) } ?? String(localized: "Unknown playback error")
                         controller?.playbackError = msg
                     } else if end.reason == MPV_END_FILE_REASON_EOF {
                         controller?.eofReached = true
@@ -727,7 +727,7 @@ final class MPVOpenGLView: NSOpenGLView {
         }
         var list: [PlayerController.Chapter] = []
         for i in 0..<count {
-            let title = readString("chapter-list/\(i)/title") ?? "Chapter \(i + 1)"
+            let title = readString("chapter-list/\(i)/title") ?? String(localized: "Chapter \(i + 1)")
             let time  = readDouble("chapter-list/\(i)/time")  ?? 0
             list.append(.init(index: Int(i), title: title, startSeconds: time))
         }

@@ -101,7 +101,7 @@ struct JellyfinConnectSheet: View {
             field("Username", text: $user, placeholder: "")
             field("Password", text: $pass, placeholder: "", secure: true)
             if let err = store.jellyfin.connectionError {
-                Text(err).font(Theme.Font.caption(12))
+                Text(err.localized).font(Theme.Font.caption(12))
                     .foregroundStyle(Theme.Palette.danger)
             }
             HStack {
@@ -213,7 +213,7 @@ struct EmbyCard: View {
             textField("Username",   $user)
             textField("Password",   $pass, secure: true)
             if let err = store.emby.connectionError {
-                Text(err).font(Theme.Font.caption(12))
+                Text(err.localized).font(Theme.Font.caption(12))
                     .foregroundStyle(Theme.Palette.danger)
             }
             HStack {
@@ -293,7 +293,7 @@ struct PlexCard: View {
                     PlexPinView(pin: pin)
                 }
                 if let err = store.plex.connectionError {
-                    Text(err).font(Theme.Font.caption(12))
+                    Text(err.localized).font(Theme.Font.caption(12))
                         .foregroundStyle(Theme.Palette.danger)
                 }
             }

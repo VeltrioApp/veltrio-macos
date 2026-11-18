@@ -367,7 +367,7 @@ struct CatalogRow: View {
             SectionHeader(
                 catalog.name,
                 number: number,
-                subtitle: "\(addon.manifest.name) · \(catalog.type)"
+                subtitle: "\(addon.manifest.name) · \(catalog.type.localized)"
             ) {
                 if case .loaded(let metas) = store.catalogs[key], metas.count >= 10 {
                     NavigationLink(value: CatalogDestination(addon: addon, catalog: catalog)) {
@@ -523,7 +523,7 @@ private struct ContinueCard: View {
         guard dur > 0 else { return String(localized: "NOT STARTED") }
         let remaining = max(0, dur - pos)
         let mins = Int(remaining / 60)
-        return mins <= 1 ? "ENDING SOON" : "\(mins) MIN LEFT"
+        return mins <= 1 ? String(localized: "ENDING SOON") : String(localized: "\(mins) MIN LEFT")
     }
 
     private var placeholder: some View {
