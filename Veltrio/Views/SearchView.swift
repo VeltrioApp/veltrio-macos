@@ -2,9 +2,10 @@ import SwiftUI
 
 /// Full-screen search for films and series.
 ///
-/// Lists IMDB titles from the installed addons in two rows, Movies and
-/// Series, as each addon answers. Live channels are not searched here;
-/// the IPTV tab has its own channel search.
+/// IMDB titles from the installed addons in two rows, Movies and Series,
+/// then the IPTV provider's own films and series, each row filling in as
+/// its source answers. Live channels are not searched here; the IPTV tab
+/// has its own channel search.
 struct SearchView: View {
     @Environment(AppStore.self) private var store
     @Environment(\.dismiss) private var dismiss
@@ -131,7 +132,7 @@ struct SearchView: View {
                 .tracking(-0.8)
                 .foregroundStyle(Theme.Palette.textPrimary)
             Rule().frame(maxWidth: 420)
-            Text("Type a title. Movies and series from IMDB appear as you type.")
+            Text("Type a title. Movies and series from IMDB appear as you type, then your IPTV provider's.")
                 .font(Theme.Font.body(14))
                 .foregroundStyle(Theme.Palette.textSecondary)
                 .frame(maxWidth: 520, alignment: .leading)
@@ -162,7 +163,7 @@ struct SearchView: View {
             ForEach(Array(groups.enumerated()), id: \.element.id) { index, group in
                 VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                     SectionHeader(
-                        group.kind.label,
+                        group.section.label,
                         number: index + 1,
                         subtitle: "\(group.results.count)"
                     )

@@ -68,11 +68,13 @@ struct SearchResult: Identifiable, Hashable {
 /// Searches every configured catalogue at once.
 ///
 /// The sources are queried in parallel and each one is allowed to fail
-/// silently: a Jellyfin server that's down must not stop the Stremio
-/// results from appearing. Results are published as each source answers,
-/// so a slow IPTV provider doesn't hold back the addons, and they are
-/// grouped by what they are — Movies, Series — not by where they came
-/// from.
+/// silently. Results are published as each source answers, so a slow IPTV
+/// provider doesn't hold back the addons.
+///
+/// IMDB titles from the addons fill the Movies and Series rows. The IPTV
+/// provider's films and series follow in their own row, minus any whose
+/// title is already an IMDB result: those are reached from that title's
+/// page, where the provider's copy is listed among its streams.
 @MainActor
 @Observable
 final class UnifiedSearchService {
@@ -81,9 +83,21 @@ final class UnifiedSearchService {
     private(set) var lastQuery: String = ""
 
     struct SearchGroup: Identifiable {
-        let kind: SearchResult.MediaKind
+        enum Section: String {
+            case movies, series, iptv
+
+            var label: String {
+                switch self {
+                case .movies: return "Movies"
+                case .series: return "Series"
+                case .iptv:   return "IPTV"
+                }
+            }
+        }
+
+        let section: Section
         var results: [SearchResult]
-        var id: String { kind.rawValue }
+        var id: String { section.rawValue }
     }
 
     /// The store this service queries.
@@ -96,10 +110,6 @@ final class UnifiedSearchService {
     /// Bumped on every search so answers from a superseded query, still
     /// in flight, can't overwrite the current results.
     private var generation = 0
-
-    /// Order results appear in within a group, whichever source answers
-    /// first.
-    private static let sourceOrder: [SearchResult.Source] = [.stremio, .iptv]
 
     func clear() {
         generation += 1
@@ -128,10 +138,8 @@ final class UnifiedSearchService {
         // others down, so every task returns an empty array on error
         // rather than throwing.
         await withTaskGroup(of: (SearchResult.Source, [SearchResult]).self) { group in
-            // IMDB titles only for now. Media-server and IPTV matches are
-            // to be attached to these titles rather than listed beside
-            // them, so their search functions below are not fanned out.
             group.addTask { @MainActor in (.stremio, await self.searchStremio(query)) }
+            group.addTask { @MainActor in (.iptv, await self.searchIPTV(query)) }
 
             for await (source, hits) in group {
                 guard current == generation, !Task.isCancelled else { continue }
@@ -144,10 +152,18 @@ final class UnifiedSearchService {
     }
 
     private func publish(_ bySource: [SearchResult.Source: [SearchResult]]) {
-        let all = Self.sourceOrder.flatMap { bySource[$0] ?? [] }
-        groups = [SearchResult.MediaKind.movie, .series].compactMap { kind in
-            let hits = all.filter { $0.mediaKind == kind }
-            return hits.isEmpty ? nil : SearchGroup(kind: kind, results: hits)
+        let imdb = bySource[.stremio] ?? []
+        let imdbTitles = Set(imdb.map { XtreamClient.normalizedTitle($0.title) })
+        let iptv = (bySource[.iptv] ?? []).filter {
+            !imdbTitles.contains(XtreamClient.normalizedTitle($0.title))
+        }
+        let sections: [(SearchGroup.Section, [SearchResult])] = [
+            (.movies, imdb.filter { $0.mediaKind == .movie }),
+            (.series, imdb.filter { $0.mediaKind == .series }),
+            (.iptv, iptv),
+        ]
+        groups = sections.compactMap { section, hits in
+            hits.isEmpty ? nil : SearchGroup(section: section, results: hits)
         }
     }
 
@@ -217,7 +233,8 @@ final class UnifiedSearchService {
 
     // MARK: - IPTV
 
-    /// Films and series from the selected Xtream provider. Live channels
+    /// Films and series from the selected Xtream provider, matched on every
+    /// word of the query (many providers ignore `search=`). Live channels
     /// are deliberately left out — they're searched from the IPTV tab —
     /// and an M3U playlist is live-only, so it contributes nothing here.
     private func searchIPTV(_ query: String) async -> [SearchResult] {
@@ -233,7 +250,9 @@ final class UnifiedSearchService {
                 source: .iptv,
                 mediaKind: isSeries ? .series : .movie,
                 title: channel.name,
-                subtitle: "IPTV",
+                // Language first: it's what tells two copies apart.
+                subtitle: [XtreamClient.language(category: channel.group, name: channel.name),
+                           channel.group].compactMap { $0 }.joined(separator: " · "),
                 posterURL: channel.logoUrl.flatMap(URL.init(string:)),
                 kind: isSeries ? "series" : "movie",
                 channel: channel
