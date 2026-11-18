@@ -22,7 +22,7 @@ struct PlexUser: Equatable {
 
 @MainActor
 @Observable
-final class PlexService {
+final class PlexService: MediaLibraryBrowsing {
     /// Stable per install: plex.tv lists each client id as a device, and
     /// the auth token is issued to it.
     private let clientId: String = {
@@ -211,6 +211,81 @@ final class PlexService {
         }
     }
 
+    // MARK: - Library browsing (Collection tab)
+
+    var libraryServerName: String { "Plex" }
+
+    func librarySections() async -> [MediaLibrarySection] {
+        guard let (base, token) = await serverAccess() else { return [] }
+        return await fetchSections(base: base, token: token).compactMap { s in
+            switch s.type {
+            case "movie": return MediaLibrarySection(id: s.key, name: s.title, kind: .movies)
+            case "show":  return MediaLibrarySection(id: s.key, name: s.title, kind: .shows)
+            default:      return nil
+            }
+        }
+    }
+
+    func libraryItems(in section: MediaLibrarySection, start: Int, limit: Int) async -> MediaLibraryPage {
+        guard let (base, token) = await serverAccess(),
+              var comps = URLComponents(string: base + "/library/sections/\(section.id)/all") else {
+            return MediaLibraryPage(items: [], total: 0)
+        }
+        comps.queryItems = [
+            URLQueryItem(name: "type", value: section.kind == .shows ? "2" : "1"),
+            URLQueryItem(name: "includeGuids", value: "1"),
+            URLQueryItem(name: "sort", value: "titleSort"),
+            URLQueryItem(name: "X-Plex-Container-Start", value: String(start)),
+            URLQueryItem(name: "X-Plex-Container-Size", value: String(limit)),
+        ]
+        struct Envelope: Decodable {
+            let MediaContainer: Container
+            struct Container: Decodable { let Metadata: [Meta]?; let totalSize: Int?; let size: Int? }
+        }
+        guard let url = comps.url, let data = await get(url: url, token: token),
+              let env = try? JSONDecoder().decode(Envelope.self, from: data) else {
+            return MediaLibraryPage(items: [], total: 0)
+        }
+        let rows = env.MediaContainer.Metadata ?? []
+        let items = rows.map { m in
+            MediaLibraryItem(
+                id: m.ratingKey, title: m.title, year: m.year,
+                type: m.type == "show" ? "series" : "movie",
+                imdbId: m.Guid?.first(where: { $0.id.hasPrefix("imdb://") })
+                    .map { String($0.id.dropFirst("imdb://".count)) },
+                posterURL: imageURL(m.thumb, base: base, token: token),
+                streamURL: partURL(m, base: base, token: token)
+            )
+        }
+        return MediaLibraryPage(items: items, total: env.MediaContainer.totalSize ?? start + rows.count)
+    }
+
+    func libraryEpisodes(of item: MediaLibraryItem) async -> [MediaLibraryEpisode] {
+        guard let (base, token) = await serverAccess() else { return [] }
+        return await metadata(base: base, token: token,
+                              path: "/library/metadata/\(item.id)/allLeaves", query: [:]).map { e in
+            MediaLibraryEpisode(
+                id: e.ratingKey, season: e.parentIndex ?? 1, number: e.index ?? 0, title: e.title,
+                stillURL: imageURL(e.thumb, base: base, token: token),
+                streamURL: partURL(e, base: base, token: token)
+            )
+        }
+    }
+
+    /// Plex URLs come from the listing (`streamURL`), not from an id.
+    func libraryStreamURL(for itemId: String) -> URL? { nil }
+
+    private func imageURL(_ path: String?, base: String, token: String) -> URL? {
+        guard let path, var comps = URLComponents(string: base + path) else { return nil }
+        comps.queryItems = [URLQueryItem(name: "X-Plex-Token", value: token)]
+        return comps.url
+    }
+
+    private func partURL(_ item: Meta, base: String, token: String) -> URL? {
+        guard let key = item.Media?.first?.Part?.first?.key else { return nil }
+        return imageURL(key, base: base, token: token)
+    }
+
     // MARK: - Matching an IMDB title
 
     /// The library's copies of one film. Plex keeps the IMDB id among an
@@ -266,6 +341,7 @@ final class PlexService {
         let year: Int?
         let parentIndex: Int?
         let index: Int?
+        let thumb: String?
         let Guid: [GuidEntry]?
         let Media: [MediaEntry]?
 

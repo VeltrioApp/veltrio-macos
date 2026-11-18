@@ -318,6 +318,18 @@ final class AppStore {
         case failure(message: String)
     }
 
+    /// The addon to open a title's page with: the one that surfaced it
+    /// when known, else the first metadata addon serving that type.
+    func metaAddon(for type: String, preferredId: String? = nil) -> InstalledAddon? {
+        if let preferredId, let addon = addons.first(where: { $0.id == preferredId }) {
+            return addon
+        }
+        return addons.first {
+            $0.manifest.resources.contains("meta") &&
+            ($0.manifest.types.contains(type) || $0.manifest.types.isEmpty)
+        }
+    }
+
     func fetchMetaWithFallback(
         preferred: InstalledAddon,
         type: String,

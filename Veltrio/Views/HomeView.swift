@@ -90,14 +90,7 @@ struct HomeView: View {
     }
 
     private func resolveAddon(for entry: WatchEntry) -> InstalledAddon? {
-        if let saved = entry.addonId,
-           let addon = store.addons.first(where: { $0.id == saved }) {
-            return addon
-        }
-        return store.addons.first {
-            $0.manifest.resources.contains("meta") &&
-            ($0.manifest.types.contains(entry.type) || $0.manifest.types.isEmpty)
-        }
+        store.metaAddon(for: entry.type, preferredId: entry.addonId)
     }
 
     private var heroItem: (addon: InstalledAddon, item: MetaPreview)? {

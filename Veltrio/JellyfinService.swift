@@ -249,16 +249,17 @@ final class JellyfinService {
     // MARK: - Matching an IMDB title
 
     func findMovie(imdbId: String, title: String, year: Int?) async -> [MediaServerMatch] {
-        await matcher?.findMovie(imdbId: imdbId, title: title, year: year) ?? []
+        await browser?.findMovie(imdbId: imdbId, title: title, year: year) ?? []
     }
 
     func findEpisode(seriesImdbId: String, title: String, year: Int?,
                      season: Int, episode: Int) async -> [MediaServerMatch] {
-        await matcher?.findEpisode(seriesImdbId: seriesImdbId, title: title, year: year,
+        await browser?.findEpisode(seriesImdbId: seriesImdbId, title: title, year: year,
                                    season: season, episode: episode) ?? []
     }
 
-    private var matcher: MediaBrowserMatcher? {
+    /// Library calls (IMDB matching, Collection browsing), nil until signed in.
+    var browser: MediaBrowserMatcher? {
         guard let token = accessToken, let uid = userId else { return nil }
         var req = URLRequest(url: URL(string: "about:blank")!)
         setAuthHeaders(on: &req, token: token)

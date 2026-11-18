@@ -64,6 +64,9 @@ struct RootView: View {
             .navigationDestination(for: PlayerDestination.self) { dest in
                 PlayerView(destination: dest)
             }
+            .navigationDestination(for: MediaServerSeriesDestination.self) { dest in
+                MediaServerSeriesView(destination: dest)
+            }
             .navigationDestination(for: IptvSeriesDestination.self) { dest in
                 IptvSeriesView(destination: dest)
             }

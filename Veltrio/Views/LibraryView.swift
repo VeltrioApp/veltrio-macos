@@ -25,8 +25,20 @@ struct LibraryView: View {
         var id: String { rawValue }
     }
 
+    /// What the page shows: the titles saved in the app, or one connected
+    /// media server's own libraries.
+    enum Source: Hashable {
+        case saved
+        case server(MediaServerKind)
+    }
+    @State private var source: Source = .saved
+
+    private var connectedServers: [MediaServerKind] {
+        MediaServerKind.allCases.filter { $0.service(in: store).isConnected }
+    }
+
     var body: some View {
-        if watch.libraryItems.isEmpty {
+        if watch.libraryItems.isEmpty && connectedServers.isEmpty {
             emptyState
         } else {
             ScrollView {
@@ -36,13 +48,34 @@ struct LibraryView: View {
                         title: "Collection",
                         subtitle: String(localized: "\(watch.continueWatching.count) in progress · curated by you")
                     )
-                    filters
-                    grid
+                    if !connectedServers.isEmpty {
+                        sourceTabs
+                    }
+                    switch source {
+                    case .saved:
+                        filters
+                        grid
+                    case .server(let server):
+                        MediaLibraryBrowser(server: server)
+                    }
                 }
                 .pageContainer()
                 .padding(.bottom, Theme.Spacing.xxl)
             }
         }
+    }
+
+    private var sourceTabs: some View {
+        HStack(spacing: Theme.Spacing.lg) {
+            TextLinkTab(label: "Saved", number: 1, isSelected: source == .saved) { source = .saved }
+            ForEach(Array(connectedServers.enumerated()), id: \.element) { index, server in
+                TextLinkTab(label: server.label, number: index + 2, isSelected: source == .server(server)) {
+                    source = .server(server)
+                }
+            }
+            Spacer()
+        }
+        .padding(.bottom, Theme.Spacing.sm)
     }
 
     private var filters: some View {
@@ -242,12 +275,6 @@ private struct LibraryCard: View {
     }
 
     private var resolvedAddon: InstalledAddon? {
-        if let saved = entry.addonId, let addon = store.addons.first(where: { $0.id == saved }) {
-            return addon
-        }
-        return store.addons.first {
-            $0.manifest.resources.contains("meta") &&
-            ($0.manifest.types.contains(entry.type) || $0.manifest.types.isEmpty)
-        }
+        store.metaAddon(for: entry.type, preferredId: entry.addonId)
     }
 }
