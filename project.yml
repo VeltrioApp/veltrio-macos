@@ -1,0 +1,46 @@
+name: Veltrio
+options:
+  bundleIdPrefix: com.veltrio
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "15.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "-"
+    DEVELOPMENT_TEAM: ""
+    ENABLE_HARDENED_RUNTIME: NO
+    ENABLE_APP_SANDBOX: NO
+
+targets:
+  Veltrio:
+    type: application
+    platform: macOS
+    sources:
+      - path: Veltrio
+      - path: Generated/Bindings/veltrio.swift
+        group: Generated
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.veltrio.Veltrio
+        INFOPLIST_FILE: Veltrio/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        SWIFT_INCLUDE_PATHS: $(SRCROOT)/Generated/Bindings $(SRCROOT)/MPV
+        HEADER_SEARCH_PATHS: $(SRCROOT)/Generated/Bindings /opt/homebrew/include
+        LIBRARY_SEARCH_PATHS: $(SRCROOT)/Generated/Lib /opt/homebrew/lib
+        LD_RUNPATH_SEARCH_PATHS: /opt/homebrew/lib
+        OTHER_LDFLAGS: -lveltrio_core -lmpv
+        GCC_PREPROCESSOR_DEFINITIONS: GL_SILENCE_DEPRECATION=1 OPENGL_SILENCE_DEPRECATION=1
+        COMBINE_HIDPI_IMAGES: YES
+    dependencies:
+      - sdk: SystemConfiguration.framework
+      - sdk: Security.framework
+      - sdk: CoreFoundation.framework
+      - sdk: AVFoundation.framework
+      - sdk: AVKit.framework
