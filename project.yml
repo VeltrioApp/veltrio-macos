@@ -26,6 +26,8 @@ settings:
     # Sparkle update feed and EdDSA public key. Empty = updates off (the
     # menu item stays disabled); scripts/release-macos.sh fills them from
     # VELTRIO_APPCAST_URL and VELTRIO_SPARKLE_PUBLIC_KEY.
+    # SIMKL client id (simkl.com/settings/developer). Empty = SIMKL off.
+    VELTRIO_SIMKL_CLIENT_ID: ""
     VELTRIO_APPCAST_URL: ""
     VELTRIO_SPARKLE_PUBLIC_KEY: ""
     # Distribution is outside the App Store (built-in torrent engine), so

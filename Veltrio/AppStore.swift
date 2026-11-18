@@ -105,6 +105,9 @@ final class AppStore {
     let unifiedSearch = UnifiedSearchService()
     /// XMLTV guide of the selected playlist's live channels.
     let epg = EpgStore()
+    /// Accounts whose library can be imported (Trakt lives above).
+    let stremioAccount = StremioAccountService()
+    let simkl = SimklService()
 
     init(
         client: StremioClient = StremioClient(),

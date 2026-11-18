@@ -40,6 +40,8 @@
     <string></string>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>SimklClientId</key>
+    <string>$(VELTRIO_SIMKL_CLIENT_ID)</string>
     <key>SUFeedURL</key>
     <string>$(VELTRIO_APPCAST_URL)</string>
     <key>SUPublicEDKey</key>

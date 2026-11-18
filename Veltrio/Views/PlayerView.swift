@@ -136,6 +136,8 @@ struct PlayerView: View {
     /// dims after a few minutes if the user isn't touching the mouse.
     @State private var sleepAssertionId: IOPMAssertionID = 0
     @State private var didSeekToResume = false
+    /// SIMKL gets one `start` per session and a `stop` on the way out.
+    @State private var simklStarted = false
     @State private var progressTask: Task<Void, Never>?
     @State private var showNextEpisodeOverlay = false
     @State private var nextEpisodeCountdown = 10
@@ -345,6 +347,12 @@ struct PlayerView: View {
             // One last progress flush so the exact position the user left
             // on lands in the WatchStore (the debounced save picks it up).
             reportProgress()
+            if simklStarted, let p = watchContext, controller.duration > 0 {
+                let pct = controller.position / controller.duration * 100
+                Task { [simkl = store.simkl] in
+                    await simkl.scrobble(.stop, imdbId: p.contentId, season: p.season, episode: p.episode, progress: pct)
+                }
+            }
             releaseDisplaySleep()
         }
     }
@@ -737,6 +745,13 @@ struct PlayerView: View {
             season: p.season,
             episode: p.episode
         )
+        if !simklStarted, store.simkl.isConnected, p.contentId.hasPrefix("tt") {
+            simklStarted = true
+            let pct = controller.position / controller.duration * 100
+            Task { [simkl = store.simkl] in
+                await simkl.scrobble(.start, imdbId: p.contentId, season: p.season, episode: p.episode, progress: pct)
+            }
+        }
         // Fire-and-forget scrobble to Trakt. Only when connected AND the
         // content id is an IMDb id (Trakt is IMDb-keyed).
         if p.contentId.hasPrefix("tt"), store.trakt.isConnected {

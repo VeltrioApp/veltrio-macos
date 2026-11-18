@@ -54,6 +54,20 @@ struct WatchEntry: Codable, Hashable, Identifiable {
     }
 }
 
+/// A title as an account reports it, before it's merged into the library.
+struct ImportedWatchItem: Hashable {
+    let type: String        // "movie" | "series"
+    let id: String          // IMDB id
+    let name: String
+    var poster: String? = nil
+    var inLibrary = false
+    var watched = false
+    /// Seconds. Films only: accounts don't agree on per-episode progress.
+    var position: Double? = nil
+    var duration: Double? = nil
+    var lastWatched: Date? = nil
+}
+
 struct EpisodeProgress: Codable, Hashable {
     var season: Int32?
     var episode: Int32?
@@ -220,6 +234,44 @@ final class WatchStore {
         e.lastWatchedAt = .now
         entries[k] = e
         scheduleSave()
+    }
+
+    // MARK: - import from accounts (Stremio, Trakt, SIMKL)
+
+    /// Folds titles from an account into the library. Additive only: an
+    /// import never unsaves, unwatches or rewinds what's already here, so
+    /// importing twice or from two accounts is safe.
+    ///
+    /// - Returns: how many entries changed.
+    @discardableResult
+    func merge(_ items: [ImportedWatchItem]) -> Int {
+        var changed = 0
+        for item in items {
+            let k = key(type: item.type, id: item.id)
+            let before = entries[k]
+            var e = before ?? WatchEntry(type: item.type, contentId: item.id, name: item.name)
+            if e.name.isEmpty { e.name = item.name }
+            if e.poster == nil { e.poster = item.poster }
+            if item.inLibrary && !e.inLibrary {
+                e.inLibrary = true
+                e.addedAt = item.lastWatched ?? .now
+            }
+            if item.watched { e.watched = true }
+            if let position = item.position, let duration = item.duration, duration > 0,
+               item.type == "movie", position > e.position {
+                e.position = position
+                e.duration = duration
+            }
+            if let date = item.lastWatched, before == nil || date > e.lastWatchedAt {
+                e.lastWatchedAt = date
+            }
+            if before != e {
+                entries[k] = e
+                changed += 1
+            }
+        }
+        if changed > 0 { scheduleSave() }
+        return changed
     }
 
     func removeFromContinueWatching(type: String, id: String) {

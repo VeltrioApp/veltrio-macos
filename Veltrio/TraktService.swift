@@ -207,6 +207,51 @@ final class TraktService {
         }
     }
 
+    // MARK: - Import
+
+    private(set) var isImporting = false
+    private(set) var lastImport: String?
+
+    /// Watchlist (saved) and watched history, films and series, into
+    /// `watch`. Trakt keys titles by IMDB id, like the app.
+    func importLibrary(into watch: WatchStore) async {
+        guard let token = accessToken else { return }
+        isImporting = true
+        defer { isImporting = false }
+        struct IDs: Decodable { let imdb: String? }
+        struct Title: Decodable { let title: String?; let ids: IDs }
+        struct Row: Decodable {
+            let movie: Title?
+            let show: Title?
+            let listed_at: String?
+            let last_watched_at: String?
+        }
+        func rows(_ path: String) async -> [Row] {
+            guard let data = try? await authedGet(path: path, token: token) else { return [] }
+            return (try? JSONDecoder().decode([Row].self, from: data)) ?? []
+        }
+        func item(_ row: Row, saved: Bool) -> ImportedWatchItem? {
+            let isFilm = row.movie != nil
+            guard let t = row.movie ?? row.show, let imdb = t.ids.imdb, imdb.hasPrefix("tt") else { return nil }
+            return ImportedWatchItem(
+                type: isFilm ? "movie" : "series", id: imdb, name: t.title ?? imdb,
+                inLibrary: saved,
+                // A show in the watched list may be partly watched; only
+                // films get the flag.
+                watched: !saved && isFilm,
+                lastWatched: (row.last_watched_at ?? row.listed_at).flatMap(StremioAccountService.parseDate)
+            )
+        }
+        async let watchlistMovies = rows("sync/watchlist/movies")
+        async let watchlistShows = rows("sync/watchlist/shows")
+        async let watchedMovies = rows("sync/watched/movies")
+        async let watchedShows = rows("sync/watched/shows")
+        let saved = (await watchlistMovies + watchlistShows).compactMap { item($0, saved: true) }
+        let watched = (await watchedMovies + watchedShows).compactMap { item($0, saved: false) }
+        let changed = watch.merge(saved + watched)
+        lastImport = String(localized: "\(saved.count + watched.count) titles read, \(changed) updated")
+    }
+
     // MARK: - Helpers
 
     private func authedGet(path: String, token: String) async throws -> Data {

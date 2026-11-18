@@ -400,7 +400,9 @@ private struct AccountsSettings: View {
             title: "Accounts",
             subtitle: "Sync progress and bridge your personal library."
         )
+        StremioAccountCard()
         TraktCard()
+        SimklCard()
     }
 
     private func bridgeCard(name: String, blurb: String, tagline: String, icon: String) -> some View {
@@ -436,6 +438,7 @@ private struct AccountsSettings: View {
 
 private struct TraktCard: View {
     @Environment(AppStore.self) private var store
+    @Environment(WatchStore.self) private var watch
 
     var body: some View {
         SurfaceCard {
@@ -464,9 +467,15 @@ private struct TraktCard: View {
                         .font(Theme.Font.caption(12))
                         .foregroundStyle(Theme.Palette.danger)
                 }
-                Text("Veltrio scrobbles start / pause / stop events to Trakt as you watch. Your Trakt library can be pulled into Collection later.")
+                Text("Veltrio scrobbles start / pause / stop events to Trakt as you watch, and can import your watchlist and watched history into Collection.")
                     .font(Theme.Font.caption(11))
                     .foregroundStyle(Theme.Palette.textTertiary)
+                if store.trakt.isConnected {
+                    ImportRow(isWorking: store.trakt.isImporting, result: store.trakt.lastImport,
+                              title: "Import watchlist & history") {
+                        await store.trakt.importLibrary(into: watch)
+                    }
+                }
             }
         }
     }
@@ -505,6 +514,180 @@ private struct TraktCard: View {
                         isLoading: store.trakt.isConnecting,
                         isEnabled: !store.trakt.isConnecting) {
                 Task { await store.trakt.startDeviceAuth() }
+            }
+        }
+    }
+}
+
+/// "Import …" button with its spinner and the last result line.
+private struct ImportRow: View {
+    let isWorking: Bool
+    let result: String?
+    let title: String
+    let action: () async -> Void
+
+    var body: some View {
+        HStack(spacing: Theme.Spacing.md) {
+            FrameButton(title: title, icon: "arrow.down.circle", isLoading: isWorking, isEnabled: !isWorking) {
+                Task { await action() }
+            }
+            if let result {
+                Text(result)
+                    .font(Theme.Font.caption(11))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+            }
+        }
+    }
+}
+
+// MARK: - Stremio account
+
+private struct StremioAccountCard: View {
+    @Environment(AppStore.self) private var store
+    @Environment(WatchStore.self) private var watch
+    @State private var email = ""
+    @State private var password = ""
+    @State private var addonResult: String?
+    @State private var isImportingAddons = false
+
+    private var account: StremioAccountService { store.stremioAccount }
+
+    var body: some View {
+        SurfaceCard {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                HStack(spacing: Theme.Spacing.md) {
+                    Image(systemName: "puzzlepiece.extension.fill")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: 42, height: 42)
+                        .background(Rectangle().fill(Color(hex: 0x7B5BF5)))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Stremio").font(Theme.Font.heading(15))
+                            .foregroundStyle(Theme.Palette.textPrimary)
+                        if let mail = account.email, account.isConnected {
+                            Text(mail).font(Theme.Font.body(12)).foregroundStyle(Theme.Palette.success)
+                        } else {
+                            Text("Not connected").font(Theme.Font.body(12)).foregroundStyle(Theme.Palette.textTertiary)
+                        }
+                    }
+                    Spacer()
+                    if account.isConnected {
+                        FrameButton(title: "Disconnect", icon: "xmark", color: Theme.Palette.danger) {
+                            account.signOut()
+                        }
+                    }
+                }
+                if account.isConnected {
+                    ImportRow(isWorking: account.isWorking, result: account.lastResult, title: "Import library") {
+                        await account.importLibrary(into: watch)
+                    }
+                    HStack(spacing: Theme.Spacing.md) {
+                        FrameButton(title: "Install account addons", icon: "puzzlepiece.extension",
+                                    isLoading: isImportingAddons, isEnabled: !isImportingAddons) {
+                            Task { await importAddons() }
+                        }
+                        if let addonResult {
+                            Text(addonResult).font(Theme.Font.caption(11)).foregroundStyle(Theme.Palette.textSecondary)
+                        }
+                    }
+                } else {
+                    HStack(spacing: Theme.Spacing.sm) {
+                        TextField(String(localized: "Email"), text: $email)
+                            .textFieldStyle(.plain)
+                            .padding(.horizontal, 10).padding(.vertical, 8)
+                            .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1))
+                        SecureField(String(localized: "Password"), text: $password)
+                            .textFieldStyle(.plain)
+                            .padding(.horizontal, 10).padding(.vertical, 8)
+                            .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1))
+                            .onSubmit { Task { await account.signIn(email: email, password: password) } }
+                        FrameButton(title: "Connect", icon: "arrow.right", color: Theme.Palette.accent,
+                                    fill: Theme.Palette.accent, isLoading: account.isWorking,
+                                    isEnabled: !account.isWorking && !email.isEmpty && !password.isEmpty) {
+                            Task {
+                                await account.signIn(email: email, password: password)
+                                if account.isConnected { password = "" }
+                            }
+                        }
+                    }
+                }
+                if let err = account.error {
+                    Text(err.localized).font(Theme.Font.caption(12)).foregroundStyle(Theme.Palette.danger)
+                }
+                Text("Imports your Stremio library — saved titles, watched films and where you stopped — and can install the addons on your account. Nothing is written back to Stremio.")
+                    .font(Theme.Font.caption(11))
+                    .foregroundStyle(Theme.Palette.textTertiary)
+            }
+        }
+    }
+
+    private func importAddons() async {
+        isImportingAddons = true
+        defer { isImportingAddons = false }
+        let installed = Set(store.addons.map(\.manifest.transportUrl))
+        let urls = await account.addonURLs(excluding: installed)
+        for url in urls { await store.installAddon(url: url) }
+        addonResult = String(localized: "\(urls.count) addons installed")
+    }
+}
+
+// MARK: - SIMKL
+
+private struct SimklCard: View {
+    @Environment(AppStore.self) private var store
+    @Environment(WatchStore.self) private var watch
+
+    private var simkl: SimklService { store.simkl }
+
+    var body: some View {
+        SurfaceCard {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                HStack(spacing: Theme.Spacing.md) {
+                    Text("S")
+                        .font(.system(size: 20, weight: .black))
+                        .foregroundStyle(.white)
+                        .frame(width: 42, height: 42)
+                        .background(Rectangle().fill(Color(hex: 0x1F1F1F)))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("SIMKL").font(Theme.Font.heading(15))
+                            .foregroundStyle(Theme.Palette.textPrimary)
+                        Text((simkl.isConnected ? "Connected" : "Not connected").localized)
+                            .font(Theme.Font.body(12))
+                            .foregroundStyle(simkl.isConnected ? Theme.Palette.success : Theme.Palette.textTertiary)
+                    }
+                    Spacer()
+                    if simkl.isConnected {
+                        FrameButton(title: "Disconnect", icon: "xmark", color: Theme.Palette.danger) { simkl.disconnect() }
+                    } else if simkl.pendingPin != nil {
+                        FrameButton(title: "Cancel", icon: "xmark", color: Theme.Palette.textSecondary) { simkl.cancelPinFlow() }
+                    } else if simkl.isAvailable {
+                        FrameButton(title: "Connect", icon: "arrow.right", color: Theme.Palette.accent,
+                                    fill: Theme.Palette.accent, isLoading: simkl.isConnecting,
+                                    isEnabled: !simkl.isConnecting) {
+                            Task { await simkl.startPinFlow() }
+                        }
+                    }
+                }
+                if let pin = simkl.pendingPin {
+                    DebridActivationView(
+                        providerName: "SIMKL", codeLabel: "CODE", code: pin.userCode,
+                        openURL: pin.verificationURL, copyLabel: "Copy code",
+                        instructions: "Open the link, enter the code, and confirm. Veltrio is polling — the connection completes automatically."
+                    )
+                }
+                if simkl.isConnected {
+                    ImportRow(isWorking: simkl.isImporting, result: simkl.lastImport, title: "Import lists") {
+                        await simkl.importLibrary(into: watch)
+                    }
+                }
+                if let err = simkl.error {
+                    Text(err.localized).font(Theme.Font.caption(12)).foregroundStyle(Theme.Palette.danger)
+                }
+                Text((simkl.isAvailable
+                      ? "Scrobbles what you watch to SIMKL and imports your plan-to-watch and completed lists."
+                      : "SIMKL needs this build to carry a SIMKL client id (VELTRIO_SIMKL_CLIENT_ID, from simkl.com/settings/developer).").localized)
+                    .font(Theme.Font.caption(11))
+                    .foregroundStyle(Theme.Palette.textTertiary)
             }
         }
     }
