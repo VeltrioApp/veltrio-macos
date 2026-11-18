@@ -9,9 +9,20 @@ struct PlayerChannelList: View {
 
     @Environment(AppStore.self) private var store
     @State private var filter = ""
+    /// The section (playlist group) listed; opens on the current channel's.
+    @State private var group: String??
+
+    private var activeGroup: String? { group ?? current.group }
+
+    private var groups: [String] {
+        Array(Set(store.iptvChannels.map { $0.group ?? "Ungrouped" })).sorted()
+    }
 
     private var channels: [(number: Int, channel: IptvChannel)] {
-        let all = store.iptvChannels.enumerated().map { (number: $0.offset + 1, channel: $0.element) }
+        var all = store.iptvChannels.enumerated().map { (number: $0.offset + 1, channel: $0.element) }
+        if let activeGroup {
+            all = all.filter { ($0.channel.group ?? "Ungrouped") == activeGroup }
+        }
         let needle = filter.trimmingCharacters(in: .whitespaces).lowercased()
         guard !needle.isEmpty else { return all }
         return all.filter { $0.channel.name.lowercased().contains(needle) }
@@ -33,6 +44,30 @@ struct PlayerChannelList: View {
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.top, 70)
             .padding(.bottom, Theme.Spacing.sm)
+
+            Menu {
+                Button("All channels") { withAnimation(.easeOut(duration: 0.15)) { group = .some(nil) } }
+                Divider()
+                ForEach(groups, id: \.self) { name in
+                    Button(name) { withAnimation(.easeOut(duration: 0.15)) { group = .some(name) } }
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Text((activeGroup ?? "All channels").localized)
+                        .font(Theme.Font.label(12, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Image(systemName: "chevron.down").font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.white.opacity(0.6))
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, 10).padding(.vertical, 7)
+                .background(Rectangle().fill(.white.opacity(0.08)))
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.bottom, 6)
 
             HStack(spacing: 6) {
                 Image(systemName: "magnifyingglass").font(.system(size: 11)).foregroundStyle(.white.opacity(0.5))

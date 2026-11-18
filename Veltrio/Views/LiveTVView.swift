@@ -28,13 +28,21 @@ struct LiveTVView: View {
             Rule(color: Theme.Palette.border)
                 .frame(width: 1)
                 .frame(maxHeight: .infinity)
-            if let channel = selected {
-                LiveChannelHero(channel: channel, number: numbers[channel.id])
-                    .padding(.leading, Theme.Spacing.xl)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            } else {
-                Spacer()
+            ZStack(alignment: .topLeading) {
+                if let channel = selected {
+                    // A fresh hero per channel, so changing channel fades the
+                    // new one in instead of swapping text in place.
+                    LiveChannelHero(channel: channel, number: numbers[channel.id])
+                        .id(channel.id)
+                        .transition(.asymmetric(
+                            insertion: .opacity.combined(with: .offset(x: 14)),
+                            removal: .opacity
+                        ))
+                }
             }
+            .padding(.leading, Theme.Spacing.xl)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .animation(.easeOut(duration: 0.22), value: selected?.id)
         }
     }
 
@@ -251,7 +259,7 @@ private struct LiveChannelHero: View {
             Rectangle().fill(Theme.Palette.surface)
             if let image = now?.image {
                 AsyncImage(url: image) { phase in
-                    if case .success(let img) = phase { img.resizable().scaledToFill() }
+                    if case .success(let img) = phase { img.resizable().scaledToFill().modifier(SlowZoom()) }
                 }
             } else {
                 ChannelLogo(url: channel.logoUrl, name: channel.name)
@@ -260,7 +268,7 @@ private struct LiveChannelHero: View {
             LinearGradient(colors: [.clear, .black.opacity(0.7)], startPoint: .center, endPoint: .bottom)
             HStack(spacing: Theme.Spacing.md) {
                 HStack(spacing: 6) {
-                    Circle().fill(Theme.Palette.danger).frame(width: 7, height: 7)
+                    LivePulse()
                     Text("LIVE").font(Theme.Font.eyebrow(10, weight: .heavy)).tracking(2.0)
                 }
                 .foregroundStyle(.white)
@@ -337,6 +345,32 @@ private struct LiveChannelHero: View {
 }
 
 // MARK: - shared bits
+
+/// The red "on air" dot, breathing.
+private struct LivePulse: View {
+    @State private var on = false
+    var body: some View {
+        Circle()
+            .fill(Theme.Palette.danger)
+            .frame(width: 7, height: 7)
+            .overlay(Circle().stroke(Theme.Palette.danger, lineWidth: 1.5).scaleEffect(on ? 2.4 : 1).opacity(on ? 0 : 0.8))
+            .onAppear {
+                withAnimation(.easeOut(duration: 1.4).repeatForever(autoreverses: false)) { on = true }
+            }
+    }
+}
+
+/// A slow push-in on a still, like a TV channel's programme card.
+private struct SlowZoom: ViewModifier {
+    @State private var zoomed = false
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(zoomed ? 1.07 : 1)
+            .onAppear {
+                withAnimation(.easeInOut(duration: 14).repeatForever(autoreverses: true)) { zoomed = true }
+            }
+    }
+}
 
 private struct ProgressLine: View {
     let value: Double
