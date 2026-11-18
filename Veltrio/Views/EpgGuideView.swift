@@ -87,7 +87,7 @@ struct EpgGuideView: View {
                 .frame(width: channelColumn, height: rowHeight)
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.plainRect)
 
             TimelineView(.periodic(from: .now, by: 60)) { context in
                 GeometryReader { geo in
@@ -128,7 +128,7 @@ struct EpgGuideView: View {
             .background(Rectangle().fill(isOn ? Theme.Palette.accentSoft : Theme.Palette.surface))
             .overlay(Rectangle().stroke(isOn ? Theme.Palette.accent.opacity(0.6) : Theme.Palette.border, lineWidth: 1))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .help([p.title, p.description].compactMap { $0 }.joined(separator: "\n\n"))
     }
 

@@ -162,7 +162,7 @@ struct IPTVView: View {
                             .font(.system(size: 13))
                             .foregroundStyle(Theme.Palette.textTertiary)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.plainRect)
                 }
             }
             .padding(.horizontal, Theme.Spacing.md)
@@ -255,7 +255,7 @@ struct IPTVView: View {
                             NavigationLink(value: series) {
                                 ChannelTile(channel: channel)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.plainRect)
                         } else {
                             NavigationLink(value: PlayerDestination(
                                 kind: .liveChannel(channel: channel),
@@ -263,7 +263,7 @@ struct IPTVView: View {
                             )) {
                                 ChannelTile(channel: channel)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.plainRect)
                         }
                     }
                 }
@@ -606,7 +606,7 @@ struct AddPlaylistSheet: View {
                     .frame(width: 26, height: 26)
                     .background(Circle().fill(Theme.Palette.surface))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.plainRect)
         }
         .padding(Theme.Spacing.lg)
     }
@@ -638,7 +638,7 @@ struct AddPlaylistSheet: View {
                         )
                     )
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
             }
         }
         .padding(4)
@@ -781,7 +781,7 @@ struct AddPlaylistSheet: View {
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(Theme.Palette.textTertiary)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
             }
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.vertical, 10)
@@ -832,7 +832,7 @@ struct AddPlaylistSheet: View {
                                 .stroke(xtreamOutput == out ? .clear : Theme.Palette.border, lineWidth: 1)
                         )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.plainRect)
                 }
             }
         }

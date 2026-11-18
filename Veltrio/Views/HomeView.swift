@@ -71,7 +71,7 @@ struct HomeView: View {
                             )) {
                                 ContinueCard(entry: entry).frame(width: 280)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.plainRect)
                             .contextMenu {
                                 Button(role: .destructive) {
                                     watch.removeFromContinueWatching(
@@ -268,14 +268,14 @@ private struct EditorialHero: View {
                         icon: "play.fill"
                     )
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
 
                 NavigationLink(value: DetailDestination(
                     addon: addon, type: item.type, id: item.id, name: item.name
                 )) {
                     HeroSecondaryLabel(title: "Details", icon: "info.circle")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
             }
             .padding(.top, Theme.Spacing.lg)
         }
@@ -372,7 +372,7 @@ struct CatalogRow: View {
                                 .foregroundStyle(Theme.Palette.textSecondary)
                         }
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.plainRect)
                 }
             }
             ScrollView(.horizontal, showsIndicators: false) {
@@ -409,7 +409,7 @@ struct CatalogRow: View {
                             )
                             .frame(width: 180)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.plainRect)
                     }
                 }
             }

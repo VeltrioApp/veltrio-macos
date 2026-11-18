@@ -185,7 +185,7 @@ private struct LibraryCard: View {
                 )) {
                     cardBody
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
             } else {
                 cardBody
             }

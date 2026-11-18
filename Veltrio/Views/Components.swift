@@ -161,7 +161,7 @@ struct TextLinkTab: View {
             .animation(.easeOut(duration: 0.15), value: isSelected)
             .animation(.easeOut(duration: 0.1), value: isHovering)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .onHover { isHovering = $0 }
     }
 }
@@ -213,7 +213,7 @@ struct Chip: View {
                     .frame(height: 1)
             }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .onHover { isHovering = $0 }
         .animation(.easeOut(duration: 0.14), value: isSelected)
     }
@@ -272,7 +272,7 @@ struct CTAButton: View {
             .animation(.easeOut(duration: 0.14), value: isHovering)
             .animation(.easeOut(duration: 0.08), value: isPressed)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .disabled(!isEnabled)
         .onHover { h in
             isHovering = h
@@ -329,7 +329,7 @@ struct GhostButton: View {
             .animation(.easeOut(duration: 0.12), value: isHovering)
             .animation(.easeOut(duration: 0.08), value: isPressed)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .disabled(!isEnabled)
         .onHover { h in
             isHovering = h
@@ -381,7 +381,7 @@ struct FrameButton: View {
             .opacity(isEnabled ? 1 : 0.5)
             .animation(.easeOut(duration: 0.12), value: isHovering)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .disabled(!isEnabled)
         .onHover { h in
             isHovering = h
@@ -474,7 +474,7 @@ struct IconButton: View {
                     lineWidth: 1.5
                 ))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .onHover { h in
             isHovering = h
             if h { NSCursor.pointingHand.push() } else { NSCursor.pop() }
@@ -749,4 +749,24 @@ extension View {
     func `if`<C: View>(_ condition: Bool, transform: (Self) -> C) -> some View {
         if condition { transform(self) } else { self }
     }
+}
+
+// MARK: - Button style
+//
+// SwiftUI's `.plain` style only reacts to what the label draws: on a
+// framed button that's the text and icon, not the padding around them,
+// so clicking inside the rectangle but beside the word did nothing. This
+// style is `.plain` with the whole label rectangle clickable. Use it for
+// every borderless button and navigation link in the app.
+
+struct PlainRectButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .contentShape(Rectangle())
+            .opacity(configuration.isPressed ? 0.85 : 1)
+    }
+}
+
+extension ButtonStyle where Self == PlainRectButtonStyle {
+    static var plainRect: PlainRectButtonStyle { PlainRectButtonStyle() }
 }

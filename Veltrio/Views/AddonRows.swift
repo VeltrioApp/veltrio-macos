@@ -123,7 +123,7 @@ struct AddonRow: View {
                 )
                 .frame(width: 20, height: 16)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .disabled(action == nil)
     }
 

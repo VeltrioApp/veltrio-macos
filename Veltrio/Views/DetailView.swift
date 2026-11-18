@@ -362,7 +362,7 @@ struct DetailView: View {
             .shadow(color: Theme.Palette.accentGlow, radius: 18, y: 8)
             .opacity(best == nil ? 0.5 : 1)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .disabled(best == nil)
     }
 
@@ -465,7 +465,7 @@ struct DetailView: View {
                     .padding(.vertical, 9)
                     .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1.5))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
 
                 // Selected episode banner: horizontal thumbnail + title.
                 HStack(alignment: .top, spacing: Theme.Spacing.md) {
@@ -576,7 +576,7 @@ struct DetailView: View {
                         .frame(width: 34, height: 34)
                         .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1.5))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
                 Text("\(value.wrappedValue)")
                     .font(Theme.Font.mono(18, weight: .semibold))
                     .foregroundStyle(Theme.Palette.textPrimary)
@@ -589,7 +589,7 @@ struct DetailView: View {
                         .frame(width: 34, height: 34)
                         .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1.5))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
             }
         }
     }
@@ -717,13 +717,13 @@ struct DetailView: View {
                     NavigationLink(value: playerDestination(for: labeled)) {
                         StreamRow(labeled: labeled)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.plainRect)
                     .contextMenu { downloadMenu(for: labeled) }
                 case .direct(let d):
                     NavigationLink(value: playerDestination(for: d)) {
                         DirectStreamRow(stream: d)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.plainRect)
                 }
             }
         }
@@ -914,7 +914,7 @@ struct DetailView: View {
                         .padding(.horizontal, 10).padding(.vertical, 5)
                         .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
             }
             Text(message.localized)
                 .font(Theme.Font.body(12))
@@ -958,7 +958,7 @@ struct DetailView: View {
             .padding(.vertical, 9)
             .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1.5))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .keyboardShortcut(.escape, modifiers: [])
     }
 
@@ -1131,7 +1131,7 @@ private struct EpisodeCard: View {
                 }
             }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .onHover { h in
             isHovering = h
             if h { NSCursor.pointingHand.push() } else { NSCursor.pop() }

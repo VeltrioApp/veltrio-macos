@@ -61,7 +61,7 @@ struct CatalogGridView: View {
                 .padding(.vertical, 9)
                 .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1.5))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.plainRect)
             .keyboardShortcut(.escape, modifiers: [])
 
             PageHeader(
@@ -119,7 +119,7 @@ struct CatalogGridView: View {
                         rating: meta.imdbRating
                     )
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
             }
         }
     }

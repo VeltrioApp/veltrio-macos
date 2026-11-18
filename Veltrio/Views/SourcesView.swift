@@ -273,7 +273,7 @@ struct SourcesView: View {
                                 .frame(width: 22, height: 22)
                                 .background(Rectangle().fill(Theme.Palette.surfaceHover))
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.plainRect)
                     }
                 }
                 HStack(spacing: Theme.Spacing.sm) {
@@ -417,7 +417,7 @@ private struct AddonCatalogSheet: View {
                             .frame(width: 26, height: 26)
                             .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.plainRect)
                 }
             }
             .padding(.horizontal, Theme.Spacing.md)
@@ -696,7 +696,7 @@ private struct IPTVManagerSheet: View {
                                         .frame(width: 30, height: 30)
                                         .overlay(Rectangle().stroke(Theme.Palette.danger.opacity(0.4), lineWidth: 1))
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(.plainRect)
                             }
                             .padding(.vertical, Theme.Spacing.sm)
                             if ref.id != store.iptvPlaylists.last?.id {

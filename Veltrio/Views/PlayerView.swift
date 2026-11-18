@@ -434,7 +434,7 @@ struct PlayerView: View {
                         .background(Capsule().fill(.ultraThinMaterial))
                         .overlay(Capsule().stroke(.white.opacity(0.18), lineWidth: 1))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.plainRect)
                     Button {
                         dismiss()
                     } label: {
@@ -448,7 +448,7 @@ struct PlayerView: View {
                         .background(Capsule().fill(.white))
                         .shadow(color: .black.opacity(0.4), radius: 14, y: 6)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.plainRect)
                 }
             }
         }
@@ -806,7 +806,7 @@ struct PlayerView: View {
                         .frame(width: 24, height: 24)
                         .overlay(Rectangle().stroke(.white.opacity(0.2), lineWidth: 1))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
             }
             Text("Jump back to any programme from the last 24 hours. Timeshift URL is built on the fly.")
                 .font(Theme.Font.caption(11))
@@ -821,7 +821,7 @@ struct PlayerView: View {
                         } label: {
                             catchupRow(e)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.plainRect)
                     }
                 }
             }
@@ -888,7 +888,7 @@ struct PlayerView: View {
             .background(Rectangle().fill(Theme.Palette.accent))
             .shadow(color: Theme.Palette.accentGlow, radius: 20, y: 8)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .onHover { h in
             if h { NSCursor.pointingHand.push() } else { NSCursor.pop() }
         }
@@ -917,7 +917,7 @@ struct PlayerView: View {
                         .frame(width: 24, height: 24)
                         .overlay(Rectangle().stroke(.white.opacity(0.2), lineWidth: 1))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
             }
             Rule(color: .white.opacity(0.15))
 
@@ -1029,7 +1029,7 @@ struct PlayerView: View {
                 .background(Capsule().fill(.ultraThinMaterial))
                 .overlay(Capsule().stroke(.white.opacity(0.18), lineWidth: 1))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.plainRect)
             // No key equivalent here. Escape is handled on the player
             // root: it leaves full screen first, and only leaves the
             // player on a second press. Binding it to this button too
@@ -1082,7 +1082,7 @@ struct PlayerView: View {
                     glassIcon("clock.arrow.circlepath",
                               badge: "\(catchupEntries.count)")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
                 .help("Catchup / timeshift")
             }
 
@@ -1091,7 +1091,7 @@ struct PlayerView: View {
             } label: {
                 glassIcon(showMediaInfo ? "info.circle.fill" : "info.circle")
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.plainRect)
             .help("Media info (I)")
 
             Button {
@@ -1099,7 +1099,7 @@ struct PlayerView: View {
             } label: {
                 glassIcon("arrow.up.left.and.arrow.down.right")
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.plainRect)
             .help("Toggle fullscreen (F)")
         }
         .padding(.horizontal, Theme.Spacing.xl)
@@ -1586,7 +1586,7 @@ struct PlayerView: View {
                 )
                 .shadow(color: .black.opacity(0.4), radius: 12, y: 4)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         // No key equivalent on this button: the player root already binds
         // Space with `onKeyPress`, and a view-level equivalent would race
         // it (two toggles for one press, so pause would look dead).
@@ -1601,7 +1601,7 @@ struct PlayerView: View {
                 .background(Circle().fill(.ultraThinMaterial))
                 .overlay(Circle().stroke(.white.opacity(0.18), lineWidth: 1))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .help(help.localized)
     }
 
@@ -1630,7 +1630,7 @@ struct PlayerView: View {
                     .frame(width: 32, height: 32)
                     .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.plainRect)
             .help("Mute (M)")
 
             SeekSlider(

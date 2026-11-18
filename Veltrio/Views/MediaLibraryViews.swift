@@ -112,12 +112,12 @@ struct MediaLibraryBrowser: View {
             NavigationLink(value: DetailDestination(addon: addon, type: item.type, id: imdb, name: item.title)) {
                 poster
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.plainRect)
         } else if item.type == "series" {
             NavigationLink(value: MediaServerSeriesDestination(server: server, item: item)) {
                 poster
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.plainRect)
         } else if let url = item.streamURL ?? service.libraryStreamURL(for: item.id) {
             NavigationLink(value: PlayerDestination(
                 kind: .libraryItem(.init(url: url, serverName: server.label, itemId: item.id,
@@ -126,7 +126,7 @@ struct MediaLibraryBrowser: View {
             )) {
                 poster
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.plainRect)
         } else {
             poster.opacity(0.5)
         }
@@ -187,7 +187,7 @@ struct MediaServerSeriesView: View {
                     .padding(.vertical, 9)
                     .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1.5))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
                 .keyboardShortcut(.escape, modifiers: [])
 
                 PageHeader(eyebrow: destination.server.label, title: destination.item.title,
@@ -268,7 +268,7 @@ struct MediaServerSeriesView: View {
                         .lineLimit(2)
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.plainRect)
         }
     }
 }

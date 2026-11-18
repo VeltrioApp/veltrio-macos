@@ -118,7 +118,7 @@ private struct SidebarRow: View {
             .padding(.vertical, 9)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .onHover { isHovering = $0 }
         .animation(.easeOut(duration: 0.12), value: isSelected)
     }
@@ -877,7 +877,7 @@ private struct AppearanceSettings: View {
                     )
             }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
     }
 
     @ViewBuilder

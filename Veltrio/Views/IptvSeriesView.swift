@@ -65,7 +65,7 @@ struct IptvSeriesView: View {
                 .padding(.vertical, 9)
                 .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1.5))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.plainRect)
             .keyboardShortcut(.escape, modifiers: [])
 
             HStack(alignment: .top, spacing: Theme.Spacing.xl) {
@@ -168,7 +168,7 @@ struct IptvSeriesView: View {
                     )) {
                         XtreamEpisodeCard(episode: episode, fallbackImage: series.cover)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.plainRect)
                 }
             }
         }

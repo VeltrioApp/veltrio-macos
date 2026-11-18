@@ -215,7 +215,7 @@ private struct SearchBarTrigger: View {
                 lineWidth: 1.5
             ))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
         .onHover { h in
             isHovering = h
             if h { NSCursor.pointingHand.push() } else { NSCursor.pop() }
@@ -257,7 +257,7 @@ private struct SettingsSheet: View {
                             .foregroundStyle(Theme.Palette.textTertiary)
                     }
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
             }
             .padding(.horizontal, Theme.Spacing.xl)
             .padding(.top, Theme.Spacing.xl)

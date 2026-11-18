@@ -55,7 +55,7 @@ struct SearchView: View {
                         .eyebrow(Theme.Palette.textTertiary, tracking: 2.2)
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.plainRect)
             .keyboardShortcut(.escape, modifiers: [])
 
             Spacer()
@@ -100,7 +100,7 @@ struct SearchView: View {
                             .frame(width: 30, height: 30)
                             .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.plainRect)
                 }
             }
             Rule()
@@ -194,14 +194,14 @@ struct SearchView: View {
                 )) {
                     poster(result)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
             }
         case .iptv:
             if let channel = result.channel, let series = IptvSeriesDestination(channel: channel) {
                 NavigationLink(value: series) {
                     poster(result)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
             } else if let channel = result.channel {
                 NavigationLink(value: PlayerDestination(
                     kind: .liveChannel(channel: channel),
@@ -209,7 +209,7 @@ struct SearchView: View {
                 )) {
                     poster(result)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plainRect)
             }
         }
     }
