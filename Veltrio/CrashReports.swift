@@ -51,12 +51,14 @@ final class CrashReports: NSObject, MXMetricManagerSubscriber {
         let stamp = ISO8601DateFormatter()
         stamp.formatOptions = [.withFullDate, .withTime, .withColonSeparatorInTime]
         for payload in payloads {
-            let kinds = [
+            // Typed out: Xcode 16's type checker gives up on the literal.
+            let counts: [(Int, String)] = [
                 (payload.crashDiagnostics?.count ?? 0, "crash"),
                 (payload.hangDiagnostics?.count ?? 0, "hang"),
                 (payload.cpuExceptionDiagnostics?.count ?? 0, "cpu"),
                 (payload.diskWriteExceptionDiagnostics?.count ?? 0, "disk"),
-            ].filter { $0.0 > 0 }.map(\.1)
+            ]
+            let kinds = counts.filter { $0.0 > 0 }.map(\.1)
             guard !kinds.isEmpty else { continue }
             let name = "\(stamp.string(from: payload.timeStampEnd))-\(kinds.joined(separator: "+")).json"
                 .replacingOccurrences(of: ":", with: "-")
