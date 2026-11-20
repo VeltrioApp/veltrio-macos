@@ -1,6 +1,11 @@
 import SwiftUI
+import UniformTypeIdentifiers
+#if os(macOS)
 import AppKit
 import IOKit.pwr_mgt
+#else
+import UIKit
+#endif
 
 
 /// Full-page player. Pushed onto the NavigationStack from DetailView — no
@@ -28,7 +33,10 @@ struct PlayerView: View {
     /// IOKit assertion that stops the display from sleeping while
     /// playback is active. Released on disappear. Without it the screen
     /// dims after a few minutes if the user isn't touching the mouse.
+    @State private var choosingSubtitle = false
+    #if os(macOS)
     @State private var sleepAssertionId: IOPMAssertionID = 0
+    #endif
     @State private var didSeekToResume = false
     /// SIMKL gets one `start` per session and a `stop` on the way out.
     @State private var simklStarted = false
@@ -88,10 +96,37 @@ struct PlayerView: View {
             // Click-to-toggle pause when the hit target is the video itself
             // (not the overlay controls).
             if resolvedUrl != nil {
+                #if os(iOS)
+                // Touch: a tap shows or hides the controls; a double tap
+                // skips 10 s on either side, pauses in the middle.
+                GeometryReader { geo in
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .gesture(
+                            SpatialTapGesture(count: 2).onEnded { tap in
+                                let third = geo.size.width / 3
+                                if destination.isLive || (tap.location.x > third && tap.location.x < third * 2) {
+                                    controller.togglePause()
+                                } else {
+                                    controller.skip(by: tap.location.x <= third ? -10 : 10)
+                                }
+                                flashControls()
+                            }
+                            .exclusively(before: TapGesture().onEnded {
+                                if controlsVisible {
+                                    withAnimation(.easeOut(duration: 0.22)) { controlsVisible = false }
+                                } else {
+                                    flashControls()
+                                }
+                            })
+                        )
+                }
+                #else
                 Color.clear
                     .contentShape(Rectangle())
                     .onTapGesture { controller.togglePause() }
                     .allowsHitTesting(controlsVisible == false)
+                #endif
             }
 
             if controlsVisible || isResolving || resolveError != nil {
@@ -152,12 +187,22 @@ struct PlayerView: View {
         }
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
-        .toolbar(.hidden, for: .windowToolbar)
+        .hidesWindowToolbarOnMac()
+        .fileImporter(isPresented: $choosingSubtitle, allowedContentTypes: Self.subtitleTypes) { result in
+            if case .success(let url) = result { addLocalSubtitle(url) }
+        }
         .focusable()
         .focused($focused)
         .focusEffectDisabled()
         .overlay(alignment: .top) { castBanner }
+        #if os(iOS)
+        .statusBarHidden(true)
+        .persistentSystemOverlays(.hidden)
+        #endif
         .onAppear {
+            #if os(iOS)
+            Self.requestOrientation(.landscape)
+            #endif
             focused = true
             resetHideTimer()
             preventDisplaySleep()
@@ -258,6 +303,9 @@ struct PlayerView: View {
             }
         }
         .onDisappear {
+            #if os(iOS)
+            Self.requestOrientation(.portrait)
+            #endif
             // Stop the exact torrent we actually started. Using
             // `destination.streamSource` here would miss the case where
             // the user backed out before resolve() finished — the engine
@@ -759,17 +807,23 @@ struct PlayerView: View {
         return nil
     }
 
-    private func loadLocalSubtitle() {
-        let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        panel.allowedFileTypes = ["srt", "ass", "ssa", "vtt", "sub", "idx"]
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        controller.addExternalSubtitle(
-            url: url.absoluteString,
-            title: url.lastPathComponent,
-            lang: nil
-        )
+    private func loadLocalSubtitle() { choosingSubtitle = true }
+
+    private static let subtitleTypes: [UTType] =
+        ["srt", "ass", "ssa", "vtt", "sub", "idx"].compactMap { UTType(filenameExtension: $0) } + [.plainText]
+
+    /// A picked subtitle file. On iOS it's only readable for a moment, so
+    /// mpv gets a copy in the app's temporary folder.
+    private func addLocalSubtitle(_ picked: URL) {
+        var url = picked
+        #if os(iOS)
+        let scoped = picked.startAccessingSecurityScopedResource()
+        defer { if scoped { picked.stopAccessingSecurityScopedResource() } }
+        let copy = FileManager.default.temporaryDirectory.appendingPathComponent(picked.lastPathComponent)
+        try? FileManager.default.removeItem(at: copy)
+        if (try? FileManager.default.copyItem(at: picked, to: copy)) != nil { url = copy }
+        #endif
+        controller.addExternalSubtitle(url: url.absoluteString, title: picked.lastPathComponent, lang: nil)
     }
 
     private func reportProgress() {
@@ -818,6 +872,9 @@ struct PlayerView: View {
     // MARK: - display sleep
 
     private func preventDisplaySleep() {
+        #if os(iOS)
+        UIApplication.shared.isIdleTimerDisabled = true
+        #else
         guard sleepAssertionId == 0 else { return }
         let reason = "Veltrio playback" as CFString
         IOPMAssertionCreateWithName(
@@ -826,12 +883,17 @@ struct PlayerView: View {
             reason,
             &sleepAssertionId
         )
+        #endif
     }
 
     private func releaseDisplaySleep() {
+        #if os(iOS)
+        UIApplication.shared.isIdleTimerDisabled = false
+        #else
         guard sleepAssertionId != 0 else { return }
         IOPMAssertionRelease(sleepAssertionId)
         sleepAssertionId = 0
+        #endif
     }
 
     // MARK: - catchup sheet
@@ -934,7 +996,7 @@ struct PlayerView: View {
         }
         .buttonStyle(.plainRect)
         .onHover { h in
-            if h { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+            Platform.pointingCursor(h)
         }
         // No key equivalent here: `s` is bound on the player root with
         // `onKeyPress` (below), which fires only while the player is on
@@ -1147,13 +1209,16 @@ struct PlayerView: View {
             .buttonStyle(.plainRect)
             .help("Media info (I)")
 
-            Button {
-                toggleFullScreen()
-            } label: {
-                glassIcon("arrow.up.left.and.arrow.down.right")
+            // A phone's player is always full screen.
+            if Platform.isMac {
+                Button {
+                    toggleFullScreen()
+                } label: {
+                    glassIcon("arrow.up.left.and.arrow.down.right")
+                }
+                .buttonStyle(.plainRect)
+                .help("Toggle fullscreen (F)")
             }
-            .buttonStyle(.plainRect)
-            .help("Toggle fullscreen (F)")
         }
         .padding(.horizontal, Theme.Spacing.xl)
         .padding(.top, Theme.Spacing.xl)
@@ -1195,7 +1260,8 @@ struct PlayerView: View {
                         .frame(minWidth: 130, alignment: .trailing)
                 }
 
-                volumeControl
+                // A phone's volume is its buttons.
+                if Platform.isMac { volumeControl }
             }
         }
         .padding(.horizontal, Theme.Spacing.xl)
@@ -1364,7 +1430,7 @@ struct PlayerView: View {
             } label: {
                 glassIcon("waveform")
             }
-            .menuStyle(.borderlessButton)
+            .borderlessMenu()
             .menuIndicator(.hidden)
             .fixedSize()
             .help("Audio track")
@@ -1435,7 +1501,7 @@ struct PlayerView: View {
                     badge: controller.isFetchingExternalSubs ? "…" : nil
                 )
             }
-            .menuStyle(.borderlessButton)
+            .borderlessMenu()
             .menuIndicator(.hidden)
             .fixedSize()
             .help("Subtitles (Z / X for delay)")
@@ -1471,7 +1537,7 @@ struct PlayerView: View {
                 badge: controller.speed != 1.0 ? String(format: "%g×", controller.speed) : nil
             )
         }
-        .menuStyle(.borderlessButton)
+        .borderlessMenu()
         .menuIndicator(.hidden)
         .fixedSize()
         .help("Playback speed")
@@ -1507,7 +1573,7 @@ struct PlayerView: View {
                 badge: controller.aspectMode == .auto && controller.videoZoom == 0 ? nil : controller.aspectMode.rawValue
             )
         }
-        .menuStyle(.borderlessButton)
+        .borderlessMenu()
         .menuIndicator(.hidden)
         .fixedSize()
         .help("Aspect ratio & zoom")
@@ -1544,7 +1610,7 @@ struct PlayerView: View {
         } label: {
             glassIcon("airplayvideo")
         }
-        .menuStyle(.borderlessButton)
+        .borderlessMenu()
         .menuIndicator(.hidden)
         .fixedSize()
         .help("Cast / AirPlay / PiP")
@@ -1601,7 +1667,11 @@ struct PlayerView: View {
     private func handleCast(_ target: CastingService.CastTarget) {
         switch target {
         case .airplay:
+            #if os(macOS)
             store.casting.openAirPlayPicker(anchor: NSApp.keyWindow?.contentView)
+            #else
+            store.casting.openAirPlayPicker()
+            #endif
         case .pictureInPicture:
             // Future: spawn a secondary AVPlayer window with the same URL
             // at the current position, start PiP there, pause mpv.
@@ -1652,7 +1722,7 @@ struct PlayerView: View {
                 badge: controller.playbackProfile == .balanced ? nil : controller.playbackProfile.rawValue.prefix(1).uppercased()
             )
         }
-        .menuStyle(.borderlessButton)
+        .borderlessMenu()
         .menuIndicator(.hidden)
         .fixedSize()
         .help("Video & audio presets")
@@ -1825,7 +1895,7 @@ struct PlayerView: View {
                             color: Theme.Palette.accent,
                             fill: Theme.Palette.accent) {
                     if let url = resolvedUrl, isSafeExternalURL(url) {
-                        NSWorkspace.shared.open(url)
+                        Platform.open(url)
                     }
                     dismiss()
                 }
@@ -1901,14 +1971,28 @@ struct PlayerView: View {
             try? await Task.sleep(nanoseconds: 3_000_000_000)
             if Task.isCancelled { return }
             if controller.isPaused { return }
+            #if DEBUG
+            // Screenshots of the controls in the simulator: `-veltrioKeepControls YES`.
+            if UserDefaults.standard.bool(forKey: "veltrioKeepControls") { return }
+            #endif
             withAnimation(.easeOut(duration: 0.22)) { controlsVisible = false }
         }
     }
 
+    #if os(iOS)
+    /// The player turns the phone to landscape, and gives portrait back.
+    static func requestOrientation(_ mask: UIInterfaceOrientationMask) {
+        guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return }
+        scene.requestGeometryUpdate(.iOS(interfaceOrientations: mask))
+    }
+    #endif
+
     private func toggleFullScreen() {
+        #if os(macOS)
         if let window = NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
             window.toggleFullScreen(nil)
         }
+        #endif
     }
 
     /// Escape leaves full screen before it leaves the player.
@@ -1932,9 +2016,13 @@ struct PlayerView: View {
     /// SwiftUI; `NSApp.keyWindow` can be nil while the transition runs, so
     /// we fall back to the first visible window.
     private var isWindowFullScreen: Bool {
+        #if os(macOS)
         let window = NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible })
         guard let window else { return false }
         return window.styleMask.contains(.fullScreen)
+        #else
+        return false
+        #endif
     }
 
     private func resolve() async {

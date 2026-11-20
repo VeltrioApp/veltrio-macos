@@ -34,6 +34,12 @@ final class MPVEngine {
         return live[token]?.engine
     }
 
+    /// Turns the video track off and on (iOS, around the background).
+    func setVideoEnabled(_ on: Bool) {
+        guard let mpv else { return }
+        _ = mpv_set_property_string(mpv, "vid", on ? "auto" : "no")
+    }
+
     /// No picture and no sound (tests).
     static let headless: (OpaquePointer) -> Void = { mpv in
         _ = mpv_set_option_string(mpv, "vo", "null")

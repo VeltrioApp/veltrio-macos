@@ -64,7 +64,7 @@ struct PlayerChannelList: View {
                 .padding(.horizontal, 10).padding(.vertical, 7)
                 .background(Rectangle().fill(.white.opacity(0.08)))
             }
-            .menuStyle(.borderlessButton)
+            .borderlessMenu()
             .menuIndicator(.hidden)
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.bottom, 6)

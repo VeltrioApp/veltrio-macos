@@ -2,6 +2,8 @@ import Foundation
 import AVKit
 #if os(macOS)
 import AppKit
+#else
+import UIKit
 #endif
 import Observation
 
@@ -74,6 +76,18 @@ final class CastingService {
                 picker.removeFromSuperview()
             }
         }
+    }
+    #else
+    /// iOS: Apple's route picker, triggered as if its button were tapped.
+    func openAirPlayPicker() {
+        guard let window = UIApplication.shared.connectedScenes
+            .compactMap({ ($0 as? UIWindowScene)?.keyWindow }).first else { return }
+        let picker = AVRoutePickerView(frame: .zero)
+        window.addSubview(picker)
+        for case let button as UIButton in picker.subviews {
+            button.sendActions(for: .touchUpInside)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { picker.removeFromSuperview() }
     }
     #endif
 

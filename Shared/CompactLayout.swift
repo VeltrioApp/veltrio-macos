@@ -59,3 +59,27 @@ extension View {
         #endif
     }
 }
+
+extension View {
+    /// A menu drawn as its label only (the Mac's borderless button style).
+    @ViewBuilder
+    func borderlessMenu() -> some View {
+        #if os(macOS)
+        menuStyle(.borderlessButton)
+        #else
+        menuStyle(.button).buttonStyle(.plain)
+        #endif
+    }
+}
+
+extension View {
+    /// The Mac's window toolbar out of the way (the player is full bleed).
+    @ViewBuilder
+    func hidesWindowToolbarOnMac() -> some View {
+        #if os(macOS)
+        toolbar(.hidden, for: .windowToolbar)
+        #else
+        self
+        #endif
+    }
+}
