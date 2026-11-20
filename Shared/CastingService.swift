@@ -1,6 +1,8 @@
 import Foundation
 import AVKit
+#if os(macOS)
 import AppKit
+#endif
 import Observation
 
 /// Casting / external playback coordinator. Three outputs are planned:
@@ -52,6 +54,7 @@ final class CastingService {
         isPipAvailable = (url?.scheme == "http" || url?.scheme == "https")
     }
 
+    #if os(macOS)
     func openAirPlayPicker(anchor: NSView?) {
         guard isAirPlayAvailable else { return }
         // AVRoutePickerView is Apple's entry point. On macOS, we embed a
@@ -72,6 +75,7 @@ final class CastingService {
             }
         }
     }
+    #endif
 
     private func setupAirPlay() {
         let d = AVRouteDetector()
