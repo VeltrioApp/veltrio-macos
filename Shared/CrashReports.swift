@@ -1,5 +1,7 @@
 import Foundation
+#if os(macOS)
 import AppKit
+#endif
 import MetricKit
 
 /// Keeps the crash, hang and exception reports macOS hands the app.
@@ -44,7 +46,9 @@ final class CrashReports: NSObject, MXMetricManagerSubscriber {
 
     static func revealInFinder() {
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        #if os(macOS)
         NSWorkspace.shared.activateFileViewerSelecting([reports().first ?? directory])
+        #endif
     }
 
     private func save(_ payloads: [MXDiagnosticPayload]) {
