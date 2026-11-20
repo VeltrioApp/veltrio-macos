@@ -442,10 +442,13 @@ final class AppStore {
         }
 
         // Quality
-        if hay.contains("2160P") || hay.contains("4K") { score += 2_000 }
-        else if hay.contains("1080P") { score += 1_500 }
-        else if hay.contains("720P")  { score += 1_000 }
-        else if hay.contains("480P")  { score += 500 }
+        switch StreamResolution.of(hay) {
+        case "4K":    score += 2_000
+        case "1080P": score += 1_500
+        case "720P":  score += 1_000
+        case "480P":  score += 500
+        default: break
+        }
 
         if hay.contains("HDR")   { score += 200 }
         if hay.contains("DOLBY") { score += 150 }
@@ -773,5 +776,21 @@ struct ExtraPropDTO: Codable {
     }
     func toModel() -> ExtraProp {
         ExtraProp(name: name, isRequired: isRequired, options: options, optionsLimit: optionsLimit)
+    }
+}
+
+/// The resolution a stream's name and title announce. Matched as whole
+/// words: release sites and groups carry such tags in their names
+/// ("Wolfmax4k"), and those mustn't make a 1080p file read as 4K.
+enum StreamResolution {
+    /// "4K", "1080P", "720P", "480P" or nil, from upper-cased text.
+    static func of(_ upperCased: String) -> String? {
+        if has(upperCased, "4K") || has(upperCased, "2160P") || has(upperCased, "UHD") { return "4K" }
+        return ["1080P", "720P", "480P"].first { has(upperCased, $0) }
+    }
+
+    /// The tag on its own: not inside a longer word or number.
+    static func has(_ text: String, _ tag: String) -> Bool {
+        text.range(of: "(?<![A-Z0-9])\(tag)(?![A-Z0-9])", options: .regularExpression) != nil
     }
 }

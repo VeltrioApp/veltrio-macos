@@ -789,8 +789,8 @@ struct DetailView: View {
                 switch streamFilter {
                 case .all:    return true
                 case .cached: return false
-                case .uhd:    return text.contains("4K") || text.contains("2160P")
-                case .hd:     return text.contains("1080P")
+                case .uhd:    return StreamResolution.of(text) == "4K"
+                case .hd:     return StreamResolution.of(text) == "1080P"
                 }
             }
             // Stable: library copies keep their order ahead of IPTV.
@@ -828,8 +828,8 @@ struct DetailView: View {
                     return store.debrid.isCached(hash)
                 }
                 return false
-            case .uhd: return quality(s).contains("4K") || quality(s).contains("2160P")
-            case .hd:  return quality(s).contains("1080P")
+            case .uhd: return StreamResolution.of(quality(s)) == "4K"
+            case .hd:  return StreamResolution.of(quality(s)) == "1080P"
             }
         }
         return filtered.sorted { store.scoreStream($0) > store.scoreStream($1) }
@@ -1297,7 +1297,7 @@ private struct StreamRow: View {
         let haystack = ((labeled.stream.name ?? "") + " " + (labeled.stream.title ?? "")).uppercased()
         let candidates = ["4K", "2160P", "1080P", "720P", "480P", "HDR", "DOLBY", "ATMOS"]
         var found: [String] = []
-        for c in candidates where haystack.contains(c) {
+        for c in candidates where StreamResolution.has(haystack, c) {
             if (c == "2160P" && found.contains("4K")) || (c == "4K" && found.contains("2160P")) { continue }
             found.append(c == "2160P" ? "4K" : c)
             if found.count >= 3 { break }
