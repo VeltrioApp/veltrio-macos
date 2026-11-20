@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Writes Veltrio/Localizable.xcstrings from the tables below.
+"""Writes Shared/Localizable.xcstrings from the tables below.
 
 English is the source language; French is the one translation. Keys are
 the English text exactly as the code spells it (SwiftUI literals,
@@ -12,6 +12,21 @@ Run from the repo root after changing UI text:
 import json, pathlib
 
 FR = {
+    "Other devices": "Autres appareils",
+    "Send to a TV": "Envoyer vers une TV",
+    "Set up a Veltrio TV (Android TV, Google TV) in one step: your sources, accounts and Collection, sent over the local network, encrypted with a key tied to the code the TV shows.":
+        "Configurez une TV Veltrio (Android TV, Google TV) en un geste : vos sources, comptes et votre Collection, envoyés par le réseau local, chiffrés avec une clé liée au code affiché sur la TV.",
+    "On the TV, open Veltrio, then “From a phone” at the bottom of the left menu: it shows up here with a code.":
+        "Sur la TV, ouvrez Veltrio, puis « Depuis un téléphone » en bas du menu de gauche : elle apparaît ici et affiche un code.",
+    "Looking for a waiting TV…": "Recherche d'une TV en attente…",
+    "Not in the list? The address shown on the TV:": "Pas dans la liste ? L'adresse affichée sur la TV :",
+    "Code shown on %@": "Code affiché sur %@",
+    "Sending…": "Envoi…",
+    "Send": "Envoyer",
+    "Received by the TV: %@.": "Reçu par la TV : %@.",
+    "Wrong code: check the one shown on the TV.": "Code incorrect : vérifiez celui affiché sur la TV.",
+    "Unexpected answer from the TV.": "Réponse inattendue de la TV.",
+    "The TV answered %lld.": "La TV a répondu %lld.",
     "Finding the stream…": "Recherche du flux…",
     "Next episode": "Épisode suivant",
     "Next episode in %llds": "Épisode suivant dans %lld s",
@@ -579,6 +594,6 @@ for key, (eo, ee, fo, fe) in PLURALS.items():
     strings[key] = {"localizations": {"en": plural(eo, ee), "fr": plural(fo, fe)}}
 
 catalog = {"sourceLanguage": "en", "strings": dict(sorted(strings.items())), "version": "1.0"}
-out = pathlib.Path(__file__).resolve().parent.parent / "Veltrio/Localizable.xcstrings"
+out = pathlib.Path(__file__).resolve().parent.parent / "Shared/Localizable.xcstrings"
 out.write_text(json.dumps(catalog, ensure_ascii=False, indent=2) + "\n")
 print(f"{len(strings)} strings → {out}")

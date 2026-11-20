@@ -22,6 +22,7 @@ struct SettingsView: View {
         case accounts  = "Accounts"
         case appearance = "Appearance"
         case storage   = "Storage"
+        case devices   = "Other devices"
         case about     = "About"
 
         var id: String { rawValue }
@@ -33,6 +34,7 @@ struct SettingsView: View {
             case .accounts:   return "person.crop.circle.fill"
             case .appearance: return "paintbrush.fill"
             case .storage:    return "externaldrive.fill"
+            case .devices:    return "tv.fill"
             case .about:      return "info.circle.fill"
             }
         }
@@ -138,6 +140,7 @@ struct SettingsView: View {
         case .accounts:   AccountsSettings()
         case .appearance: AppearanceSettings()
         case .storage:    StorageSettings()
+        case .devices:    DevicesSettings()
         case .about:      AboutSettings()
         }
     }
@@ -1087,6 +1090,104 @@ private struct StorageSettings: View {
     }
 }
 
+/// Sending this device's settings to a Veltrio TV (Android TV) on the same
+/// network: it finds the TVs waiting with a code, or takes an address.
+private struct DevicesSettings: View {
+    @Environment(AppStore.self) private var store
+    @Environment(WatchStore.self) private var watch
+    @State private var browser = PairingBrowser()
+    @State private var target: PairingSender.Target?
+    @State private var address = ""
+    @State private var code = ""
+    @State private var sending = false
+    @State private var result: String?
+    @State private var error: String?
+
+    var body: some View {
+        SettingsPageHeader(
+            title: "Send to a TV",
+            subtitle: "Set up a Veltrio TV (Android TV, Google TV) in one step: your sources, accounts and Collection, sent over the local network, encrypted with a key tied to the code the TV shows."
+        )
+        SurfaceCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("On the TV, open Veltrio, then “From a phone” at the bottom of the left menu: it shows up here with a code.")
+                    .font(Theme.Font.body(13))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+                if browser.targets.isEmpty {
+                    HStack(spacing: 8) {
+                        ProgressView().controlSize(.small)
+                        Text("Looking for a waiting TV…").font(Theme.Font.body(13)).foregroundStyle(Theme.Palette.textTertiary)
+                    }
+                }
+                ForEach(browser.targets) { t in
+                    Button {
+                        target = t
+                        address = ""
+                        result = nil
+                        error = nil
+                    } label: {
+                        HStack(spacing: 10) {
+                            Image(systemName: "tv").foregroundStyle(t == target ? Theme.Palette.accent : Theme.Palette.textSecondary)
+                            Text(t.name).font(Theme.Font.label(14, weight: .semibold)).foregroundStyle(Theme.Palette.textPrimary)
+                            Spacer()
+                        }
+                        .padding(12)
+                        .overlay(Rectangle().stroke(t == target ? Theme.Palette.accent : Theme.Palette.border, lineWidth: 1))
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+                Text("Not in the list? The address shown on the TV:")
+                    .font(Theme.Font.caption(12)).foregroundStyle(Theme.Palette.textTertiary)
+                TextField("192.168.1.20:8765", text: $address)
+                    .textFieldStyle(.plain)
+                    .font(Theme.Font.mono(13))
+                    .padding(10)
+                    .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1))
+                    .onChange(of: address) { _, v in if !v.isEmpty { target = PairingSender.manualTarget(v) } }
+                if let target {
+                    Text("Code shown on \(target.name)")
+                        .font(Theme.Font.caption(12)).foregroundStyle(Theme.Palette.textTertiary)
+                    TextField("000000", text: $code)
+                        .textFieldStyle(.plain)
+                        .font(Theme.Font.mono(20, weight: .bold))
+                        .padding(10)
+                        .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1))
+                        .onChange(of: code) { _, v in code = String(v.filter(\.isNumber).prefix(6)) }
+                    FrameButton(title: sending ? "Sending…" : "Send", icon: "paperplane.fill",
+                                color: Theme.Palette.accent, fill: Theme.Palette.accent) {
+                        send(to: target)
+                    }
+                    .disabled(code.count != 6 || sending)
+                }
+                if let result {
+                    Text("Received by the TV: \(result).").font(Theme.Font.body(13)).foregroundStyle(Theme.Palette.success)
+                }
+                if let error {
+                    Text(error).font(Theme.Font.body(13)).foregroundStyle(Theme.Palette.danger)
+                }
+            }
+        }
+        .onAppear { browser.start() }
+        .onDisappear { browser.stop() }
+    }
+
+    private func send(to target: PairingSender.Target) {
+        sending = true
+        error = nil
+        result = nil
+        let bundle = PairingSender.collect(store: store, watch: watch)
+        Task {
+            do {
+                result = try await PairingSender.send(bundle, to: target, code: code)
+            } catch {
+                self.error = error.localizedDescription
+            }
+            sending = false
+        }
+    }
+}
+
 private struct AboutSettings: View {
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
@@ -1114,8 +1215,10 @@ private struct AboutSettings: View {
                 Text(crashReportSummary)
                     .font(Theme.Font.body(13))
                     .foregroundStyle(Theme.Palette.textSecondary)
-                FrameButton(title: "Show in Finder", icon: "folder") {
-                    CrashReports.revealInFinder()
+                if Platform.isMac {
+                    FrameButton(title: "Show in Finder", icon: "folder") {
+                        CrashReports.revealInFinder()
+                    }
                 }
             }
         }

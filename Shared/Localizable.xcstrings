@@ -1281,6 +1281,16 @@
         }
       }
     },
+    "Code shown on %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code affiché sur %@"
+          }
+        }
+      }
+    },
     "Collection": {
       "localizations": {
         "fr": {
@@ -2551,6 +2561,16 @@
         }
       }
     },
+    "Looking for a waiting TV…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche d'une TV en attente…"
+          }
+        }
+      }
+    },
     "Low CPU, low power; drops advanced scalers.": {
       "localizations": {
         "fr": {
@@ -3151,6 +3171,16 @@
         }
       }
     },
+    "Not in the list? The address shown on the TV:": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas dans la liste ? L'adresse affichée sur la TV :"
+          }
+        }
+      }
+    },
     "Nothing found": {
       "localizations": {
         "fr": {
@@ -3251,6 +3281,16 @@
         }
       }
     },
+    "On the TV, open Veltrio, then “From a phone” at the bottom of the left menu: it shows up here with a code.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sur la TV, ouvrez Veltrio, puis « Depuis un téléphone » en bas du menu de gauche : elle apparaît ici et affiche un code."
+          }
+        }
+      }
+    },
     "Open %@": {
       "localizations": {
         "fr": {
@@ -3327,6 +3367,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ouvrez le lien, saisissez le code et confirmez. La connexion se termine automatiquement."
+          }
+        }
+      }
+    },
+    "Other devices": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autres appareils"
           }
         }
       }
@@ -3647,6 +3697,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prêt"
+          }
+        }
+      }
+    },
+    "Received by the TV: %@.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reçu par la TV : %@."
           }
         }
       }
@@ -4031,6 +4091,36 @@
         }
       }
     },
+    "Send": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer"
+          }
+        }
+      }
+    },
+    "Send to a TV": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer vers une TV"
+          }
+        }
+      }
+    },
+    "Sending…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoi…"
+          }
+        }
+      }
+    },
     "Series": {
       "localizations": {
         "fr": {
@@ -4057,6 +4147,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "URL du serveur"
+          }
+        }
+      }
+    },
+    "Set up a Veltrio TV (Android TV, Google TV) in one step: your sources, accounts and Collection, sent over the local network, encrypted with a key tied to the code the TV shows.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurez une TV Veltrio (Android TV, Google TV) en un geste : vos sources, comptes et votre Collection, envoyés par le réseau local, chiffrés avec une clé liée au code affiché sur la TV."
           }
         }
       }
@@ -4451,6 +4551,16 @@
         }
       }
     },
+    "The TV answered %lld.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La TV a répondu %lld."
+          }
+        }
+      }
+    },
     "The addon catalogue came back empty.": {
       "localizations": {
         "fr": {
@@ -4761,6 +4871,16 @@
         }
       }
     },
+    "Unexpected answer from the TV.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réponse inattendue de la TV."
+          }
+        }
+      }
+    },
     "Unexpected response from the server": {
       "localizations": {
         "fr": {
@@ -5007,6 +5127,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Scénario"
+          }
+        }
+      }
+    },
+    "Wrong code: check the one shown on the TV.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code incorrect : vérifiez celui affiché sur la TV."
           }
         }
       }
