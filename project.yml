@@ -52,6 +52,10 @@ targets:
         "-AppleLanguages (en)": true
     sources:
       - path: Veltrio
+      # VeltrioKit: the services, theme and translations the iOS app
+      # (veltrio-ios, which has this repository as a submodule) builds too.
+      - path: Shared
+        group: VeltrioKit
       - path: Generated/Bindings/veltrio.swift
         group: Generated
     settings:

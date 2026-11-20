@@ -1,5 +1,9 @@
 import SwiftUI
+#if os(macOS)
 import AppKit
+#else
+import UIKit
+#endif
 
 /// Design tokens, cinema-editorial direction.
 ///
@@ -273,9 +277,15 @@ extension Color {
     /// resolve, so switching the app's appearance flips every surface
     /// at once — no manual env wiring per view.
     static func adaptive(dark: Color, light: Color) -> Color {
+        #if os(macOS)
         Color(nsColor: NSColor(name: nil, dynamicProvider: { appearance in
             let aqua = appearance.bestMatch(from: [.aqua, .darkAqua]) == .aqua
             return aqua ? NSColor(light) : NSColor(dark)
         }))
+        #else
+        Color(uiColor: UIColor { traits in
+            traits.userInterfaceStyle == .light ? UIColor(light) : UIColor(dark)
+        })
+        #endif
     }
 }
