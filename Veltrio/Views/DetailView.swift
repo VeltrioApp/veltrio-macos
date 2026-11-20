@@ -85,6 +85,21 @@ struct DetailView: View {
                     .frame(maxHeight: .infinity, alignment: .top)
                     .allowsHitTesting(false)
 
+                if geo.size.width < 700 {
+                    // A phone: one column, info then streams, the page scrolling.
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
+                            infoColumn
+                            Rule(color: Theme.Palette.border, weight: 1)
+                            streamsColumn
+                        }
+                        .padding(.horizontal, Theme.Layout.contentInset)
+                        .padding(.top, Theme.Spacing.sm)
+                        .padding(.bottom, Theme.Spacing.xxl)
+                    }
+                    .environment(\.compactPage, true)
+                } else {
+
                 // The page itself doesn't scroll: the info column and the
                 // streams list each scroll on their own, so the list stays
                 // beside the title however long it gets.
@@ -107,10 +122,11 @@ struct DetailView: View {
                         .padding(.top, Theme.pushedTopInset + Theme.Spacing.lg)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 }
+                }
             }
         }
         .background(Theme.Palette.background)
-        .ignoresSafeArea(edges: .top)
+        .ignoresTopSafeAreaOnMac()
         // The app draws its own Back button, so the system navigation bar
         // would show a second one. Hiding the bar also reclaims the ~72pt
         // it was reserving at the top of the page.
@@ -141,10 +157,10 @@ struct DetailView: View {
                 AsyncImage(url: url) { phase in
                     switch phase {
                     case .success(let img):
-                        img.resizable()
-                            .scaledToFill()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                            .clipped()
+                        Color.clear.overlay(alignment: .top) {
+                            img.resizable().scaledToFill()
+                        }
+                        .clipped()
                             .opacity(0.32)
                             .blur(radius: 0.5)
                     default:
@@ -417,7 +433,7 @@ struct DetailView: View {
             // the chosen episode with a back affordance.
             switch rightPane {
             case .episodes:
-                ScrollView {
+                ScrollUnlessCompact {
                     episodesSection(meta.videos)
                         .padding(.bottom, Theme.Spacing.xl)
                 }
@@ -688,7 +704,7 @@ struct DetailView: View {
                 streamFilters
             }
 
-            ScrollView {
+            ScrollUnlessCompact {
                 Group {
                     if allEntriesEmpty && isLoadingAny {
                         streamsLoading

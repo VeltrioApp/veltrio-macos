@@ -226,7 +226,7 @@ struct MediaServerSeriesView: View {
             .padding(.bottom, Theme.Spacing.xxl)
         }
         .background(Theme.Palette.background)
-        .ignoresSafeArea(edges: .top)
+        .ignoresTopSafeAreaOnMac()
         .navigationBarBackButtonHidden(true)
         .task {
             episodes = await destination.server.service(in: store).libraryEpisodes(of: destination.item)

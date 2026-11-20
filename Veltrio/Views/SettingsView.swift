@@ -6,6 +6,14 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(AppStore.self) private var store
     @State private var selection: Section = .playback
+    /// The phone layout's open page. Debug builds: `-veltrioSettingsPage playback`.
+    @State private var pagePath: [Section] = {
+        #if DEBUG
+        if let raw = UserDefaults.standard.string(forKey: "veltrioSettingsPage"),
+           let section = Section.allCases.first(where: { "\($0)" == raw }) { return [section] }
+        #endif
+        return []
+    }()
 
     enum Section: String, CaseIterable, Identifiable {
         case playback  = "Playback"
@@ -31,6 +39,58 @@ struct SettingsView: View {
     }
 
     var body: some View {
+        if Platform.isMac { split } else { stacked }
+    }
+
+    /// A phone: the sections as a list, each opening its page.
+    private var stacked: some View {
+        NavigationStack(path: $pagePath) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(Array(Section.allCases.enumerated()), id: \.element) { index, section in
+                        NavigationLink(value: section) {
+                            HStack(spacing: 12) {
+                                Image(systemName: section.icon)
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundStyle(Theme.Palette.accentText)
+                                    .frame(width: 26)
+                                Text(String(format: "%02d", index + 1))
+                                    .font(Theme.Font.mono(10, weight: .semibold))
+                                    .foregroundStyle(Theme.Palette.textQuaternary)
+                                Text(section.rawValue.localized)
+                                    .font(Theme.Font.label(15, weight: .semibold))
+                                    .foregroundStyle(Theme.Palette.textPrimary)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundStyle(Theme.Palette.textQuaternary)
+                            }
+                            .padding(.vertical, 14)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        Rule(color: Theme.Palette.hairline)
+                    }
+                }
+                .padding(.horizontal, Theme.Layout.contentInset)
+            }
+            .background(Theme.Palette.background)
+            .hidesNavigationBarOnPhone()
+            .navigationDestination(for: Section.self) { section in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
+                        page(section)
+                    }
+                    .padding(Theme.Layout.contentInset)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .background(Theme.Palette.background)
+                .navigationBarTitleDisplayModeInlineOnPhone()
+            }
+        }
+    }
+
+    private var split: some View {
         HStack(spacing: 0) {
             sidebar
                 .frame(width: 220)
@@ -67,8 +127,11 @@ struct SettingsView: View {
     }
 
     @ViewBuilder
-    private var content: some View {
-        switch selection {
+    private var content: some View { page(selection) }
+
+    @ViewBuilder
+    private func page(_ section: Section) -> some View {
+        switch section {
         case .playback:   PlaybackSettings()
         case .languages:  LanguageSettings()
         case .debrid:     DebridSettings()

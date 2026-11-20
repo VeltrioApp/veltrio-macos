@@ -69,7 +69,7 @@ struct HomeView: View {
                                 id: entry.contentId,
                                 name: entry.name
                             )) {
-                                ContinueCard(entry: entry).frame(width: 280)
+                                ContinueCard(entry: entry).frame(width: Platform.isMac ? 280 : 240)
                             }
                             .buttonStyle(.plainRect)
                             .contextMenu {
@@ -143,7 +143,7 @@ private struct EditorialHero: View {
     private let prefs = UserPrefs.shared
 
     @State private var kenBurns: Bool = false
-    private let height: CGFloat = 640
+    private let height: CGFloat = Platform.isMac ? 640 : 470
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -207,10 +207,14 @@ private struct EditorialHero: View {
                 AsyncImage(url: url) { phase in
                     switch phase {
                     case .success(let img):
-                        img.resizable()
-                            .scaledToFill()
-                            .scaleEffect(kenBurns ? 1.05 : 1.0, anchor: .topTrailing)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
+                        // Drawn over a neutral frame: a scaled-to-fill image
+                        // would otherwise widen the page past a phone's screen.
+                        Color.clear.overlay(alignment: .trailing) {
+                            img.resizable()
+                                .scaledToFill()
+                                .scaleEffect(kenBurns ? 1.05 : 1.0, anchor: .topTrailing)
+                        }
+                        .clipped()
                     default:
                         Theme.Palette.background
                     }
@@ -407,7 +411,7 @@ struct CatalogRow: View {
                                 subtitle: meta.releaseInfo,
                                 rating: meta.imdbRating
                             )
-                            .frame(width: 180)
+                            .frame(width: Platform.isMac ? 180 : 124)
                         }
                         .buttonStyle(.plainRect)
                     }

@@ -23,7 +23,8 @@ struct AddonRow: View {
                 reorderButton(icon: "chevron.up",   action: onMoveUp)
                 reorderButton(icon: "chevron.down", action: onMoveDown)
             }
-            .opacity(isHovering ? 1 : 0.35)
+            // No hover on a touch screen: always visible there.
+            .opacity(isHovering || !Platform.isMac ? 1 : 0.35)
             .animation(.easeOut(duration: 0.12), value: isHovering)
 
             Group {
@@ -38,7 +39,7 @@ struct AddonRow: View {
                     placeholderIcon
                 }
             }
-            .frame(width: 44, height: 44)
+            .frame(width: Platform.isMac ? 44 : 34, height: Platform.isMac ? 44 : 34)
             .padding(4)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.sm, style: .continuous)
@@ -48,16 +49,27 @@ struct AddonRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     Text(addon.manifest.name)
+                        .lineLimit(1)
+                        .layoutPriority(1)
                         .font(Theme.Font.label(14, weight: .bold))
                         .foregroundStyle(
                             isEnabled ? Theme.Palette.textPrimary : Theme.Palette.textTertiary
                         )
                     Text("v\(addon.manifest.version)")
+                        .lineLimit(1)
+                        .fixedSize()
                         .font(Theme.Font.caption(10))
                         .foregroundStyle(Theme.Palette.textTertiary)
                         .padding(.horizontal, 5).padding(.vertical, 1)
                         .background(Rectangle().fill(Theme.Palette.backgroundAlt))
                 }
+                if !Platform.isMac {
+                    // A phone: one line of text instead of the type chips.
+                    Text(addon.manifest.types.map(\.capitalized).joined(separator: " · "))
+                        .font(Theme.Font.caption(10))
+                        .foregroundStyle(Theme.Palette.textTertiary)
+                        .lineLimit(1)
+                } else {
                 HStack(spacing: 4) {
                     ForEach(addon.manifest.types.prefix(4), id: \.self) { t in
                         Text(t.capitalized)
@@ -70,6 +82,7 @@ struct AddonRow: View {
                         .font(Theme.Font.caption(10))
                         .foregroundStyle(Theme.Palette.textTertiary)
                         .lineLimit(1)
+                }
                 }
             }
             Spacer()

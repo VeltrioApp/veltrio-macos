@@ -1,0 +1,61 @@
+import SwiftUI
+
+/// Pages laid out in columns on a Mac (the title page: info beside the
+/// streams, each scrolling on its own) stack them on a phone, and the page
+/// scrolls as one. Set by the page from its width.
+private struct CompactPageKey: EnvironmentKey { static let defaultValue = false }
+
+extension EnvironmentValues {
+    var compactPage: Bool {
+        get { self[CompactPageKey.self] }
+        set { self[CompactPageKey.self] = newValue }
+    }
+}
+
+/// Scrolls its content in a column of its own, unless the page is compact
+/// (then the page's own scroll carries it).
+struct ScrollUnlessCompact<Content: View>: View {
+    @Environment(\.compactPage) private var compact
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        if compact { content } else { ScrollView { content } }
+    }
+}
+
+extension View {
+    /// On a Mac, pages run under the hidden title bar; on iOS the top
+    /// edge belongs to the status bar.
+    @ViewBuilder
+    func ignoresTopSafeAreaOnMac() -> some View {
+        #if os(macOS)
+        ignoresSafeArea(edges: .top)
+        #else
+        self
+        #endif
+    }
+}
+
+extension View {
+    /// An inline title in a phone's navigation bar; nothing on a Mac.
+    @ViewBuilder
+    func navigationBarTitleDisplayModeInlineOnPhone() -> some View {
+        #if os(iOS)
+        navigationBarTitleDisplayMode(.inline)
+        #else
+        self
+        #endif
+    }
+}
+
+extension View {
+    /// No navigation bar on a phone page that draws its own header.
+    @ViewBuilder
+    func hidesNavigationBarOnPhone() -> some View {
+        #if os(iOS)
+        toolbar(.hidden, for: .navigationBar)
+        #else
+        self
+        #endif
+    }
+}

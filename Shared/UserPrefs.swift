@@ -66,7 +66,9 @@ final class UserPrefs {
         cacheMiB             = (defaults.object(forKey: Keys.cacheMiB) as? Int) ?? 150
         reduceMotion         = defaults.object(forKey: Keys.reduceMotion) as? Bool ?? false
         colorScheme          = ColorSchemePreference(
-            rawValue: defaults.string(forKey: Keys.colorScheme) ?? "system"
+            // A Mac follows the system; a phone starts in the dark theme,
+            // the reference experience (as on Android).
+            rawValue: defaults.string(forKey: Keys.colorScheme) ?? (Platform.isMac ? "system" : "dark")
         ) ?? .system
     }
 

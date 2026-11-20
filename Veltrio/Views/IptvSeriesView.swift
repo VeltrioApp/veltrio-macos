@@ -41,7 +41,7 @@ struct IptvSeriesView: View {
             .padding(.bottom, Theme.Spacing.xxl)
         }
         .background(Theme.Palette.background)
-        .ignoresSafeArea(edges: .top)
+        .ignoresTopSafeAreaOnMac()
         // The app draws its own Back button; the system navigation bar
         // would show a second one.
         .navigationBarBackButtonHidden(true)

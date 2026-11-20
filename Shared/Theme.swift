@@ -146,6 +146,24 @@ enum Theme {
         static let pill: CGFloat = 999
     }
 
+    // A phone's width is a third of a Mac window's: the outer spacings and
+    // the page inset shrink on iOS; the small ones stay.
+    #if os(iOS)
+    enum Spacing {
+        static let xs:  CGFloat = 4
+        static let sm:  CGFloat = 8
+        static let md:  CGFloat = 12
+        static let lg:  CGFloat = 18
+        static let xl:  CGFloat = 24
+        static let xxl: CGFloat = 36
+    }
+
+    enum Layout {
+        static let contentInset: CGFloat = 18
+        static let sectionGap:   CGFloat = 34
+        static let pageMaxWidth: CGFloat = 1560
+    }
+    #else
     enum Spacing {
         static let xs:  CGFloat = 4
         static let sm:  CGFloat = 8
@@ -160,6 +178,7 @@ enum Theme {
         static let sectionGap:   CGFloat = 52
         static let pageMaxWidth: CGFloat = 1560
     }
+    #endif
 
     /// Typography.
     /// - `displaySerif`: New York (Apple's built-in serif) — for marquee
@@ -170,11 +189,20 @@ enum Theme {
     /// - `body`: standard SF body text.
     /// - `caption` / `mono` / `eyebrow`: metadata and markers.
     enum Font {
+        /// Display sizes are set for a Mac window; on a phone the big ones
+        /// come down (a 72 pt title is three words a line there).
+        static func displayScaled(_ size: CGFloat) -> CGFloat {
+            #if os(iOS)
+            size > 26 ? max(26, (size * 0.6).rounded()) : size
+            #else
+            size
+            #endif
+        }
         static func displaySerif(_ size: CGFloat = 56, weight: SwiftUI.Font.Weight = .bold) -> SwiftUI.Font {
-            .system(size: size, weight: weight, design: .serif)
+            .system(size: displayScaled(size), weight: weight, design: .serif)
         }
         static func display(_ size: CGFloat = 40, weight: SwiftUI.Font.Weight = .heavy) -> SwiftUI.Font {
-            .system(size: size, weight: weight, design: .default)
+            .system(size: displayScaled(size), weight: weight, design: .default)
         }
         static func title(_ size: CGFloat = 20) -> SwiftUI.Font {
             .system(size: size, weight: .semibold, design: .serif)
@@ -208,7 +236,14 @@ enum Theme {
         static let glow   = ShadowSpec(color: Palette.accentGlow, radius: 20, y: 0)
     }
 
+    /// Room for the editorial top bar on a Mac; iOS has its own bars.
+    #if os(iOS)
+    static let navBarInset: CGFloat = 0
+    static let trafficLightInset: CGFloat = 0
+    static let pushedTopInset: CGFloat = 0
+    #else
     static let navBarInset: CGFloat = 72
+    #endif
 
     /// Leading room reserved for the macOS traffic lights.
     ///
@@ -221,7 +256,9 @@ enum Theme {
     ///   - anything in the top-left *row* (wordmark, back buttons) needs
     ///     `trafficLightInset` of leading room;
     ///   - anything below the first ~30pt vertically is already clear.
+    #if os(macOS)
     static let trafficLightInset: CGFloat = 30
+    #endif
 
     /// Top inset for views pushed onto the navigation stack.
     ///
@@ -231,7 +268,9 @@ enum Theme {
     /// (which left 72pt of dead space at the top of every pushed page).
     ///
     /// 34pt also puts the first row clear of the traffic lights.
+    #if os(macOS)
     static let pushedTopInset: CGFloat = 34
+    #endif
 }
 
 struct ShadowSpec { let color: Color; let radius: CGFloat; let y: CGFloat }

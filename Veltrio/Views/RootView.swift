@@ -241,7 +241,7 @@ private struct SearchBarTrigger: View {
 
 // MARK: - Settings sheet
 
-private struct SettingsSheet: View {
+struct SettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {

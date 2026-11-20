@@ -55,7 +55,24 @@ struct PageHeader<Trailing: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            HStack(alignment: .lastTextBaseline, spacing: Theme.Spacing.lg) {
+            if Platform.isMac {
+                HStack(alignment: .lastTextBaseline, spacing: Theme.Spacing.lg) {
+                    texts
+                    Spacer()
+                    trailing
+                }
+            } else {
+                // A phone: the actions under the text, which gets the width.
+                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                    texts
+                    trailing
+                }
+            }
+            Rule()
+        }
+    }
+
+    private var texts: some View {
                 VStack(alignment: .leading, spacing: 10) {
                     if let eyebrow {
                         Text(eyebrow.localized)
@@ -72,11 +89,6 @@ struct PageHeader<Trailing: View>: View {
                             .foregroundStyle(Theme.Palette.textSecondary)
                     }
                 }
-                Spacer()
-                trailing
-            }
-            Rule()
-        }
     }
 }
 
@@ -101,21 +113,37 @@ struct SectionHeader<Trailing: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .lastTextBaseline, spacing: Theme.Spacing.md) {
+            HStack(alignment: Platform.isMac ? .lastTextBaseline : .firstTextBaseline, spacing: Theme.Spacing.md) {
                 if let n = number { Numeral(n: n) }
-                Text(title.localized)
-                    .font(Theme.Font.title(18))
-                    .tracking(-0.2)
-                    .foregroundStyle(Theme.Palette.textPrimary)
-                if let subtitle {
-                    Text(subtitle.localized)
-                        .eyebrow(Theme.Palette.textTertiary, tracking: 1.8)
+                if Platform.isMac {
+                    titleText
+                    if let subtitle {
+                        Text(subtitle.localized)
+                            .eyebrow(Theme.Palette.textTertiary, tracking: 1.8)
+                    }
+                } else {
+                    // A phone: the eyebrow under the title, not beside it.
+                    VStack(alignment: .leading, spacing: 4) {
+                        titleText.lineLimit(1)
+                        if let subtitle {
+                            Text(subtitle.localized)
+                                .eyebrow(Theme.Palette.textTertiary, tracking: 1.4)
+                                .lineLimit(1)
+                        }
+                    }
                 }
                 Spacer(minLength: Theme.Spacing.md)
                 trailing
             }
             Rule()
         }
+    }
+
+    private var titleText: some View {
+        Text(title.localized)
+            .font(Theme.Font.title(18))
+            .tracking(-0.2)
+            .foregroundStyle(Theme.Palette.textPrimary)
     }
 }
 
@@ -371,6 +399,9 @@ struct FrameButton: View {
                         .font(Theme.Font.eyebrow(10, weight: .bold))
                         .tracking(2.2)
                         .textCase(.uppercase)
+                        // A label never wraps letter by letter on a narrow screen.
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
                 }
             }
             .padding(.horizontal, 14)
