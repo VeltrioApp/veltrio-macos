@@ -228,7 +228,7 @@ private struct SearchBarTrigger: View {
         .buttonStyle(.plainRect)
         .onHover { h in
             isHovering = h
-            if h { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+            Platform.pointingCursor(h)
         }
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)

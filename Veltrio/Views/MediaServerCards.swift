@@ -351,14 +351,13 @@ struct PlexPinView: View {
                                     color: Theme.Palette.accent,
                                     fill: Theme.Palette.accent) {
                             if let u = URL(string: "https://plex.tv/link?code=\(pin.code)") {
-                                NSWorkspace.shared.open(u)
+                                Platform.open(u)
                             }
                         }
                         FrameButton(title: "Copy code",
                                     icon: "doc.on.doc",
                                     color: Theme.Palette.textPrimary) {
-                            NSPasteboard.general.clearContents()
-                            NSPasteboard.general.setString(pin.code, forType: .string)
+                            Platform.copy(pin.code)
                         }
                         ProgressView().controlSize(.small)
                             .padding(.leading, Theme.Spacing.sm)

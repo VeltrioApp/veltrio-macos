@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct IPTVView: View {
     @Environment(AppStore.self) private var store
@@ -587,6 +588,7 @@ struct AddPlaylistSheet: View {
 
     // M3U URL mode
     @State private var url = ""
+    @State private var choosingFile = false
 
     // Xtream mode
     @State private var xtreamHost = ""
@@ -749,6 +751,9 @@ struct AddPlaylistSheet: View {
 
                 FrameButton(title: "Choose…", color: Theme.Palette.textPrimary) {
                     pickFile()
+                }
+                .fileImporter(isPresented: $choosingFile, allowedContentTypes: Self.playlistTypes) { result in
+                    if case .success(let picked) = result { url = Self.keep(picked) }
                 }
             }
         }
@@ -955,15 +960,31 @@ struct AddPlaylistSheet: View {
         dismiss()
     }
 
-    private func pickFile() {
-        let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        panel.allowedContentTypes = []
-        panel.allowedFileTypes = ["m3u", "m3u8"]
-        if panel.runModal() == .OK, let picked = panel.url {
-            url = picked.path
+    private func pickFile() { choosingFile = true }
+
+    private static let playlistTypes: [UTType] =
+        ["m3u", "m3u8"].compactMap { UTType(filenameExtension: $0) } + [.plainText, .data]
+
+    /// The playlist's path. On a Mac the file stays where it is (read again
+    /// on each load); on iOS a picked document is only readable for a
+    /// moment, so it's copied into the app first.
+    private static func keep(_ picked: URL) -> String {
+        #if os(macOS)
+        return picked.path
+        #else
+        let scoped = picked.startAccessingSecurityScopedResource()
+        defer { if scoped { picked.stopAccessingSecurityScopedResource() } }
+        let folder = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("Playlists", isDirectory: true)
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let target = folder.appendingPathComponent(UUID().uuidString + "." + (picked.pathExtension.isEmpty ? "m3u" : picked.pathExtension))
+        do {
+            try FileManager.default.copyItem(at: picked, to: target)
+            return target.path
+        } catch {
+            return picked.path
         }
+        #endif
     }
 
     private func focusInitial() {

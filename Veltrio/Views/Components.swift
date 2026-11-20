@@ -276,7 +276,7 @@ struct CTAButton: View {
         .disabled(!isEnabled)
         .onHover { h in
             isHovering = h
-            if h, isEnabled { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+            Platform.pointingCursor(h && isEnabled)
         }
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
@@ -333,7 +333,7 @@ struct GhostButton: View {
         .disabled(!isEnabled)
         .onHover { h in
             isHovering = h
-            if h, isEnabled { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+            Platform.pointingCursor(h && isEnabled)
         }
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
@@ -385,7 +385,7 @@ struct FrameButton: View {
         .disabled(!isEnabled)
         .onHover { h in
             isHovering = h
-            if h, isEnabled { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+            Platform.pointingCursor(h && isEnabled)
         }
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
@@ -477,7 +477,7 @@ struct IconButton: View {
         .buttonStyle(.plainRect)
         .onHover { h in
             isHovering = h
-            if h { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+            Platform.pointingCursor(h)
         }
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)

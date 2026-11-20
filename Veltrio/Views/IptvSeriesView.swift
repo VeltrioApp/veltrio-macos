@@ -270,7 +270,7 @@ private struct XtreamEpisodeCard: View {
         .contentShape(Rectangle())
         .onHover { h in
             isHovering = h
-            if h { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+            Platform.pointingCursor(h)
         }
     }
 

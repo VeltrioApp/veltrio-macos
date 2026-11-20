@@ -1134,7 +1134,7 @@ private struct EpisodeCard: View {
         .buttonStyle(.plainRect)
         .onHover { h in
             isHovering = h
-            if h { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+            Platform.pointingCursor(h)
         }
     }
 
@@ -1280,7 +1280,7 @@ private struct StreamRow: View {
         )
         .onHover { h in
             isHovering = h
-            if h { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+            Platform.pointingCursor(h)
         }
     }
 
@@ -1393,7 +1393,7 @@ private struct DirectStreamRow: View {
         .overlay(Rectangle().stroke(isHovering ? Theme.Palette.accent : Theme.Palette.border, lineWidth: 1))
         .onHover { h in
             isHovering = h
-            if h { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+            Platform.pointingCursor(h)
         }
     }
 

@@ -723,14 +723,13 @@ private struct TraktActivationView: View {
                                     color: Theme.Palette.accent,
                                     fill: Theme.Palette.accent) {
                             if let u = URL(string: code.verificationUrl) {
-                                NSWorkspace.shared.open(u)
+                                Platform.open(u)
                             }
                         }
                         FrameButton(title: "Copy code",
                                     icon: "doc.on.doc",
                                     color: Theme.Palette.textPrimary) {
-                            NSPasteboard.general.clearContents()
-                            NSPasteboard.general.setString(code.userCode, forType: .string)
+                            Platform.copy(code.userCode)
                         }
                         ProgressView().controlSize(.small)
                             .padding(.leading, Theme.Spacing.sm)
@@ -1276,13 +1275,12 @@ private struct DebridActivationView: View {
                                     icon: "arrow.up.right",
                                     color: Theme.Palette.accent,
                                     fill: Theme.Palette.accent) {
-                            if let openURL { NSWorkspace.shared.open(openURL) }
+                            if let openURL { Platform.open(openURL) }
                         }
                         FrameButton(title: copyLabel,
                                     icon: "doc.on.doc",
                                     color: Theme.Palette.textPrimary) {
-                            NSPasteboard.general.clearContents()
-                            NSPasteboard.general.setString(code, forType: .string)
+                            Platform.copy(code)
                         }
                         ProgressView().controlSize(.small)
                             .padding(.leading, Theme.Spacing.sm)
