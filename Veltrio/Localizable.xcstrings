@@ -1901,6 +1901,16 @@
         }
       }
     },
+    "Finding the stream…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche du flux…"
+          }
+        }
+      }
+    },
     "Fit": {
       "localizations": {
         "fr": {
@@ -2871,6 +2881,26 @@
         }
       }
     },
+    "Next episode": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épisode suivant"
+          }
+        }
+      }
+    },
+    "Next episode in %llds": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épisode suivant dans %lld s"
+          }
+        }
+      }
+    },
     "Nightfall (dark)": {
       "localizations": {
         "fr": {
@@ -3057,6 +3087,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aucun flux"
+          }
+        }
+      }
+    },
+    "No stream found for this episode.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun flux trouvé pour cet épisode."
           }
         }
       }

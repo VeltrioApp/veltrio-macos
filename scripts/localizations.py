@@ -12,6 +12,10 @@ Run from the repo root after changing UI text:
 import json, pathlib
 
 FR = {
+    "Finding the stream…": "Recherche du flux…",
+    "Next episode": "Épisode suivant",
+    "Next episode in %llds": "Épisode suivant dans %lld s",
+    "No stream found for this episode.": "Aucun flux trouvé pour cet épisode.",
     "%lld EPISODES · %lld SEASON%@": "%lld ÉPISODES · %lld SAISON%@",
     "%lld OF %lld SHOWN": "%lld SUR %lld AFFICHÉS",
     "%lld in progress": "%lld en cours",

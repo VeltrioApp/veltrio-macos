@@ -141,6 +141,11 @@ struct PlayerView: View {
     @State private var progressTask: Task<Void, Never>?
     @State private var showNextEpisodeOverlay = false
     @State private var nextEpisodeCountdown = 10
+    /// The episode after this one, found from the title's meta when the
+    /// player opens; nil for a film, the last episode or specials.
+    @State private var nextEpisode: Video?
+    @State private var isResolvingNext = false
+    @State private var nextEpisodeError: String?
 
     @State private var controlsVisible = true
     /// Channel list beside a live channel. Remembered so it stays open
@@ -273,6 +278,7 @@ struct PlayerView: View {
                 subtitle: prefs.preferredSubtitleLang
             )
             fetchExternalSubtitles()
+            findNextEpisode()
             fetchLiveEPG()
             fetchCatchupEPG()
         }
@@ -316,6 +322,11 @@ struct PlayerView: View {
         .onKeyPress("[")         { controller.setSpeed(max(0.25, controller.speed - 0.1)); flashControls(); return .handled }
         .onKeyPress("]")         { controller.setSpeed(min(3.0, controller.speed + 0.1)); flashControls(); return .handled }
         .onKeyPress("s")         { controller.skipIntro(); flashControls(); return .handled }
+        .onKeyPress("n")         {
+            guard nextEpisode != nil else { return .ignored }
+            playNextEpisode()
+            return .handled
+        }
         .onKeyPress("i")         { showMediaInfo.toggle(); return .handled }
         .onKeyPress("a")         { cycleAspect(); return .handled }
         .onKeyPress("l")         {
@@ -437,7 +448,13 @@ struct PlayerView: View {
                 Text("Episode finished")
                     .font(Theme.Font.display(28))
                     .foregroundStyle(.white)
-                Text("Back to episodes in \(nextEpisodeCountdown)s")
+                if let next = nextEpisode {
+                    Text(Self.label(for: next))
+                        .font(Theme.Font.label(14, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.9))
+                        .multilineTextAlignment(.center)
+                }
+                Text(nextEpisodeStatus)
                     .font(Theme.Font.label(13, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.7))
                 HStack(spacing: Theme.Spacing.md) {
@@ -461,15 +478,32 @@ struct PlayerView: View {
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "list.bullet")
-                            Text("Episodes").font(Theme.Font.label(14, weight: .bold))
+                            Text("Episodes").font(Theme.Font.label(14, weight: nextEpisode == nil ? .bold : .semibold))
                         }
-                        .foregroundStyle(.black)
+                        .foregroundStyle(nextEpisode == nil ? .black : .white)
                         .padding(.horizontal, Theme.Spacing.lg)
                         .padding(.vertical, 12)
-                        .background(Capsule().fill(.white))
-                        .shadow(color: .black.opacity(0.4), radius: 14, y: 6)
+                        .background(Capsule().fill(nextEpisode == nil ? AnyShapeStyle(.white) : AnyShapeStyle(.ultraThinMaterial)))
+                        .overlay(Capsule().stroke(.white.opacity(nextEpisode == nil ? 0 : 0.18), lineWidth: 1))
                     }
                     .buttonStyle(.plainRect)
+                    if nextEpisode != nil {
+                        Button {
+                            playNextEpisode()
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "forward.end.fill")
+                                Text("Next episode").font(Theme.Font.label(14, weight: .bold))
+                            }
+                            .foregroundStyle(.black)
+                            .padding(.horizontal, Theme.Spacing.lg)
+                            .padding(.vertical, 12)
+                            .background(Capsule().fill(.white))
+                            .shadow(color: .black.opacity(0.4), radius: 14, y: 6)
+                        }
+                        .buttonStyle(.plainRect)
+                        .disabled(isResolvingNext)
+                    }
                 }
             }
         }
@@ -482,8 +516,103 @@ struct PlayerView: View {
                 if !showNextEpisodeOverlay { return }
                 nextEpisodeCountdown -= 1
             }
-            if showNextEpisodeOverlay { dismiss() }
+            guard showNextEpisodeOverlay else { return }
+            // With another episode after this one it starts; at the end of
+            // a season's last, back to the episodes.
+            if nextEpisode != nil { playNextEpisode() } else { dismiss() }
         }
+    }
+
+    private var nextEpisodeStatus: String {
+        if let nextEpisodeError { return nextEpisodeError }
+        if isResolvingNext { return String(localized: "Finding the stream…") }
+        if nextEpisode != nil { return String(localized: "Next episode in \(nextEpisodeCountdown)s") }
+        return String(localized: "Back to episodes in \(nextEpisodeCountdown)s")
+    }
+
+    private static func label(for video: Video) -> String {
+        let code = [video.season.map { "S\($0)" }, video.episode.map { "E\($0)" }].compactMap { $0 }.joined()
+        return code.isEmpty ? video.title : "\(code) · \(video.title)"
+    }
+
+    // MARK: - next episode
+
+    /// The episode after this one in the title's meta (the next season's
+    /// first after a season's last). Specials (season 0) aren't chained.
+    private func findNextEpisode() {
+        guard case .stream(let p) = destination.kind, p.contentType == "series", let videoId = p.videoId,
+              let addon = store.metaAddon(for: "series", preferredId: p.addonId) else { return }
+        Task {
+            guard case .success(_, let meta) = await store.fetchMetaWithFallback(
+                preferred: addon, type: "series", id: p.contentId
+            ) else { return }
+            let episodes = meta.videos
+                .filter { ($0.season ?? 0) > 0 }
+                .sorted { ($0.season ?? 0, $0.episode ?? 0) < ($1.season ?? 0, $1.episode ?? 0) }
+            guard let index = episodes.firstIndex(where: { $0.id == videoId }), index + 1 < episodes.count else { return }
+            nextEpisode = episodes[index + 1]
+        }
+    }
+
+    /// Fetches the next episode's streams, picks the one matching what's
+    /// playing — same release (`bingeGroup`), else same addon and quality,
+    /// else the best — and replaces this player with it.
+    private func playNextEpisode() {
+        guard case .stream(let p) = destination.kind, let next = nextEpisode, !isResolvingNext else { return }
+        isResolvingNext = true
+        nextEpisodeError = nil
+        Task {
+            let streams = await store.fetchAllStreams(for: "series", id: next.id)
+            let playable = streams.filter {
+                switch $0.stream.source {
+                case .torrent, .url: return true
+                default: return false
+                }
+            }
+            let current = p.stream
+            let pick = Self.bingeGroup(of: current).flatMap { group in playable.first { Self.bingeGroup(of: $0.stream) == group } }
+                ?? playable.first { $0.addonName == p.addonName && Self.quality(of: $0.stream) == Self.quality(of: current) }
+                ?? playable.max { store.scoreStream($0) < store.scoreStream($1) }
+            isResolvingNext = false
+            guard let pick else {
+                nextEpisodeError = String(localized: "No stream found for this episode.")
+                return
+            }
+            let payload = PlayerDestination.StreamPayload(
+                stream: pick.stream,
+                addonId: p.addonId,
+                addonName: pick.addonName,
+                contentId: p.contentId,
+                contentType: "series",
+                videoId: next.id,
+                season: next.season,
+                episode: next.episode,
+                poster: p.poster,
+                background: p.background
+            )
+            showNextEpisodeOverlay = false
+            // The same swap as zapping: this player gives way to the next
+            // one, and Back still returns to the title's page.
+            NotificationCenter.default.post(
+                name: .veltrioZap,
+                object: PlayerDestination(kind: .stream(payload), title: destination.title)
+            )
+        }
+    }
+
+    /// Stremio's behaviorHints.bingeGroup: the same release across episodes.
+    private static func bingeGroup(of stream: Stream) -> String? {
+        guard let json = stream.behaviorHintsJson?.data(using: .utf8),
+              let hints = try? JSONSerialization.jsonObject(with: json) as? [String: Any] else { return nil }
+        return hints["bingeGroup"] as? String
+    }
+
+    private static func quality(of stream: Stream) -> String {
+        let hay = "\(stream.name ?? "") \(stream.title ?? "")".uppercased()
+        if hay.contains("2160P") || hay.contains("4K") { return "4K" }
+        if hay.contains("1080P") { return "1080p" }
+        if hay.contains("720P") { return "720p" }
+        return ""
     }
 
     // MARK: - external subtitles
