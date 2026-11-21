@@ -23,6 +23,9 @@ struct HomeView: View {
             }
             .padding(.bottom, Theme.Spacing.xxl)
         }
+        .task {
+            await store.stremioAccount.syncOnLaunchIfNeeded(into: watch)
+        }
     }
 
     private var enabledAddons: [InstalledAddon] { store.enabledAddons }
@@ -436,48 +439,51 @@ private struct ContinueCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ZStack(alignment: .bottomLeading) {
-                Rectangle().fill(Theme.Palette.surface)
-                background
-                    .scaleEffect(isHovering ? 1.03 : 1.0)
-                    .animation(.easeOut(duration: 0.3), value: isHovering)
-                    .clipped()
+            Color.clear
+                .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                .overlay {
+                    ZStack(alignment: .bottomLeading) {
+                        Rectangle().fill(Theme.Palette.surface)
+                        background
+                            .scaleEffect(isHovering ? 1.03 : 1.0)
+                            .animation(.easeOut(duration: 0.3), value: isHovering)
 
-                LinearGradient(
-                    colors: [.clear, .black.opacity(0.65)],
-                    startPoint: .top, endPoint: .bottom
-                )
-                .allowsHitTesting(false)
+                        LinearGradient(
+                            colors: [.clear, .black.opacity(0.65)],
+                            startPoint: .top, endPoint: .bottom
+                        )
+                        .allowsHitTesting(false)
 
-                // Episode marker, bottom-left.
-                if entry.type == "series", let last = entry.lastEpisodeId,
-                   let ep = entry.episodes[last],
-                   let s = ep.season, let e = ep.episode {
-                    Text("S\(s) · E\(e)")
-                        .font(Theme.Font.mono(10, weight: .semibold))
-                        .tracking(1.2)
-                        .foregroundStyle(Theme.Palette.accentOnDark)
-                        .padding(10)
-                }
-            }
-            .aspectRatio(16.0/9.0, contentMode: .fit)
-            .overlay(
-                Rectangle().stroke(
-                    isHovering ? Theme.Palette.accent : Theme.Palette.border,
-                    lineWidth: 1
-                )
-            )
-            .overlay(alignment: .bottom) {
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        Rectangle().fill(Theme.Palette.border)
-                        Rectangle().fill(Theme.Palette.accent)
-                            .frame(width: geo.size.width * entry.progressFraction)
+                        // Episode marker, bottom-left.
+                        if entry.type == "series", let last = entry.lastEpisodeId,
+                           let ep = entry.episodes[last],
+                           let s = ep.season, let e = ep.episode {
+                            Text("S\(s) · E\(e)")
+                                .font(Theme.Font.mono(10, weight: .semibold))
+                                .tracking(1.2)
+                                .foregroundStyle(Theme.Palette.accentOnDark)
+                                .padding(10)
+                        }
                     }
                 }
-                .frame(height: 2)
-            }
-            .shadow(isHovering ? Theme.Shadow.hero : Theme.Shadow.card)
+                .clipped()
+                .overlay(
+                    Rectangle().stroke(
+                        isHovering ? Theme.Palette.accent : Theme.Palette.border,
+                        lineWidth: 1
+                    )
+                )
+                .overlay(alignment: .bottom) {
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            Rectangle().fill(Theme.Palette.border)
+                            Rectangle().fill(Theme.Palette.accent)
+                                .frame(width: geo.size.width * entry.progressFraction)
+                        }
+                    }
+                    .frame(height: 2)
+                }
+                .shadow(isHovering ? Theme.Shadow.hero : Theme.Shadow.card)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(entry.name)

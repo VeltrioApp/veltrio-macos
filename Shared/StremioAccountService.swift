@@ -17,6 +17,7 @@ final class StremioAccountService {
     private(set) var lastResult: String?
 
     private var authKey: String?
+    private var didLaunchSync = false
     private let keychainService = "com.veltrio.stremio.authkey"
     private let defaultsEmail = "veltrio.stremio.email"
     private let api = URL(string: "https://api.strem.io/api")!
@@ -60,6 +61,13 @@ final class StremioAccountService {
         email = nil
         lastResult = nil
         lastSync = nil
+    }
+
+    /// Silently syncs Stremio watch history & library once per app launch.
+    func syncOnLaunchIfNeeded(into watch: WatchStore) async {
+        guard isConnected, !didLaunchSync else { return }
+        didLaunchSync = true
+        await importLibrary(into: watch)
     }
 
     /// Saved and watched titles, and film progress, into `watch`.
