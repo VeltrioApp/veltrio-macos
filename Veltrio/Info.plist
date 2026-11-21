@@ -43,6 +43,7 @@
     <key>NSBonjourServices</key>
     <array>
         <string>_googlecast._tcp</string>
+        <string>_veltrio-pair._tcp</string>
     </array>
     <key>NSLocalNetworkUsageDescription</key>
     <string>Veltrio looks for Chromecasts on your network so you can cast to them.</string>

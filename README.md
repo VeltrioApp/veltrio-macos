@@ -6,7 +6,7 @@ SwiftUI app on top of [veltrio-core](https://github.com/VeltrioApp/veltrio-core)
 
 ## Status
 
-- [x] Rust core (`core/veltrio-core`) with the Stremio addon protocol
+- [x] Rust core ([`veltrio-core`](https://github.com/VeltrioApp/veltrio-core)) with the Stremio addon protocol
       (manifest / catalog / meta / stream)
 - [x] UniFFI Swift bindings — `StremioClient` exposed natively to Swift
 - [x] macOS SwiftUI app: editorial top nav, addon install, home with a
@@ -37,18 +37,19 @@ SwiftUI app on top of [veltrio-core](https://github.com/VeltrioApp/veltrio-core)
 - [x] Jellyfin / Emby / Plex: connect, and their copies of a title play
       from its detail page with resume and watched state
 - [x] AirPlay casting, Picture-in-Picture, offline downloads
-- [ ] TorBox / Premiumize (same shape as AllDebrid and Real-Debrid)
+- [x] TorBox / Premiumize debrid support
 - [x] Distribution: universal (Apple silicon + Intel) self-contained app,
       Developer ID signing + notarization script, Sparkle updates, MetricKit
       crash reports, English + French UI
-- [ ] Jellyfin / Emby / Plex: browse a library in the Collection tab
-- [ ] IPTV: XMLTV EPG parser and a now/next overlay over playback
-- [ ] Stremio account sync (watchlist / collection / history)
-- [ ] SIMKL sync
+- [x] Jellyfin / Emby / Plex: browse libraries in the Collection tab
+- [x] IPTV: XMLTV EPG parser and a now/next overlay over playback
+- [x] Stremio account sync (watchlist / collection / history)
+- [x] SIMKL sync
+- [x] Companion apps: [iOS / iPadOS](https://github.com/VeltrioApp/veltrio-ios), [Apple TV](https://github.com/VeltrioApp/veltrio-tvos), [Android](https://github.com/VeltrioApp/veltrio-android), [Android TV](https://github.com/VeltrioApp/veltrio-androidtv), and [Windows](https://github.com/VeltrioApp/veltrio-windows)
 - [ ] Skip intro: crowdsourced markers and chromaprint matching
       (chapter-based detection works today)
 - [ ] Transcoding
-- [ ] iOS / tvOS / Android (phone + TV) / Windows / Linux
+- [ ] Linux
 
 ## Build & run
 
@@ -79,7 +80,7 @@ needed).
 
 ### Translations
 
-English and French. Strings live in `Veltrio/Localizable.xcstrings`,
+English and French. Strings live in `Shared/Localizable.xcstrings`,
 generated from `scripts/localizations.py` — edit the tables there and
 re-run it. Text a component receives as a `String` is looked up with
 `.localized`; text built with values goes through `String(localized:)`.
@@ -117,6 +118,8 @@ Locally, `scripts/release-macos.sh` does the same with the variables
 documented at its top.
 
 ## Licensing
+
+Veltrio is dual-licensed under either of [Apache-2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 
 MPVKit's LGPL build is statically linked. The LGPL requires that people
 who receive the app can relink it against a modified libmpv/FFmpeg; this
