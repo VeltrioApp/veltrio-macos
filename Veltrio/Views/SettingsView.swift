@@ -656,25 +656,18 @@ private struct StremioAccountCard: View {
                             Text(addonResult).font(Theme.Font.caption(11)).foregroundStyle(Theme.Palette.textSecondary)
                         }
                     }
-                } else {
+                } else if Platform.isMac {
                     HStack(spacing: Theme.Spacing.sm) {
-                        TextField(String(localized: "Email"), text: $email)
-                            .textFieldStyle(.plain)
-                            .padding(.horizontal, 10).padding(.vertical, 8)
-                            .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1))
-                        SecureField(String(localized: "Password"), text: $password)
-                            .textFieldStyle(.plain)
-                            .padding(.horizontal, 10).padding(.vertical, 8)
-                            .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1))
-                            .onSubmit { Task { await account.signIn(email: email, password: password) } }
-                        FrameButton(title: "Connect", icon: "arrow.right", color: Theme.Palette.accent,
-                                    fill: Theme.Palette.accent, isLoading: account.isWorking,
-                                    isEnabled: !account.isWorking && !email.isEmpty && !password.isEmpty) {
-                            Task {
-                                await account.signIn(email: email, password: password)
-                                if account.isConnected { password = "" }
-                            }
-                        }
+                        stremioEmail
+                        stremioPassword
+                        stremioConnect
+                    }
+                } else {
+                    // A phone: the fields one under the other.
+                    VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                        stremioEmail
+                        stremioPassword
+                        stremioConnect
                     }
                 }
                 if let err = account.error {
@@ -683,6 +676,37 @@ private struct StremioAccountCard: View {
                 Text("Imports your Stremio library — saved titles, watched films and where you stopped — and can install the addons on your account. Nothing is written back to Stremio.")
                     .font(Theme.Font.caption(11))
                     .foregroundStyle(Theme.Palette.textTertiary)
+            }
+        }
+    }
+
+    private var stremioEmail: some View {
+        TextField(String(localized: "Email"), text: $email)
+            .plainEntry()
+            #if os(iOS)
+            .keyboardType(.emailAddress)
+            .textContentType(.username)
+            #endif
+            .textFieldStyle(.plain)
+            .padding(.horizontal, 10).padding(.vertical, 8)
+            .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1))
+    }
+
+    private var stremioPassword: some View {
+        SecureField(String(localized: "Password"), text: $password)
+            .textFieldStyle(.plain)
+            .padding(.horizontal, 10).padding(.vertical, 8)
+            .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1))
+            .onSubmit { Task { await account.signIn(email: email, password: password) } }
+    }
+
+    private var stremioConnect: some View {
+        FrameButton(title: "Connect", icon: "arrow.right", color: Theme.Palette.accent,
+                    fill: Theme.Palette.accent, isLoading: account.isWorking,
+                    isEnabled: !account.isWorking && !email.isEmpty && !password.isEmpty) {
+            Task {
+                await account.signIn(email: email, password: password)
+                if account.isConnected { password = "" }
             }
         }
     }
@@ -920,6 +944,9 @@ private struct AppearanceSettings: View {
         }
     }
 
+    /// Three side by side fit a phone's settings card.
+    private static let swatchWidth: CGFloat = Platform.isMac ? 100 : 86
+
     private func themeSwatch(for opt: UserPrefs.ColorSchemePreference) -> some View {
         let isSelected = prefs.colorScheme == opt
         return Button {
@@ -927,7 +954,7 @@ private struct AppearanceSettings: View {
         } label: {
             VStack(alignment: .leading, spacing: 8) {
                 themePreview(opt)
-                    .frame(width: 100, height: 64)
+                    .frame(width: Self.swatchWidth, height: 64)
                     .overlay(
                         Rectangle().stroke(
                             isSelected ? Theme.Palette.accent : Theme.Palette.border,
@@ -937,6 +964,8 @@ private struct AppearanceSettings: View {
                 Text(opt.label.localized)
                     .font(Theme.Font.eyebrow(10, weight: .bold))
                     .tracking(1.8)
+                    .frame(width: Self.swatchWidth, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
                     .foregroundStyle(
                         isSelected ? Theme.Palette.accentText : Theme.Palette.textSecondary
                     )
@@ -988,7 +1017,9 @@ private struct StorageSettings: View {
         )
         SettingsSection(title: "Downloads") {
             if store.downloads.items.isEmpty {
-                Text("No downloads yet. Right-click a stream in Detail → Download for offline.")
+                Text(LocalizedStringKey(Platform.isMac
+                    ? "No downloads yet. Right-click a stream in Detail → Download for offline."
+                    : "No downloads yet. Touch and hold a stream on a title's page → Download for offline."))
                     .font(Theme.Font.caption(11))
                     .foregroundStyle(Theme.Palette.textTertiary)
             } else {
@@ -1004,24 +1035,43 @@ private struct StorageSettings: View {
         SettingsSection(title: "Torrents") {
             SettingRowLabel(
                 title: "Download location",
-                hint: "librqbit downloads live under Application Support. Stop and cleanup happens on player close."
+                hint: Platform.isMac ? "librqbit downloads live under Application Support. Stop and cleanup happens on player close."
+                                     : "Torrents download into the app's cache, which iOS may clear when space runs low. Stop and cleanup happens on player close."
             )
         }
         SettingsSection(title: "Log") {
-            HStack(spacing: Theme.Spacing.sm) {
-                Chip(label: "All",   isSelected: filter == nil)         { filter = nil }
-                Chip(label: "Info",  isSelected: filter == .info)       { filter = .info }
-                Chip(label: "Warn",  isSelected: filter == .warn)       { filter = .warn }
-                Chip(label: "Error", isSelected: filter == .error)      { filter = .error }
-                Spacer()
-                FrameButton(title: "Copy", icon: "doc.on.doc",
-                            color: Theme.Palette.textPrimary) { log.copyToPasteboard() }
-                FrameButton(title: "Clear", icon: "trash",
-                            color: Theme.Palette.danger) { log.clear() }
+            // Filters and actions on one line, or two where they don't fit.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: Theme.Spacing.sm) {
+                    logFilters
+                    Spacer()
+                    logActions
+                }
+                VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                    logFilters
+                    HStack(spacing: Theme.Spacing.sm) { logActions }
+                }
             }
 
             logList
         }
+    }
+
+    private var logFilters: some View {
+        HStack(spacing: Theme.Spacing.sm) {
+            Chip(label: "All",   isSelected: filter == nil)         { filter = nil }
+            Chip(label: "Info",  isSelected: filter == .info)       { filter = .info }
+            Chip(label: "Warn",  isSelected: filter == .warn)       { filter = .warn }
+            Chip(label: "Error", isSelected: filter == .error)      { filter = .error }
+        }
+    }
+
+    @ViewBuilder
+    private var logActions: some View {
+        FrameButton(title: "Copy", icon: "doc.on.doc",
+                    color: Theme.Palette.textPrimary) { log.copyToPasteboard() }
+        FrameButton(title: "Clear", icon: "trash",
+                    color: Theme.Palette.danger) { log.clear() }
     }
 
     private var logList: some View {
@@ -1208,6 +1258,8 @@ private struct AboutSettings: View {
                     .padding(.top, 6)
             }
         }
+        // Collected from macOS's diagnostic reports: nothing to show on iOS.
+        if Platform.isMac {
         SurfaceCard {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Crash reports").font(Theme.Font.heading(15))
@@ -1215,12 +1267,11 @@ private struct AboutSettings: View {
                 Text(crashReportSummary)
                     .font(Theme.Font.body(13))
                     .foregroundStyle(Theme.Palette.textSecondary)
-                if Platform.isMac {
-                    FrameButton(title: "Show in Finder", icon: "folder") {
-                        CrashReports.revealInFinder()
-                    }
+                FrameButton(title: "Show in Finder", icon: "folder") {
+                    CrashReports.revealInFinder()
                 }
             }
+        }
         }
     }
 

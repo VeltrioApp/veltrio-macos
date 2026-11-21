@@ -3021,6 +3021,16 @@
         }
       }
     },
+    "No downloads yet. Touch and hold a stream on a title's page → Download for offline.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun téléchargement. Touchez longuement un flux sur la fiche d'un titre → Télécharger hors ligne."
+          }
+        }
+      }
+    },
     "No episodes": {
       "localizations": {
         "fr": {
@@ -4777,6 +4787,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Torrents"
+          }
+        }
+      }
+    },
+    "Torrents download into the app's cache, which iOS may clear when space runs low. Stop and cleanup happens on player close.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les torrents se téléchargent dans le cache de l'app, qu'iOS peut vider quand l'espace manque. Arrêt et nettoyage à la fermeture du lecteur."
           }
         }
       }

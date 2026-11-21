@@ -17,7 +17,7 @@ struct AddonRow: View {
     @State private var isHovering = false
 
     var body: some View {
-        HStack(spacing: Theme.Spacing.md) {
+        HStack(spacing: Platform.isMac ? Theme.Spacing.md : Theme.Spacing.sm) {
             // Drag handle / reorder controls.
             VStack(spacing: 2) {
                 reorderButton(icon: "chevron.up",   action: onMoveUp)
@@ -55,6 +55,7 @@ struct AddonRow: View {
                         .foregroundStyle(
                             isEnabled ? Theme.Palette.textPrimary : Theme.Palette.textTertiary
                         )
+                    if Platform.isMac {
                     Text("v\(addon.manifest.version)")
                         .lineLimit(1)
                         .fixedSize()
@@ -62,10 +63,12 @@ struct AddonRow: View {
                         .foregroundStyle(Theme.Palette.textTertiary)
                         .padding(.horizontal, 5).padding(.vertical, 1)
                         .background(Rectangle().fill(Theme.Palette.backgroundAlt))
+                    }
                 }
                 if !Platform.isMac {
-                    // A phone: one line of text instead of the type chips.
-                    Text(addon.manifest.types.map(\.capitalized).joined(separator: " · "))
+                    // A phone: one line of text instead of the version badge
+                    // and the type chips, so the name gets the width.
+                    Text((["v\(addon.manifest.version)"] + addon.manifest.types.map(\.capitalized)).joined(separator: " · "))
                         .font(Theme.Font.caption(10))
                         .foregroundStyle(Theme.Palette.textTertiary)
                         .lineLimit(1)
