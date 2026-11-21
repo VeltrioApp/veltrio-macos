@@ -153,6 +153,10 @@ struct XtreamClient {
         case invalidServer
         var errorDescription: String? {
             switch self {
+            // Too many requests or connections (511 is what some panels
+            // answer then, though it's meant for captive portals).
+            case .http(let c) where c == 429 || c == 511:
+                return String(localized: "Your IPTV provider is limiting connections. Try again in a few minutes.")
             case .http(let c):     return String(localized: "Xtream server returned HTTP \(c).")
             case .decoding(let m): return String(localized: "Could not parse Xtream response: \(m)")
             case .authFailed:      return String(localized: "Xtream authentication failed — check username and password.")

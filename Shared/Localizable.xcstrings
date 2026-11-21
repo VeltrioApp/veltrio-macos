@@ -5191,6 +5191,16 @@
         }
       }
     },
+    "Your IPTV provider is limiting connections. Try again in a few minutes.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre fournisseur IPTV limite les connexions. Réessayez dans quelques minutes."
+          }
+        }
+      }
+    },
     "Your Jellyfin library is available in this session. Items appear in a future Library tab integration.": {
       "localizations": {
         "fr": {

@@ -3,7 +3,7 @@ import Observation
 import Compression
 
 /// One programme from an XMLTV guide.
-struct EpgProgramme: Identifiable, Hashable {
+struct EpgProgramme: Identifiable, Hashable, Codable {
     let channelId: String
     let start: Date
     let end: Date
@@ -57,6 +57,16 @@ final class EpgStore {
         isLoading = true
         error = nil
         task = Task {
+            // The guide kept on disk, while it's fresh: providers limit
+            // requests, and this one is tens of megabytes.
+            if !force, let cached = await Self.readCache(playlistId: id),
+               Date().timeIntervalSince(cached.savedAt) < maxAge {
+                guard !Task.isCancelled else { return }
+                self.finish(id: id, url: nil,
+                            result: .init(programmes: cached.programmes, nameMatches: cached.nameMatches),
+                            error: nil, at: cached.savedAt)
+                return
+            }
             guard let url = await Self.guideURL(for: ref) else {
                 guard self.loadedFor != id || force else { return }
                 self.finish(id: id, url: nil, result: nil, error: nil)
@@ -73,6 +83,7 @@ final class EpgStore {
                 }.value
                 guard !Task.isCancelled else { return }
                 self.finish(id: id, url: url, result: parsed, error: nil)
+                Self.writeCache(playlistId: id, result: parsed)
             } catch is CancellationError {
             } catch {
                 guard !Task.isCancelled else { return }
@@ -81,14 +92,46 @@ final class EpgStore {
         }
     }
 
-    private func finish(id: UUID, url: URL?, result: EpgParser.Result?, error: String?) {
+    private func finish(id: UUID, url: URL?, result: EpgParser.Result?, error: String?, at date: Date = Date()) {
         programmes = result?.programmes ?? [:]
         channelMap = result?.nameMatches ?? [:]
         sourceURL = url
         self.error = error
         loadedFor = id
-        loadedAt = Date()
+        loadedAt = date
         isLoading = false
+    }
+
+    // MARK: - on-disk copy
+
+    private struct CachedGuide: Codable {
+        let savedAt: Date
+        let programmes: [String: [EpgProgramme]]
+        let nameMatches: [String: String]
+    }
+
+    /// Next to the playlist's channel lists, so removing a playlist
+    /// removes its guide too.
+    nonisolated private static func cacheFile(playlistId: UUID) -> URL {
+        IptvChannelCache.directory.appendingPathComponent("\(playlistId.uuidString)-guide.json")
+    }
+
+    nonisolated private static func readCache(playlistId: UUID) async -> CachedGuide? {
+        let url = cacheFile(playlistId: playlistId)
+        return await Task.detached(priority: .utility) { () -> CachedGuide? in
+            guard let data = try? Data(contentsOf: url) else { return nil }
+            return try? JSONDecoder().decode(CachedGuide.self, from: data)
+        }.value
+    }
+
+    nonisolated private static func writeCache(playlistId: UUID, result: EpgParser.Result) {
+        let url = cacheFile(playlistId: playlistId)
+        Task.detached(priority: .utility) {
+            let guide = CachedGuide(savedAt: Date(), programmes: result.programmes, nameMatches: result.nameMatches)
+            guard let data = try? JSONEncoder().encode(guide) else { return }
+            try? FileManager.default.createDirectory(at: IptvChannelCache.directory, withIntermediateDirectories: true)
+            try? data.write(to: url, options: .atomic)
+        }
     }
 
     func clear() {

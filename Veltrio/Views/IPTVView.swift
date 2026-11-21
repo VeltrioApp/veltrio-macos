@@ -193,7 +193,7 @@ struct IPTVView: View {
             }
             Divider()
             Button {
-                Task { await store.refreshSelectedIptvPlaylist() }
+                Task { await store.refreshSelectedIptvPlaylist(force: true) }
             } label: {
                 Label("Refresh current", systemImage: "arrow.clockwise")
             }

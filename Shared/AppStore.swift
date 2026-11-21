@@ -573,6 +573,7 @@ final class AppStore {
     func removeIptvPlaylist(id: UUID) {
         // Drop any Keychain-held Xtream password for this playlist.
         XtreamKeychain.delete(for: id)
+        IptvChannelCache.remove(playlistId: id)
         iptvPlaylists.removeAll { $0.id == id }
         iptvPersistence.save(iptvPlaylists)
         if selectedIptvPlaylistId == id {
@@ -594,23 +595,42 @@ final class AppStore {
         await loadIptvChannels(from: ref)
     }
 
+    /// Shows the selected playlist: from the on-disk copy when there is
+    /// one, asking the provider only when it's stale or `force` is set
+    /// ("Refresh").
     @MainActor
-    func refreshSelectedIptvPlaylist() async {
+    func refreshSelectedIptvPlaylist(force: Bool = false) async {
         guard let id = selectedIptvPlaylistId,
               let ref = iptvPlaylists.first(where: { $0.id == id }) else { return }
-        await loadIptvChannels(from: ref)
+        await loadIptvChannels(from: ref, force: force)
     }
 
     @MainActor
-    private func loadIptvChannels(from ref: IptvPlaylistRef) async {
+    private func loadIptvChannels(from ref: IptvPlaylistRef, force: Bool = false) async {
         // Cancel an in-flight load so the last-click wins and we don't end
         // up with channels from playlist A rendered under selection B.
         iptvLoadTask?.cancel()
         let targetId = ref.id
+        let mode = iptvMode
+        let section = "\(mode)"
         isLoadingIptv = true
         iptvError = nil
 
-        let mode = iptvMode
+        // The copy on disk first: shown at once, and the provider isn't
+        // asked again while it's fresh.
+        if !force, let cached = await IptvChannelCache.load(ref, section: section) {
+            guard selectedIptvPlaylistId == targetId, iptvMode == mode else { return }
+            iptvChannels = cached.channels
+            isLoadingIptv = false
+            if mode == .live { epg.load(for: ref, channels: cached.channels) }
+            if cached.isFresh { return }
+        } else if !force {
+            iptvChannels = []
+        }
+        // What's on screen now is this playlist's (cached, or before a
+        // forced refresh): it stays if the provider can't be reached.
+        let keepOnFailure = !iptvChannels.isEmpty
+
         let task = Task { [xtreamClient, iptvClient] in
             do {
                 let channels: [IptvChannel]
@@ -628,17 +648,20 @@ final class AppStore {
                 await MainActor.run {
                     // Guard against a late result for a playlist the user
                     // already switched away from.
-                    guard self.selectedIptvPlaylistId == targetId else { return }
+                    guard self.selectedIptvPlaylistId == targetId, self.iptvMode == mode else { return }
                     self.iptvChannels = channels
                     self.isLoadingIptv = false
                     if mode == .live { self.epg.load(for: ref, channels: channels) }
                 }
+                IptvChannelCache.save(channels, for: ref, section: section)
             } catch is CancellationError {
                 // The caller moved on to another playlist; stay quiet.
             } catch {
                 await MainActor.run {
-                    guard self.selectedIptvPlaylistId == targetId else { return }
-                    self.iptvChannels = []
+                    guard self.selectedIptvPlaylistId == targetId, self.iptvMode == mode else { return }
+                    // A stale list stays on screen when the refresh fails
+                    // (provider down or limiting connections).
+                    if !keepOnFailure { self.iptvChannels = [] }
                     self.iptvError = self.humanize(error)
                     self.isLoadingIptv = false
                 }
