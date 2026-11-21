@@ -12,7 +12,7 @@ final class VeltrioUITests: XCTestCase {
         continueAfterFailure = false
         app = XCUIApplication()
         // English UI, whatever the Mac's language, so labels are stable.
-        app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-veltrioSkipOnboarding", "YES"]
         app.launch()
     }
 

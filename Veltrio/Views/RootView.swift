@@ -123,7 +123,8 @@ struct RootView: View {
                 showOnboarding = true
                 return
             }
-            if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+            if UserDefaults.standard.bool(forKey: "veltrioSkipOnboarding")
+                || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
                 || ProcessInfo.processInfo.environment["XCTestSessionIdentifier"] != nil {
                 return
             }
