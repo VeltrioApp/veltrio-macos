@@ -21,9 +21,23 @@ struct LiveTVView: View {
         channels.first { $0.id == selectedId } ?? channels.first
     }
 
+    /// Narrower than this (a phone), the list alone, full width: a tap
+    /// tunes in.
+    private static let splitWidth: CGFloat = 640
+
     var body: some View {
+        GeometryReader { geo in
+            if geo.size.width < Self.splitWidth {
+                channelList(tapToPlay: true)
+            } else {
+                split
+            }
+        }
+    }
+
+    private var split: some View {
         HStack(alignment: .top, spacing: 0) {
-            channelList
+            channelList(tapToPlay: false)
                 .frame(width: 380)
             Rule(color: Theme.Palette.border)
                 .frame(width: 1)
@@ -48,7 +62,7 @@ struct LiveTVView: View {
 
     // MARK: - channel list
 
-    private var channelList: some View {
+    private func channelList(tapToPlay: Bool) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Menu {
@@ -82,12 +96,17 @@ struct LiveTVView: View {
                     LazyVStack(spacing: 0) {
                         ForEach(channels, id: \.id) { channel in
                             LiveChannelRow(channel: channel, number: numbers[channel.id],
-                                           isSelected: channel.id == selected?.id)
+                                           isSelected: !tapToPlay && channel.id == selected?.id)
                                 .id(channel.id)
-                                .onTapGesture(count: 2) { play(channel) }
-                                .onTapGesture {
-                                    selectedId = channel.id
-                                    listFocused = true
+                                .if(tapToPlay) { row in
+                                    row.onTapGesture { play(channel) }
+                                }
+                                .if(!tapToPlay) { row in
+                                    row.onTapGesture(count: 2) { play(channel) }
+                                        .onTapGesture {
+                                            selectedId = channel.id
+                                            listFocused = true
+                                        }
                                 }
                         }
                     }

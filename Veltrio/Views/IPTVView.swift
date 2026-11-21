@@ -51,25 +51,46 @@ struct IPTVView: View {
         }
     }
 
+    /// Title and actions on one line, or the actions under the title
+    /// where they don't fit (a phone).
     private var compactHeader: some View {
-        HStack(alignment: .lastTextBaseline, spacing: Theme.Spacing.lg) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(String(localized: "Broadcast · \(store.iptvChannels.count) channels"))
-                    .eyebrow(Theme.Palette.accentText, tracking: 2.8)
-                Text(currentPlaylist?.name ?? String(localized: "Live TV"))
-                    .font(Theme.Font.displaySerif(30, weight: .bold))
-                    .tracking(-0.6)
-                    .foregroundStyle(Theme.Palette.textPrimary)
-                    .lineLimit(1)
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .lastTextBaseline, spacing: Theme.Spacing.lg) {
+                compactTitle
+                Spacer()
+                compactActions
             }
-            Spacer()
-            if store.isLoadingIptv {
-                ProgressView().controlSize(.small).tint(Theme.Palette.accent)
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                compactTitle
+                HStack(spacing: Theme.Spacing.lg) {
+                    compactActions
+                    Spacer()
+                }
             }
-            playlistMenu
-            TextLinkButton(title: "Add playlist", icon: "plus", color: Theme.Palette.accentText) {
-                showAddSheet = true
-            }
+        }
+    }
+
+    private var compactTitle: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(String(localized: "Broadcast · \(store.iptvChannels.count) channels"))
+                .eyebrow(Theme.Palette.accentText, tracking: 2.8)
+                .lineLimit(1)
+            Text(currentPlaylist?.name ?? String(localized: "Live TV"))
+                .font(Theme.Font.displaySerif(30, weight: .bold))
+                .tracking(-0.6)
+                .foregroundStyle(Theme.Palette.textPrimary)
+                .lineLimit(1)
+        }
+    }
+
+    @ViewBuilder
+    private var compactActions: some View {
+        if store.isLoadingIptv {
+            ProgressView().controlSize(.small).tint(Theme.Palette.accent)
+        }
+        playlistMenu
+        TextLinkButton(title: "Add playlist", icon: "plus", color: Theme.Palette.accentText) {
+            showAddSheet = true
         }
     }
 
@@ -199,58 +220,74 @@ struct IPTVView: View {
 
     // MARK: - filter bar
 
+    /// The search field with the guide toggle and errors beside it, or
+    /// under it where they don't fit (a phone).
     private var filterBar: some View {
-        HStack(spacing: Theme.Spacing.sm) {
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(Theme.Palette.textTertiary)
-                TextField("Search channels", text: $searchText)
-                    .textFieldStyle(.plain)
-                    .font(.system(size: 13))
-                    .foregroundStyle(Theme.Palette.textPrimary)
-                if !searchText.isEmpty {
-                    Button {
-                        searchText = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 13))
-                            .foregroundStyle(Theme.Palette.textTertiary)
-                    }
-                    .buttonStyle(.plainRect)
-                }
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: Theme.Spacing.sm) {
+                searchField.frame(minWidth: 280)
+                filterExtras
             }
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                searchField
+                filterExtras
+            }
+        }
+    }
+
+    private var searchField: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Theme.Palette.textTertiary)
+            TextField("Search channels", text: $searchText)
+                .textFieldStyle(.plain)
+                .font(.system(size: 13))
+                .foregroundStyle(Theme.Palette.textPrimary)
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Theme.Palette.textTertiary)
+                }
+                .buttonStyle(.plainRect)
+            }
+        }
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, 10)
+        .background(
+            Rectangle().fill(Theme.Palette.surface)
+        )
+        .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
+    }
+
+    @ViewBuilder
+    private var filterExtras: some View {
+        if guideAvailable {
+            HStack(spacing: 4) {
+                Chip(label: "Channels", icon: "square.grid.2x2", isSelected: !showGuide) { showGuide = false }
+                Chip(label: "Guide", icon: "calendar", isSelected: showGuide) { showGuide = true }
+            }
+        } else if store.epg.isLoading && store.iptvMode == .live {
+            HStack(spacing: 6) {
+                ProgressView().controlSize(.small)
+                Text("Loading the TV guide…").eyebrow(Theme.Palette.textTertiary).lineLimit(1)
+            }
+        }
+
+        if let error = store.iptvError {
+            HStack(spacing: 6) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                Text(error.localized).lineLimit(1)
+            }
+            .font(Theme.Font.label(11, weight: .semibold))
+            .foregroundStyle(Theme.Palette.danger)
             .padding(.horizontal, Theme.Spacing.md)
-            .padding(.vertical, 10)
-            .background(
-                Rectangle().fill(Theme.Palette.surface)
-            )
-            .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
-
-            if guideAvailable {
-                HStack(spacing: 4) {
-                    Chip(label: "Channels", icon: "square.grid.2x2", isSelected: !showGuide) { showGuide = false }
-                    Chip(label: "Guide", icon: "calendar", isSelected: showGuide) { showGuide = true }
-                }
-            } else if store.epg.isLoading && store.iptvMode == .live {
-                HStack(spacing: 6) {
-                    ProgressView().controlSize(.small)
-                    Text("Loading the TV guide…").eyebrow(Theme.Palette.textTertiary)
-                }
-            }
-
-            if let error = store.iptvError {
-                HStack(spacing: 6) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                    Text(error.localized).lineLimit(1)
-                }
-                .font(Theme.Font.label(11, weight: .semibold))
-                .foregroundStyle(Theme.Palette.danger)
-                .padding(.horizontal, Theme.Spacing.md)
-                .padding(.vertical, 6)
-                .background(Rectangle().fill(Theme.Palette.danger.opacity(0.12)))
-                .overlay(Rectangle().stroke(Theme.Palette.danger.opacity(0.35), lineWidth: 1))
-            }
+            .padding(.vertical, 6)
+            .background(Rectangle().fill(Theme.Palette.danger.opacity(0.12)))
+            .overlay(Rectangle().stroke(Theme.Palette.danger.opacity(0.35), lineWidth: 1))
         }
     }
 
