@@ -16,6 +16,7 @@ struct LiveTVView: View {
     @Environment(AppStore.self) private var store
     @State private var selectedId: String?
     @FocusState private var listFocused: Bool
+    @FocusState private var focusedChannel: String?
 
     private var selected: IptvChannel? {
         channels.first { $0.id == selectedId } ?? channels.first
@@ -38,7 +39,8 @@ struct LiveTVView: View {
     private var split: some View {
         HStack(alignment: .top, spacing: 0) {
             channelList(tapToPlay: false)
-                .frame(width: 380)
+                .frame(width: Platform.isTV ? 560 : 380)
+                .onChange(of: focusedChannel) { _, id in if let id { selectedId = id } }
             Rule(color: Theme.Palette.border)
                 .frame(width: 1)
                 .frame(maxHeight: .infinity)
@@ -95,6 +97,17 @@ struct LiveTVView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(channels, id: \.id) { channel in
+                            #if os(tvOS)
+                            // The remote: focus picks the channel (the panel
+                            // follows), a click tunes in.
+                            Button { play(channel) } label: {
+                                LiveChannelRow(channel: channel, number: numbers[channel.id],
+                                               isSelected: !tapToPlay && channel.id == selected?.id)
+                            }
+                            .buttonStyle(.plainRect)
+                            .focused($focusedChannel, equals: channel.id)
+                            .id(channel.id)
+                            #else
                             LiveChannelRow(channel: channel, number: numbers[channel.id],
                                            isSelected: !tapToPlay && channel.id == selected?.id)
                                 .id(channel.id)
@@ -108,10 +121,12 @@ struct LiveTVView: View {
                                             listFocused = true
                                         }
                                 }
+                            #endif
                         }
                     }
                 }
-                .focusable()
+                // On a TV the rows take the focus themselves.
+                .focusable(!Platform.isTV)
                 .focusEffectDisabled()
                 .focused($listFocused)
                 .onKeyPress(.downArrow) { move(by: 1, proxy: proxy); return .handled }
@@ -159,7 +174,8 @@ private struct LiveChannelRow: View {
             Text(number.map { String(format: "%03d", $0) } ?? "—")
                 .font(Theme.Font.mono(11, weight: .semibold))
                 .foregroundStyle(isSelected ? Theme.Palette.accentText : Theme.Palette.textQuaternary)
-                .frame(width: 30, alignment: .leading)
+                .fixedSize()
+                .frame(minWidth: 30, alignment: .leading)
             ChannelLogo(url: channel.logoUrl, name: channel.name)
                 .frame(width: 60, height: 40)
             VStack(alignment: .leading, spacing: 4) {

@@ -16,6 +16,15 @@ enum Platform {
         #endif
     }
 
+    /// An Apple TV: the remote's focus, read from the sofa.
+    static var isTV: Bool {
+        #if os(tvOS)
+        true
+        #else
+        false
+        #endif
+    }
+
     @MainActor
     static func open(_ url: URL) {
         #if os(macOS)
