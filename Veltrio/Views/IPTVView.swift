@@ -86,7 +86,7 @@ struct IPTVView: View {
     @ViewBuilder
     private var compactActions: some View {
         if store.isLoadingIptv {
-            ProgressView().controlSize(.small).tint(Theme.Palette.accent)
+            ProgressView().veltrioControlSize(.small).tint(Theme.Palette.accent)
         }
         playlistMenu
         TextLinkButton(title: "Add playlist", icon: "plus", color: Theme.Palette.accentText) {
@@ -153,7 +153,7 @@ struct IPTVView: View {
         ) {
             HStack(spacing: Theme.Spacing.lg) {
                 if store.isLoadingIptv {
-                    ProgressView().controlSize(.small).tint(Theme.Palette.accent)
+                    ProgressView().veltrioControlSize(.small).tint(Theme.Palette.accent)
                 }
                 if !store.iptvPlaylists.isEmpty {
                     playlistMenu
@@ -272,7 +272,7 @@ struct IPTVView: View {
             }
         } else if store.epg.isLoading && store.iptvMode == .live {
             HStack(spacing: 6) {
-                ProgressView().controlSize(.small)
+                ProgressView().veltrioControlSize(.small)
                 Text("Loading the TV guide…").eyebrow(Theme.Palette.textTertiary).lineLimit(1)
             }
         }

@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 #if os(macOS)
 import AppKit
 #else
@@ -48,6 +49,25 @@ enum Platform {
     static func pointingCursor(_ on: Bool) {
         #if os(macOS)
         if on { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+        #endif
+    }
+}
+
+enum VeltrioControlSize { case small, regular, large }
+
+extension View {
+    /// Wrapper around `controlSize(_:)` that stays compatible with tvOS 18 SDK
+    /// (Xcode 16.x marks `View.controlSize` unavailable on tvOS).
+    @ViewBuilder
+    func veltrioControlSize(_ size: VeltrioControlSize) -> some View {
+        #if os(tvOS)
+        self
+        #else
+        switch size {
+        case .small:   self.controlSize(.small)
+        case .regular: self.controlSize(.regular)
+        case .large:   self.controlSize(.large)
+        }
         #endif
     }
 }

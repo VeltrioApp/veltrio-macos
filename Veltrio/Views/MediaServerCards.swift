@@ -359,7 +359,7 @@ struct PlexPinView: View {
                                     color: Theme.Palette.textPrimary) {
                             Platform.copy(pin.code)
                         }
-                        ProgressView().controlSize(.small)
+                        ProgressView().veltrioControlSize(.small)
                             .padding(.leading, Theme.Spacing.sm)
                     }
                 }

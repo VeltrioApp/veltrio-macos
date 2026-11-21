@@ -127,7 +127,7 @@ struct CatalogGridView: View {
     private var loadMore: some View {
         VStack(spacing: Theme.Spacing.sm) {
             if isLoading {
-                ProgressView().controlSize(.regular).tint(Theme.Palette.accent)
+                ProgressView().veltrioControlSize(.regular).tint(Theme.Palette.accent)
                 Text("Loading more…")
                     .font(Theme.Font.label(11, weight: .semibold))
                     .foregroundStyle(Theme.Palette.textTertiary)

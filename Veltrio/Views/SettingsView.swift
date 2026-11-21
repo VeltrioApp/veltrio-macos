@@ -830,7 +830,7 @@ private struct TraktActivationView: View {
                                     color: Theme.Palette.textPrimary) {
                             Platform.copy(code.userCode)
                         }
-                        ProgressView().controlSize(.small)
+                        ProgressView().veltrioControlSize(.small)
                             .padding(.leading, Theme.Spacing.sm)
                     }
                 }
@@ -1176,7 +1176,7 @@ private struct DevicesSettings: View {
                     .foregroundStyle(Theme.Palette.textSecondary)
                 if browser.targets.isEmpty {
                     HStack(spacing: 8) {
-                        ProgressView().controlSize(.small)
+                        ProgressView().veltrioControlSize(.small)
                         Text("Looking for a waiting TV…").font(Theme.Font.body(13)).foregroundStyle(Theme.Palette.textTertiary)
                     }
                 }
@@ -1778,7 +1778,7 @@ private struct DebridActivationView: View {
                                     color: Theme.Palette.textPrimary) {
                             Platform.copy(code)
                         }
-                        ProgressView().controlSize(.small)
+                        ProgressView().veltrioControlSize(.small)
                             .padding(.leading, Theme.Spacing.sm)
                     }
                 }

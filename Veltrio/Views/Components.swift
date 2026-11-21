@@ -278,7 +278,7 @@ struct CTAButton: View {
         Button(action: action) {
             HStack(spacing: 12) {
                 if isLoading {
-                    ProgressView().controlSize(.small).tint(textColor)
+                    ProgressView().veltrioControlSize(.small).tint(textColor)
                 } else if let icon {
                     Image(systemName: icon).font(.system(size: 12, weight: .black))
                 }
@@ -383,7 +383,7 @@ struct FrameButton: View {
         Button(action: action) {
             HStack(spacing: 8) {
                 if isLoading {
-                    ProgressView().controlSize(.small).tint(labelColor)
+                    ProgressView().veltrioControlSize(.small).tint(labelColor)
                 } else if let icon {
                     Image(systemName: icon).font(.system(size: 10, weight: .bold))
                 }

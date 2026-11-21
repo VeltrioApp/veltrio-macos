@@ -442,7 +442,7 @@ private struct AddonCatalogSheet: View {
             }
             Spacer()
             if store.addonCatalog.isLoading {
-                ProgressView().controlSize(.small).tint(Theme.Palette.accent)
+                ProgressView().veltrioControlSize(.small).tint(Theme.Palette.accent)
             }
             Text("\(filtered.count) addons")
                 .eyebrow(Theme.Palette.textTertiary)
@@ -451,7 +451,7 @@ private struct AddonCatalogSheet: View {
 
     private var loading: some View {
         VStack(spacing: Theme.Spacing.md) {
-            ProgressView().controlSize(.large)
+            ProgressView().veltrioControlSize(.large)
             Text("Fetching the catalogue…")
                 .font(Theme.Font.body(13))
                 .foregroundStyle(Theme.Palette.textSecondary)

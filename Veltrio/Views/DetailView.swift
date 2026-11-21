@@ -359,7 +359,7 @@ struct DetailView: View {
         NavigationLink(value: payload) {
             HStack(spacing: 12) {
                 if isLoadingAny && allEntriesEmpty {
-                    ProgressView().controlSize(.small).tint(Theme.Palette.background)
+                    ProgressView().veltrioControlSize(.small).tint(Theme.Palette.background)
                 } else {
                     Image(systemName: "play.fill")
                         .font(.system(size: 12, weight: .black))

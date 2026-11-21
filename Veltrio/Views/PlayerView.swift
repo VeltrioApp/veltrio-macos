@@ -151,7 +151,7 @@ struct PlayerView: View {
             // Buffering indicator floats in the center, under the top bar.
             if controller.isBuffering && resolvedUrl != nil {
                 ProgressView()
-                    .controlSize(.large)
+                    .veltrioControlSize(.large)
                     .colorScheme(.dark)
                     .padding(16)
                     .background(Circle().fill(.black.opacity(0.4)))
@@ -2012,7 +2012,7 @@ struct PlayerView: View {
 
     private var loadingState: some View {
         VStack(spacing: 14) {
-            ProgressView().controlSize(.large).colorScheme(.dark)
+            ProgressView().veltrioControlSize(.large).colorScheme(.dark)
             Text(statusLabel)
                 .foregroundStyle(.white.opacity(0.9))
                 .font(Theme.Font.label(13, weight: .semibold))

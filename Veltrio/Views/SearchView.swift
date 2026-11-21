@@ -61,7 +61,7 @@ struct SearchView: View {
             Spacer()
             if isSearching {
                 HStack(spacing: 10) {
-                    ProgressView().controlSize(.small).tint(Theme.Palette.accent)
+                    ProgressView().veltrioControlSize(.small).tint(Theme.Palette.accent)
                     Text("Searching").eyebrow(Theme.Palette.textTertiary)
                 }
             } else if !groups.isEmpty {
