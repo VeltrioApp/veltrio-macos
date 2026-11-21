@@ -1274,8 +1274,9 @@ private struct AboutSettings: View {
         MacUpdatesCard()
         #elseif os(iOS)
         IOSUpdatesCard(currentVersion: appVersion)
+        #elseif os(tvOS)
+        TVUpdatesCard(currentVersion: appVersion)
         #endif
-        #if os(macOS) || os(iOS)
         SurfaceCard {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Welcome guide").font(Theme.Font.heading(15))
@@ -1289,7 +1290,6 @@ private struct AboutSettings: View {
                 }
             }
         }
-        #endif
         #if os(macOS)
         SurfaceCard {
             VStack(alignment: .leading, spacing: 10) {
@@ -1454,6 +1454,81 @@ private struct IOSUpdatesCard: View {
             } else {
                 availableVersion = nil
                 releaseURL = nil
+                statusText = String(localized: "Veltrio \(currentVersion) is up to date.")
+            }
+        } catch {
+            statusText = error.localizedDescription
+        }
+    }
+
+    private func isNewer(_ candidate: String, than current: String) -> Bool {
+        func parts(_ s: String) -> [Int] {
+            let core = s.split(separator: "-").first.map(String.init) ?? s
+            return core.split(separator: ".").map { Int($0) ?? 0 }
+        }
+        let a = parts(candidate), b = parts(current)
+        for i in 0..<max(a.count, b.count) {
+            let av = i < a.count ? a[i] : 0
+            let bv = i < b.count ? b[i] : 0
+            if av != bv { return av > bv }
+        }
+        return false
+    }
+}
+#elseif os(tvOS)
+private struct TVUpdatesCard: View {
+    let currentVersion: String
+    @State private var isChecking = false
+    @State private var statusText: String?
+
+    var body: some View {
+        SurfaceCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Updates")
+                    .font(Theme.Font.heading(15))
+                    .foregroundStyle(Theme.Palette.textPrimary)
+
+                Text(statusText ?? String(localized: "TestFlight updates automatically. You can also check GitHub Releases for the latest Apple TV build."))
+                    .font(Theme.Font.body(13))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+
+                FrameButton(
+                    title: "Check for Updates",
+                    icon: "arrow.triangle.2.circlepath",
+                    isLoading: isChecking
+                ) {
+                    Task { await check() }
+                }
+            }
+        }
+    }
+
+    private func check() async {
+        isChecking = true
+        defer { isChecking = false }
+        let api = URL(string: "https://api.github.com/repos/VeltrioApp/veltrio-tvos/releases?per_page=1")!
+        var req = URLRequest(url: api)
+        req.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+        req.timeoutInterval = 12
+        do {
+            let (data, response) = try await URLSession.shared.data(for: req)
+            guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+                statusText = String(localized: "Could not reach GitHub Releases.")
+                return
+            }
+            struct Release: Decodable {
+                let tag_name: String
+                let draft: Bool
+            }
+            let releases = try JSONDecoder().decode([Release].self, from: data)
+            guard let latest = releases.first(where: { !$0.draft }) else {
+                statusText = String(localized: "Veltrio \(currentVersion) is up to date.")
+                return
+            }
+            let tag = latest.tag_name.trimmingCharacters(in: CharacterSet(charactersIn: "vV"))
+            if isNewer(tag, than: currentVersion) {
+                statusText = String(localized: "Version \(tag) is available.")
+            } else {
                 statusText = String(localized: "Veltrio \(currentVersion) is up to date.")
             }
         } catch {

@@ -302,7 +302,7 @@ struct CTAButton: View {
             .animation(.easeOut(duration: 0.14), value: isHovering)
             .animation(.easeOut(duration: 0.08), value: isPressed)
         }
-        .buttonStyle(.plainRect)
+        .buttonStyle(.plainRectOnAccent)
         .disabled(!isEnabled)
         .pointerHover { h in
             isHovering = h
@@ -406,7 +406,7 @@ struct FrameButton: View {
             .opacity(isEnabled ? 1 : 0.5)
             .animation(.easeOut(duration: 0.12), value: isHovering)
         }
-        .buttonStyle(.plainRect)
+        .buttonStyle(PlainRectButtonStyle(highContrastFocus: fill != nil))
         .disabled(!isEnabled)
         .pointerHover { h in
             isHovering = h
@@ -777,9 +777,11 @@ extension View {
 // every borderless button and navigation link in the app.
 
 struct PlainRectButtonStyle: ButtonStyle {
+    var highContrastFocus: Bool = false
+
     func makeBody(configuration: Configuration) -> some View {
         #if os(tvOS)
-        FocusFrame(label: configuration.label, isPressed: configuration.isPressed)
+        FocusFrame(label: configuration.label, isPressed: configuration.isPressed, highContrast: highContrastFocus)
         #else
         configuration.label
             .contentShape(Rectangle())
@@ -790,19 +792,34 @@ struct PlainRectButtonStyle: ButtonStyle {
 
 #if os(tvOS)
 /// The remote's focus on a TV: the focused button lifts a little and gets
-/// an accent frame, the only way to see where the remote is.
+/// an accent frame, the only way to see where the remote is. On accent-filled
+/// buttons ([highContrast]), the frame switches to crisp white with a dark
+/// inner separator so focus stays unmistakable against yellow.
 private struct FocusFrame<Label: View>: View {
     let label: Label
     let isPressed: Bool
+    let highContrast: Bool
     @Environment(\.isFocused) private var isFocused
 
     var body: some View {
         label
             .contentShape(Rectangle())
-            .background(isFocused ? Theme.Palette.surfaceHover : .clear)
-            .overlay(Rectangle().stroke(isFocused ? Theme.Palette.accent : .clear, lineWidth: 3))
-            .scaleEffect(isPressed ? 0.97 : (isFocused ? 1.06 : 1))
-            .shadow(color: .black.opacity(isFocused ? 0.5 : 0), radius: 12, y: 6)
+            .brightness(highContrast && isFocused ? 0.08 : 0)
+            .background(!highContrast && isFocused ? Theme.Palette.surfaceHover : .clear)
+            .overlay {
+                if isFocused {
+                    if highContrast {
+                        Rectangle()
+                            .stroke(Color.black.opacity(0.75), lineWidth: 1.5)
+                            .padding(3.5)
+                            .overlay(Rectangle().stroke(Color.white, lineWidth: 3.5))
+                    } else {
+                        Rectangle().stroke(Theme.Palette.accent, lineWidth: 3)
+                    }
+                }
+            }
+            .scaleEffect(isPressed ? 0.97 : (isFocused ? (highContrast ? 1.07 : 1.06) : 1))
+            .shadow(color: (highContrast ? Color.white.opacity(isFocused ? 0.35 : 0) : Color.black.opacity(isFocused ? 0.5 : 0)), radius: 14, y: 6)
             .zIndex(isFocused ? 1 : 0)
             .animation(.easeOut(duration: 0.14), value: isFocused)
     }
@@ -811,4 +828,5 @@ private struct FocusFrame<Label: View>: View {
 
 extension ButtonStyle where Self == PlainRectButtonStyle {
     static var plainRect: PlainRectButtonStyle { PlainRectButtonStyle() }
+    static var plainRectOnAccent: PlainRectButtonStyle { PlainRectButtonStyle(highContrastFocus: true) }
 }
