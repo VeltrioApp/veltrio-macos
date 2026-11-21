@@ -113,3 +113,44 @@ extension View {
         #endif
     }
 }
+
+extension View {
+    /// A pointer's hover, where there is one. tvOS has no pointer: the
+    /// remote's focus shows instead (see `PlainRectButtonStyle`).
+    @ViewBuilder
+    func pointerHover(_ action: @escaping (Bool) -> Void) -> some View {
+        #if os(tvOS)
+        self
+        #else
+        onHover(perform: action)
+        #endif
+    }
+}
+
+extension View {
+    /// Tracks a press from touch or click down to up, for a pressed look.
+    /// The remote's buttons press through `ButtonStyle` instead (tvOS).
+    @ViewBuilder
+    func pressTracking(_ isPressed: Binding<Bool>) -> some View {
+        #if os(tvOS)
+        self
+        #else
+        simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in isPressed.wrappedValue = true }
+                .onEnded { _ in isPressed.wrappedValue = false }
+        )
+        #endif
+    }
+
+    /// Escape triggers this button (a Mac's keyboard; Menu on a remote
+    /// goes back through the navigation stack instead).
+    @ViewBuilder
+    func escapeShortcut() -> some View {
+        #if os(tvOS)
+        self
+        #else
+        keyboardShortcut(.escape, modifiers: [])
+        #endif
+    }
+}

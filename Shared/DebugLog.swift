@@ -70,11 +70,6 @@ final class DebugLog {
         let text = entries.map { e in
             "\(fmt.string(from: e.timestamp)) \(e.level.rawValue.uppercased()) \(e.source): \(e.message)"
         }.joined(separator: "\n")
-        #if os(macOS)
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(text, forType: .string)
-        #else
-        UIPasteboard.general.string = text
-        #endif
+        Platform.copy(text)
     }
 }

@@ -2,6 +2,7 @@ import Foundation
 #if os(macOS)
 import AppKit
 #endif
+#if !os(tvOS)
 import MetricKit
 
 /// Keeps the crash, hang and exception reports macOS hands the app.
@@ -78,3 +79,12 @@ final class CrashReports: NSObject, MXMetricManagerSubscriber {
         }
     }
 }
+#else
+/// tvOS has no MetricKit diagnostics: nothing is collected there.
+final class CrashReports {
+    static let shared = CrashReports()
+    func start() {}
+    static func reports() -> [URL] { [] }
+    static func revealInFinder() {}
+}
+#endif

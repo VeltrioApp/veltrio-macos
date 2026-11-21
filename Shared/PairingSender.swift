@@ -1,6 +1,6 @@
 import Foundation
 import CryptoKit
-#if os(iOS)
+#if os(iOS) || os(tvOS)
 import UIKit
 #endif
 
@@ -148,7 +148,7 @@ enum PairingSender {
     }
 
     static var deviceName: String {
-        #if os(iOS)
+        #if os(iOS) || os(tvOS)
         UIDevice.current.name
         #else
         Host.current().localizedName ?? "Mac"

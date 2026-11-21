@@ -491,7 +491,7 @@ private struct ContinueCard: View {
                     .lineLimit(1)
             }
         }
-        .onHover { isHovering = $0 }
+        .pointerHover { isHovering = $0 }
     }
 
     @ViewBuilder

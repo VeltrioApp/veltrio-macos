@@ -124,7 +124,7 @@ struct AddonRow: View {
                         .stroke(Theme.Palette.border, lineWidth: 1)
                 )
         )
-        .onHover { isHovering = $0 }
+        .pointerHover { isHovering = $0 }
     }
 
     @ViewBuilder
@@ -197,7 +197,7 @@ struct SuggestedCard: View {
                         .stroke(Theme.Palette.border, lineWidth: 1)
                 )
         )
-        .onHover { isHovering = $0 }
+        .pointerHover { isHovering = $0 }
     }
 }
 

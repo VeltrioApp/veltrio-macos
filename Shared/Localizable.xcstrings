@@ -661,6 +661,16 @@
         }
       }
     },
+    "Address: %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse : %@"
+          }
+        }
+      }
+    },
     "AirPlay is native. PiP spins up a parallel AVPlayer for URL streams. Chromecast needs the Google Cast SDK dropped into the app bundle.": {
       "localizations": {
         "fr": {
@@ -1301,6 +1311,26 @@
         }
       }
     },
+    "Collection title": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "titre de la Collection"
+          }
+        }
+      }
+    },
+    "Collection titles": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "titres de la Collection"
+          }
+        }
+      }
+    },
     "Community catalogue": {
       "localizations": {
         "fr": {
@@ -1447,6 +1477,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copier le code"
+          }
+        }
+      }
+    },
+    "Could not listen on the network (%@).": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d'écouter sur le réseau (%@)."
+          }
+        }
+      }
+    },
+    "Could not listen on the network.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d'écouter sur le réseau."
           }
         }
       }
@@ -1647,6 +1697,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Déconnecter"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminé"
           }
         }
       }
@@ -1957,6 +2017,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Français"
+          }
+        }
+      }
+    },
+    "From a phone": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depuis un téléphone"
           }
         }
       }
@@ -3301,6 +3371,16 @@
         }
       }
     },
+    "On your phone or Mac, open Veltrio, Settings, “Send to a TV”, pick this TV (or type its address) and this code.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sur votre téléphone ou votre Mac, ouvrez Veltrio, Réglages, « Envoyer vers une TV », choisissez cette TV (ou tapez son adresse) et ce code."
+          }
+        }
+      }
+    },
     "Open %@": {
       "localizations": {
         "fr": {
@@ -3711,12 +3791,32 @@
         }
       }
     },
+    "Receive settings": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recevoir des réglages"
+          }
+        }
+      }
+    },
     "Received by the TV: %@.": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Reçu par la TV : %@."
+          }
+        }
+      }
+    },
+    "Received from %@: %@.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reçu de %@ : %@."
           }
         }
       }
@@ -4131,6 +4231,16 @@
         }
       }
     },
+    "Sent: addons, IPTV playlists, debrid services, accounts (Stremio, Trakt, SIMKL), media servers and the Collection. Nothing already here is removed. Everything travels encrypted, with a key tied to this code.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyés : addons, playlists IPTV, services debrid, comptes (Stremio, Trakt, SIMKL), serveurs multimédia et la Collection. Rien de ce qui est déjà ici n'est supprimé. Tout voyage chiffré, avec une clé liée à ce code."
+          }
+        }
+      }
+    },
     "Series": {
       "localizations": {
         "fr": {
@@ -4167,6 +4277,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Configurez une TV Veltrio (Android TV, Google TV) en un geste : vos sources, comptes et votre Collection, envoyés par le réseau local, chiffrés avec une clé liée au code affiché sur la TV."
+          }
+        }
+      }
+    },
+    "Setting up…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configuration…"
           }
         }
       }
@@ -4751,6 +4871,16 @@
         }
       }
     },
+    "Too many tries: new code.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trop d'essais : nouveau code."
+          }
+        }
+      }
+    },
     "Top": {
       "localizations": {
         "fr": {
@@ -5011,6 +5141,16 @@
         }
       }
     },
+    "Veltrio · %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veltrio · %@"
+          }
+        }
+      }
+    },
     "Video & audio presets": {
       "localizations": {
         "fr": {
@@ -5081,6 +5221,16 @@
         }
       }
     },
+    "Waiting for a phone on the same network…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En attente d'un téléphone sur le même réseau…"
+          }
+        }
+      }
+    },
     "Waiting on Real-Debrid confirmation…": {
       "localizations": {
         "fr": {
@@ -5147,6 +5297,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Scénario"
+          }
+        }
+      }
+    },
+    "Wrong code.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code incorrect."
           }
         }
       }
@@ -5271,6 +5431,26 @@
         }
       }
     },
+    "account or service": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "compte ou service"
+          }
+        }
+      }
+    },
+    "accounts and services": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "comptes et services"
+          }
+        }
+      }
+    },
     "auto-safe lets mpv pick the best decoder for each codec.": {
       "localizations": {
         "fr": {
@@ -5317,6 +5497,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "mpv choisit les pistes intégrées dans votre langue. Les sous-titres des addons sont ajoutés automatiquement dans la langue choisie."
+          }
+        }
+      }
+    },
+    "nothing new, everything was already here": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "rien de nouveau, tout était déjà là"
           }
         }
       }

@@ -228,15 +228,11 @@ private struct SearchBarTrigger: View {
             ))
         }
         .buttonStyle(.plainRect)
-        .onHover { h in
+        .pointerHover { h in
             isHovering = h
             Platform.pointingCursor(h)
         }
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in isPressed = true }
-                .onEnded   { _ in isPressed = false }
-        )
+        .pressTracking($isPressed)
     }
 }
 

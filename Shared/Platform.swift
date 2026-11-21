@@ -29,9 +29,10 @@ enum Platform {
         #if os(macOS)
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(text, forType: .string)
-        #else
+        #elseif os(iOS)
         UIPasteboard.general.string = text
         #endif
+        // tvOS has no pasteboard.
     }
 
     /// The pointing hand over something clickable (a Mac's pointer only).

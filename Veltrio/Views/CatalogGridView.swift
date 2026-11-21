@@ -62,7 +62,7 @@ struct CatalogGridView: View {
                 .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1.5))
             }
             .buttonStyle(.plainRect)
-            .keyboardShortcut(.escape, modifiers: [])
+            .escapeShortcut()
 
             PageHeader(
                 eyebrow: "\(destination.addon.manifest.name) · \(destination.catalog.type.localized)",

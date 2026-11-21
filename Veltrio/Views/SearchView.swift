@@ -56,7 +56,7 @@ struct SearchView: View {
                 }
             }
             .buttonStyle(.plainRect)
-            .keyboardShortcut(.escape, modifiers: [])
+            .escapeShortcut()
 
             Spacer()
             if isSearching {

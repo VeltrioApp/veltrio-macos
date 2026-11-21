@@ -558,6 +558,33 @@ final class AppStore {
         await selectIptvPlaylist(id: ref.id)
     }
 
+    /// Playlists received from another device (a phone sending its
+    /// settings to a TV): added without being opened, so the provider isn't
+    /// asked until Live is. One already here (same server and user, or same
+    /// URL) is skipped. The first becomes the selection when there was none.
+    ///
+    /// - Returns: how many were added.
+    @MainActor
+    @discardableResult
+    func importIptvPlaylists(_ refs: [IptvPlaylistRef]) -> Int {
+        let fresh = refs.filter { ref in
+            !iptvPlaylists.contains { have in
+                if let a = have.xtream, let b = ref.xtream {
+                    return a.normalizedHost == b.normalizedHost && a.username == b.username
+                }
+                return have.xtream == nil && ref.xtream == nil && have.url == ref.url
+            }
+        }
+        guard !fresh.isEmpty else { return 0 }
+        iptvPlaylists.append(contentsOf: fresh)
+        iptvPersistence.save(iptvPlaylists)
+        if selectedIptvPlaylistId == nil, let first = fresh.first {
+            selectedIptvPlaylistId = first.id
+            UserDefaults.standard.set(first.id.uuidString, forKey: Self.selectedPlaylistKey)
+        }
+        return fresh.count
+    }
+
     /// Quick authentication probe. Returns a user-friendly error message
     /// on failure, `nil` on success. Used by the Add sheet's "Test" button.
     func verifyXtream(_ credentials: XtreamCredentials) async -> String? {

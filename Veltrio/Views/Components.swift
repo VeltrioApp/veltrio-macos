@@ -190,7 +190,7 @@ struct TextLinkTab: View {
             .animation(.easeOut(duration: 0.1), value: isHovering)
         }
         .buttonStyle(.plainRect)
-        .onHover { isHovering = $0 }
+        .pointerHover { isHovering = $0 }
     }
 }
 
@@ -244,7 +244,7 @@ struct Chip: View {
             }
         }
         .buttonStyle(.plainRect)
-        .onHover { isHovering = $0 }
+        .pointerHover { isHovering = $0 }
         .animation(.easeOut(duration: 0.14), value: isSelected)
     }
 }
@@ -304,15 +304,11 @@ struct CTAButton: View {
         }
         .buttonStyle(.plainRect)
         .disabled(!isEnabled)
-        .onHover { h in
+        .pointerHover { h in
             isHovering = h
             Platform.pointingCursor(h && isEnabled)
         }
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in isPressed = true }
-                .onEnded   { _ in isPressed = false }
-        )
+        .pressTracking($isPressed)
     }
 }
 
@@ -361,15 +357,11 @@ struct GhostButton: View {
         }
         .buttonStyle(.plainRect)
         .disabled(!isEnabled)
-        .onHover { h in
+        .pointerHover { h in
             isHovering = h
             Platform.pointingCursor(h && isEnabled)
         }
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in isPressed = true }
-                .onEnded   { _ in isPressed = false }
-        )
+        .pressTracking($isPressed)
     }
 }
 
@@ -416,15 +408,11 @@ struct FrameButton: View {
         }
         .buttonStyle(.plainRect)
         .disabled(!isEnabled)
-        .onHover { h in
+        .pointerHover { h in
             isHovering = h
             Platform.pointingCursor(h && isEnabled)
         }
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in isPressed = true }
-                .onEnded   { _ in isPressed = false }
-        )
+        .pressTracking($isPressed)
     }
 
     @ViewBuilder private var backgroundLayer: some View {
@@ -508,15 +496,11 @@ struct IconButton: View {
                 ))
         }
         .buttonStyle(.plainRect)
-        .onHover { h in
+        .pointerHover { h in
             isHovering = h
             Platform.pointingCursor(h)
         }
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in isPressed = true }
-                .onEnded   { _ in isPressed = false }
-        )
+        .pressTracking($isPressed)
         .if(tooltip != nil) { $0.help(tooltip!) }
         // `.help()` only sets the hover tooltip; it does not give the
         // button an accessible name. Without this, VoiceOver announces
@@ -697,7 +681,7 @@ struct PosterCard: View {
                 }
             }
         }
-        .onHover { isHovering = $0 }
+        .pointerHover { isHovering = $0 }
     }
 
     @ViewBuilder
@@ -794,11 +778,36 @@ extension View {
 
 struct PlainRectButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
+        #if os(tvOS)
+        FocusFrame(label: configuration.label, isPressed: configuration.isPressed)
+        #else
         configuration.label
             .contentShape(Rectangle())
             .opacity(configuration.isPressed ? 0.85 : 1)
+        #endif
     }
 }
+
+#if os(tvOS)
+/// The remote's focus on a TV: the focused button lifts a little and gets
+/// an accent frame, the only way to see where the remote is.
+private struct FocusFrame<Label: View>: View {
+    let label: Label
+    let isPressed: Bool
+    @Environment(\.isFocused) private var isFocused
+
+    var body: some View {
+        label
+            .contentShape(Rectangle())
+            .background(isFocused ? Theme.Palette.surfaceHover : .clear)
+            .overlay(Rectangle().stroke(isFocused ? Theme.Palette.accent : .clear, lineWidth: 3))
+            .scaleEffect(isPressed ? 0.97 : (isFocused ? 1.06 : 1))
+            .shadow(color: .black.opacity(isFocused ? 0.5 : 0), radius: 12, y: 6)
+            .zIndex(isFocused ? 1 : 0)
+            .animation(.easeOut(duration: 0.14), value: isFocused)
+    }
+}
+#endif
 
 extension ButtonStyle where Self == PlainRectButtonStyle {
     static var plainRect: PlainRectButtonStyle { PlainRectButtonStyle() }

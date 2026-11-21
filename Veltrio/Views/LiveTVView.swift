@@ -190,7 +190,7 @@ private struct LiveChannelRow: View {
         .padding(.trailing, Theme.Spacing.sm)
         .background(isSelected ? Theme.Palette.surfaceHover : (isHovering ? Theme.Palette.surface : .clear))
         .contentShape(Rectangle())
-        .onHover { isHovering = $0 }
+        .pointerHover { isHovering = $0 }
     }
 }
 

@@ -185,7 +185,7 @@ private struct SidebarRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plainRect)
-        .onHover { isHovering = $0 }
+        .pointerHover { isHovering = $0 }
         .animation(.easeOut(duration: 0.12), value: isSelected)
     }
 }
@@ -1114,7 +1114,9 @@ private struct StorageSettings: View {
                 .font(Theme.Font.mono(10))
                 .foregroundStyle(Theme.Palette.textPrimary)
                 .lineLimit(2)
+                #if !os(tvOS)
                 .textSelection(.enabled)
+                #endif
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 2)
@@ -1375,11 +1377,22 @@ private struct SettingsStepper: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             SettingRowLabel(title: title, hint: hint)
+            #if os(tvOS)
+            // No Stepper on tvOS: − and + buttons.
+            HStack(spacing: Theme.Spacing.md) {
+                Button { value.wrappedValue = max(range.lowerBound, value.wrappedValue - step) } label: { Image(systemName: "minus") }
+                Text("\(value.wrappedValue) \(unit)")
+                    .font(Theme.Font.label(12, weight: .semibold))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+                Button { value.wrappedValue = min(range.upperBound, value.wrappedValue + step) } label: { Image(systemName: "plus") }
+            }
+            #else
             Stepper(value: value, in: range, step: step) {
                 Text("\(value.wrappedValue) \(unit)")
                     .font(Theme.Font.label(12, weight: .semibold))
                     .foregroundStyle(Theme.Palette.textSecondary)
             }
+            #endif
         }
     }
 }

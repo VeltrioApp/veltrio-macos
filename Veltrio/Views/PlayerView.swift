@@ -188,9 +188,11 @@ struct PlayerView: View {
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
         .hidesWindowToolbarOnMac()
+        #if !os(tvOS)
         .fileImporter(isPresented: $choosingSubtitle, allowedContentTypes: Self.subtitleTypes) { result in
             if case .success(let url) = result { addLocalSubtitle(url) }
         }
+        #endif
         .focusable()
         .focused($focused)
         .focusEffectDisabled()
@@ -244,6 +246,20 @@ struct PlayerView: View {
                 }
             }
         }
+        #if os(tvOS)
+        // The Siri Remote: play/pause; left/right skip 10 s (a film) or
+        // show the controls (live); up/down change channel (live) or show
+        // the controls; Menu hides the controls, then leaves.
+        .onPlayPauseCommand { controller.togglePause(); flashControls() }
+        .onMoveCommand { direction in remoteMove(direction) }
+        .onExitCommand {
+            if controlsVisible && !destination.isLive {
+                withAnimation(.easeOut(duration: 0.22)) { controlsVisible = false }
+            } else {
+                dismiss()
+            }
+        }
+        #endif
         .onKeyPress(.space)      { controller.togglePause(); return .handled }
         .onKeyPress(.leftArrow)  {
             if destination.isLive { return .ignored }
@@ -285,9 +301,11 @@ struct PlayerView: View {
         }
         .onKeyPress(.upArrow)    { controller.setVolume(controller.volume + 5); flashControls(); return .handled }
         .onKeyPress(.downArrow)  { controller.setVolume(controller.volume - 5); flashControls(); return .handled }
+        #if !os(tvOS)
         .onContinuousHover { phase in
             if case .active = phase { flashControls() }
         }
+        #endif
         .task { await resolve() }
         .onChange(of: controller.eofReached) { _, done in
             if done {
@@ -872,7 +890,7 @@ struct PlayerView: View {
     // MARK: - display sleep
 
     private func preventDisplaySleep() {
-        #if os(iOS)
+        #if os(iOS) || os(tvOS)
         UIApplication.shared.isIdleTimerDisabled = true
         #else
         guard sleepAssertionId == 0 else { return }
@@ -887,7 +905,7 @@ struct PlayerView: View {
     }
 
     private func releaseDisplaySleep() {
-        #if os(iOS)
+        #if os(iOS) || os(tvOS)
         UIApplication.shared.isIdleTimerDisabled = false
         #else
         guard sleepAssertionId != 0 else { return }
@@ -995,7 +1013,7 @@ struct PlayerView: View {
             .shadow(color: Theme.Palette.accentGlow, radius: 20, y: 8)
         }
         .buttonStyle(.plainRect)
-        .onHover { h in
+        .pointerHover { h in
             Platform.pointingCursor(h)
         }
         // No key equivalent here: `s` is bound on the player root with
@@ -1948,6 +1966,19 @@ struct PlayerView: View {
         )
     }
 
+    #if os(tvOS)
+    private func remoteMove(_ direction: MoveCommandDirection) {
+        switch direction {
+        case .left where !destination.isLive:  controller.skip(by: -10)
+        case .right where !destination.isLive: controller.skip(by: 10)
+        case .up where destination.isLive:     _ = zap(by: -1)
+        case .down where destination.isLive:   _ = zap(by: 1)
+        default: break
+        }
+        flashControls()
+    }
+    #endif
+
     /// Previous/next channel in the playlist's order.
     private func zap(by step: Int) -> Bool {
         guard let current = liveChannel else { return false }
@@ -2157,6 +2188,8 @@ private struct SeekSlider: View {
             .frame(maxWidth: .infinity)
             .frame(height: 24)
             .contentShape(Rectangle())
+            // A TV seeks with the remote's arrows; the bar only shows.
+            #if !os(tvOS)
             .onContinuousHover { phase in
                 switch phase {
                 case .active(let loc):
@@ -2189,6 +2222,7 @@ private struct SeekSlider: View {
                         onEditingChanged(false)
                     }
             )
+            #endif
             .animation(.easeOut(duration: 0.12), value: isHovering)
             .animation(.easeOut(duration: 0.12), value: dragging)
         }

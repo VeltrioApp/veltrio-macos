@@ -66,7 +66,7 @@ struct IptvSeriesView: View {
                 .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1.5))
             }
             .buttonStyle(.plainRect)
-            .keyboardShortcut(.escape, modifiers: [])
+            .escapeShortcut()
 
             HStack(alignment: .top, spacing: Theme.Spacing.xl) {
                 cover
@@ -268,7 +268,7 @@ private struct XtreamEpisodeCard: View {
             }
         }
         .contentShape(Rectangle())
-        .onHover { h in
+        .pointerHover { h in
             isHovering = h
             Platform.pointingCursor(h)
         }

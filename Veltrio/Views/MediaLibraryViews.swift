@@ -188,7 +188,7 @@ struct MediaServerSeriesView: View {
                     .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1.5))
                 }
                 .buttonStyle(.plainRect)
-                .keyboardShortcut(.escape, modifiers: [])
+                .escapeShortcut()
 
                 PageHeader(eyebrow: destination.server.label, title: destination.item.title,
                            subtitle: destination.item.year.map(String.init))

@@ -507,7 +507,7 @@ private struct ChannelTile: View {
                 }
             }
         }
-        .onHover { isHovering = $0 }
+        .pointerHover { isHovering = $0 }
     }
 
     private var logoSurface: some View {
@@ -611,6 +611,15 @@ private enum AddPlaylistMode: String, CaseIterable {
     case m3u    = "M3U URL"
     case file   = "Local file"
 
+    /// A TV has no files to pick.
+    static var available: [AddPlaylistMode] {
+        #if os(tvOS)
+        [.xtream, .m3u]
+        #else
+        allCases
+        #endif
+    }
+
     var icon: String {
         switch self {
         case .xtream: return "key.fill"
@@ -706,7 +715,7 @@ struct AddPlaylistSheet: View {
 
     private var modePicker: some View {
         HStack(spacing: 4) {
-            ForEach(AddPlaylistMode.allCases, id: \.self) { m in
+            ForEach(AddPlaylistMode.available, id: \.self) { m in
                 Button {
                     mode = m
                     focusInitial()
@@ -793,12 +802,14 @@ struct AddPlaylistSheet: View {
                     )
                     .focused($focusedField, equals: .url)
 
+                #if !os(tvOS)
                 FrameButton(title: "Choose…", color: Theme.Palette.textPrimary) {
                     pickFile()
                 }
                 .fileImporter(isPresented: $choosingFile, allowedContentTypes: Self.playlistTypes) { result in
                     if case .success(let picked) = result { url = Self.keep(picked) }
                 }
+                #endif
             }
         }
     }

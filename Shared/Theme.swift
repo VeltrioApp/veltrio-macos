@@ -195,6 +195,15 @@ enum Theme {
             #if os(iOS)
             size > 26 ? max(26, (size * 0.6).rounded()) : size
             #else
+            sized(size)
+            #endif
+        }
+        /// Sizes are set for a Mac window read from arm's length; a TV is
+        /// read from the sofa: small text grows the most there.
+        static func sized(_ size: CGFloat) -> CGFloat {
+            #if os(tvOS)
+            (size < 30 ? size * 1.6 : size * 1.25).rounded()
+            #else
             size
             #endif
         }
@@ -205,27 +214,27 @@ enum Theme {
             .system(size: displayScaled(size), weight: weight, design: .default)
         }
         static func title(_ size: CGFloat = 20) -> SwiftUI.Font {
-            .system(size: size, weight: .semibold, design: .serif)
+            .system(size: sized(size), weight: .semibold, design: .serif)
         }
         static func heading(_ size: CGFloat = 16) -> SwiftUI.Font {
-            .system(size: size, weight: .semibold, design: .default)
+            .system(size: sized(size), weight: .semibold, design: .default)
         }
         static func body(_ size: CGFloat = 13) -> SwiftUI.Font {
-            .system(size: size, weight: .regular, design: .default)
+            .system(size: sized(size), weight: .regular, design: .default)
         }
         static func label(_ size: CGFloat = 12, weight: SwiftUI.Font.Weight = .semibold) -> SwiftUI.Font {
-            .system(size: size, weight: weight, design: .default)
+            .system(size: sized(size), weight: weight, design: .default)
         }
         static func caption(_ size: CGFloat = 11) -> SwiftUI.Font {
-            .system(size: size, weight: .medium, design: .default)
+            .system(size: sized(size), weight: .medium, design: .default)
         }
         /// Tracked-out all-caps marker — the house voice for eyebrows,
         /// counts, metadata rows, section numerals.
         static func eyebrow(_ size: CGFloat = 10, weight: SwiftUI.Font.Weight = .bold) -> SwiftUI.Font {
-            .system(size: size, weight: weight, design: .default)
+            .system(size: sized(size), weight: weight, design: .default)
         }
         static func mono(_ size: CGFloat = 11, weight: SwiftUI.Font.Weight = .regular) -> SwiftUI.Font {
-            .system(size: size, weight: weight, design: .monospaced)
+            .system(size: sized(size), weight: weight, design: .monospaced)
         }
     }
 
@@ -237,7 +246,7 @@ enum Theme {
     }
 
     /// Room for the editorial top bar on a Mac; iOS has its own bars.
-    #if os(iOS)
+    #if os(iOS) || os(tvOS)
     static let navBarInset: CGFloat = 0
     static let trafficLightInset: CGFloat = 0
     static let pushedTopInset: CGFloat = 0

@@ -975,7 +975,7 @@ struct DetailView: View {
             .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1.5))
         }
         .buttonStyle(.plainRect)
-        .keyboardShortcut(.escape, modifiers: [])
+        .escapeShortcut()
     }
 
     // MARK: - Helpers
@@ -1148,7 +1148,7 @@ private struct EpisodeCard: View {
             }
         }
         .buttonStyle(.plainRect)
-        .onHover { h in
+        .pointerHover { h in
             isHovering = h
             Platform.pointingCursor(h)
         }
@@ -1294,7 +1294,7 @@ private struct StreamRow: View {
                 lineWidth: 1
             )
         )
-        .onHover { h in
+        .pointerHover { h in
             isHovering = h
             Platform.pointingCursor(h)
         }
@@ -1407,7 +1407,7 @@ private struct DirectStreamRow: View {
         .padding(.vertical, 12)
         .background(Rectangle().fill(isHovering ? Theme.Palette.surfaceHover : Theme.Palette.surface))
         .overlay(Rectangle().stroke(isHovering ? Theme.Palette.accent : Theme.Palette.border, lineWidth: 1))
-        .onHover { h in
+        .pointerHover { h in
             isHovering = h
             Platform.pointingCursor(h)
         }
