@@ -70,7 +70,21 @@ struct PlayerView: View {
     @State private var scrubValue: Double = 0
     @State private var hoverTime: Double? = nil
 
-    @FocusState private var focused: Bool
+    private enum PlayerFocus: Hashable {
+        case root, seekBar, playPause, topBack
+    }
+    @FocusState private var focus: PlayerFocus?
+
+    #if os(tvOS)
+    private enum TVPlayerPanel: String, Identifiable {
+        case audio, subtitles, speed, aspect, profile
+        var id: String { rawValue }
+    }
+    @State private var tvPanel: TVPlayerPanel?
+    @State private var tvScrubCommitTask: Task<Void, Never>?
+    @State private var tvScrubStreak = 0
+    @State private var tvLastScrubTime: Date = .distantPast
+    #endif
 
     var body: some View {
         ZStack {
@@ -161,6 +175,13 @@ struct PlayerView: View {
                     .transition(.move(edge: .trailing).combined(with: .opacity))
             }
 
+            #if os(tvOS)
+            if let panel = tvPanel {
+                tvPickerPanel(panel)
+                    .transition(.move(edge: .trailing).combined(with: .opacity))
+            }
+            #endif
+
             if controller.isInSkippableIntro {
                 skipIntroOverlay
                     .frame(maxWidth: .infinity, maxHeight: .infinity,
@@ -195,7 +216,7 @@ struct PlayerView: View {
         }
         #endif
         .focusable()
-        .focused($focused)
+        .focused($focus, equals: .root)
         .focusEffectDisabled()
         .overlay(alignment: .top) { castBanner }
         #if os(iOS)
@@ -207,7 +228,11 @@ struct PlayerView: View {
             #if os(iOS)
             Self.playerAppeared()
             #endif
-            focused = true
+            #if os(tvOS)
+            focus = controlsVisible ? (destination.isLive ? .playPause : .seekBar) : .root
+            #else
+            focus = .root
+            #endif
             resetHideTimer()
             preventDisplaySleep()
             startProgressReporting()
@@ -237,7 +262,12 @@ struct PlayerView: View {
             // a non-zero duration.
             _ = newUrl
         }
-        .onChange(of: controller.duration) { _, dur in
+        .onChange(of: controller.duration) { oldDur, dur in
+            #if os(tvOS)
+            if oldDur <= 0, dur > 0, controlsVisible, !destination.isLive, tvPanel == nil {
+                DispatchQueue.main.async { focus = .seekBar }
+            }
+            #endif
             if dur > 0, !didSeekToResume {
                 if let (type, id, videoId) = watchIdentity() {
                     let resume = watch.resumePosition(type: type, id: id, videoId: videoId)
@@ -249,20 +279,57 @@ struct PlayerView: View {
             }
         }
         #if os(tvOS)
-        // The Siri Remote: play/pause; left/right skip 10 s (a film) or
-        // show the controls (live); up/down change channel (live) or show
-        // the controls; Menu hides the controls, then leaves.
+        // The Siri Remote: play/pause; left/right skip 10 s (a film) and
+        // focus the seek bar so you can keep scrubbing; up/down change
+        // channel (live) or show the controls; Menu closes panels, hides
+        // the controls, then leaves.
         .onPlayPauseCommand { controller.togglePause(); flashControls() }
         .onMoveCommand { direction in remoteMove(direction) }
         .onExitCommand {
-            if controlsVisible && !destination.isLive {
+            if tvPanel != nil {
+                withAnimation(.easeOut(duration: 0.2)) { tvPanel = nil }
+                resetHideTimer()
+            } else if showMediaInfo {
+                withAnimation(.easeOut(duration: 0.2)) { showMediaInfo = false }
+                resetHideTimer()
+            } else if showChannelList {
+                withAnimation(.easeOut(duration: 0.2)) { showChannelList = false }
+                resetHideTimer()
+            } else if showCatchupSheet {
+                withAnimation(.easeOut(duration: 0.2)) { showCatchupSheet = false }
+                resetHideTimer()
+            } else if controlsVisible {
                 withAnimation(.easeOut(duration: 0.22)) { controlsVisible = false }
             } else {
                 dismiss()
             }
         }
+        .onChange(of: controlsVisible) { _, visible in
+            if visible {
+                if tvPanel == nil && !showMediaInfo && !showChannelList && !showCatchupSheet {
+                    DispatchQueue.main.async {
+                        focus = destination.isLive ? .playPause : .seekBar
+                    }
+                }
+            } else {
+                tvPanel = nil
+                focus = .root
+            }
+        }
+        .onChange(of: focus) { _, _ in
+            if controlsVisible { resetHideTimer() }
+        }
+        .onChange(of: tvPanel) { _, panel in
+            if panel == nil && controlsVisible {
+                DispatchQueue.main.async {
+                    focus = destination.isLive ? .playPause : .seekBar
+                }
+                resetHideTimer()
+            }
+        }
         #endif
         .typeErased()
+        #if !os(tvOS)
         .onKeyPress(.space)      { controller.togglePause(); return .handled }
         .onKeyPress(.leftArrow)  {
             if destination.isLive { return .ignored }
@@ -304,7 +371,6 @@ struct PlayerView: View {
         }
         .onKeyPress(.upArrow)    { controller.setVolume(controller.volume + 5); flashControls(); return .handled }
         .onKeyPress(.downArrow)  { controller.setVolume(controller.volume - 5); flashControls(); return .handled }
-        #if !os(tvOS)
         .onContinuousHover { phase in
             if case .active = phase { flashControls() }
         }
@@ -1158,7 +1224,7 @@ struct PlayerView: View {
                 .overlay(Capsule().stroke(.white.opacity(0.18), lineWidth: 1))
             }
             .buttonStyle(.plainRect)
-            // No key equivalent here. Escape is handled on the player
+            .focused($focus, equals: .topBack)
             // root: it leaves full screen first, and only leaves the
             // player on a second press. Binding it to this button too
             // would make Escape dismiss the player outright.
@@ -1211,7 +1277,9 @@ struct PlayerView: View {
             speedMenu
             aspectMenu
             profileMenu
+            #if !os(tvOS)
             castMenu
+            #endif
             if destination.isLive && !catchupEntries.isEmpty {
                 Button {
                     showCatchupSheet.toggle()
@@ -1279,7 +1347,7 @@ struct PlayerView: View {
                     livePositionLabel
                 } else {
                     timeLabel
-                        .frame(minWidth: 130, alignment: .trailing)
+                        .frame(minWidth: Platform.isTV ? 220 : 130, alignment: .trailing)
                 }
 
                 // A phone's volume is its buttons.
@@ -1333,12 +1401,14 @@ struct PlayerView: View {
     private var seekBar: some View {
         let duration = max(controller.duration, 0)
         let displayed = isScrubbing ? scrubValue : controller.position
+        let timeWidth: CGFloat = Platform.isTV ? 115 : 54
         return HStack(spacing: Theme.Spacing.sm) {
             Text(format(displayed))
                 .font(Theme.Font.label(11, weight: .bold))
                 .foregroundStyle(.white)
                 .monospacedDigit()
-                .frame(width: 54, alignment: .leading)
+                .lineLimit(1)
+                .frame(width: timeWidth, alignment: .leading)
 
             ZStack(alignment: .topLeading) {
                 SeekSlider(
@@ -1358,10 +1428,19 @@ struct PlayerView: View {
                     },
                     hoverTime: $hoverTime,
                     chapters: controller.chapters.map { ($0.title, $0.startSeconds) },
-                    duration: duration
+                    duration: duration,
+                    isRemoteFocused: focus == .seekBar
                 )
+                #if os(tvOS)
+                .frame(height: 36)
+                .focusable()
+                .focused($focus, equals: .seekBar)
+                .focusEffectDisabled()
+                .onMoveCommand { handleSeekBarMove($0) }
+                #else
                 .disabled(duration <= 0)
                 .frame(height: 16)
+                #endif
 
                 if let t = hoverTime, duration > 0 {
                     scrubTooltip(at: t, duration: duration)
@@ -1372,7 +1451,8 @@ struct PlayerView: View {
                 .font(Theme.Font.label(11, weight: .bold))
                 .foregroundStyle(.white.opacity(0.75))
                 .monospacedDigit()
-                .frame(width: 54, alignment: .trailing)
+                .lineLimit(1)
+                .frame(width: timeWidth, alignment: .trailing)
         }
     }
 
@@ -1417,11 +1497,13 @@ struct PlayerView: View {
     // MARK: - audio / subs / speed menus
 
     private func glassIcon(_ system: String, badge: String? = nil) -> some View {
-        ZStack(alignment: .bottomTrailing) {
+        let size: CGFloat = Platform.isTV ? 54 : 38
+        let iconSize: CGFloat = Platform.isTV ? 20 : 13
+        return ZStack(alignment: .bottomTrailing) {
             Image(systemName: system)
-                .font(.system(size: 13, weight: .black))
+                .font(.system(size: iconSize, weight: .black))
                 .foregroundStyle(.white)
-                .frame(width: 38, height: 38)
+                .frame(width: size, height: size)
                 .background(Circle().fill(.ultraThinMaterial))
                 .overlay(Circle().stroke(.white.opacity(0.18), lineWidth: 1))
             if let badge {
@@ -1440,6 +1522,17 @@ struct PlayerView: View {
     @ViewBuilder
     private var audioTrackMenu: some View {
         if controller.audioTracks.count > 1 {
+            #if os(tvOS)
+            Button {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    tvPanel = tvPanel == .audio ? nil : .audio
+                }
+                resetHideTimer()
+            } label: {
+                glassIcon("waveform")
+            }
+            .buttonStyle(.plainRect)
+            #else
             Menu {
                 ForEach(controller.audioTracks) { track in
                     Button {
@@ -1456,12 +1549,29 @@ struct PlayerView: View {
             .menuIndicator(.hidden)
             .fixedSize()
             .help("Audio track")
+            #endif
         }
     }
 
     @ViewBuilder
     private var subtitleTrackMenu: some View {
         if !destination.isLive {
+            #if os(tvOS)
+            Button {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    tvPanel = tvPanel == .subtitles ? nil : .subtitles
+                }
+                resetHideTimer()
+            } label: {
+                glassIcon(
+                    controller.currentSubtitleId == 0 && !hasAttachedExternalSub
+                        ? "captions.bubble"
+                        : "captions.bubble.fill",
+                    badge: controller.isFetchingExternalSubs ? "…" : nil
+                )
+            }
+            .buttonStyle(.plainRect)
+            #else
             Menu {
                 Button {
                     controller.setSubtitleTrack(0)
@@ -1527,6 +1637,7 @@ struct PlayerView: View {
             .menuIndicator(.hidden)
             .fixedSize()
             .help("Subtitles (Z / X for delay)")
+            #endif
         }
     }
 
@@ -1537,9 +1648,24 @@ struct PlayerView: View {
         controller.currentSubtitleId > 0
     }
 
+    @ViewBuilder
     private var speedMenu: some View {
+        #if os(tvOS)
+        Button {
+            withAnimation(.easeOut(duration: 0.2)) {
+                tvPanel = tvPanel == .speed ? nil : .speed
+            }
+            resetHideTimer()
+        } label: {
+            glassIcon(
+                "gauge.with.dots.needle.67percent",
+                badge: controller.speed != 1.0 ? String(format: "%g×", controller.speed) : nil
+            )
+        }
+        .buttonStyle(.plainRect)
+        #else
         let options: [Double] = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
-        return Menu {
+        Menu {
             ForEach(options, id: \.self) { s in
                 Button {
                     controller.setSpeed(s)
@@ -1563,9 +1689,25 @@ struct PlayerView: View {
         .menuIndicator(.hidden)
         .fixedSize()
         .help("Playback speed")
+        #endif
     }
 
+    @ViewBuilder
     private var aspectMenu: some View {
+        #if os(tvOS)
+        Button {
+            withAnimation(.easeOut(duration: 0.2)) {
+                tvPanel = tvPanel == .aspect ? nil : .aspect
+            }
+            resetHideTimer()
+        } label: {
+            glassIcon(
+                "aspectratio",
+                badge: controller.aspectMode == .auto && controller.videoZoom == 0 ? nil : controller.aspectMode.rawValue
+            )
+        }
+        .buttonStyle(.plainRect)
+        #else
         Menu {
             Section("Aspect ratio") {
                 ForEach(PlayerController.AspectMode.allCases) { mode in
@@ -1599,6 +1741,7 @@ struct PlayerView: View {
         .menuIndicator(.hidden)
         .fixedSize()
         .help("Aspect ratio & zoom")
+        #endif
     }
 
     private var castMenu: some View {
@@ -1701,7 +1844,22 @@ struct PlayerView: View {
         }
     }
 
+    @ViewBuilder
     private var profileMenu: some View {
+        #if os(tvOS)
+        Button {
+            withAnimation(.easeOut(duration: 0.2)) {
+                tvPanel = tvPanel == .profile ? nil : .profile
+            }
+            resetHideTimer()
+        } label: {
+            glassIcon(
+                "slider.horizontal.3",
+                badge: controller.playbackProfile == .balanced ? nil : controller.playbackProfile.rawValue.prefix(1).uppercased()
+            )
+        }
+        .buttonStyle(.plainRect)
+        #else
         Menu {
             Section("Playback profile") {
                 ForEach(PlayerController.PlaybackProfile.allCases) { p in
@@ -1748,6 +1906,7 @@ struct PlayerView: View {
         .menuIndicator(.hidden)
         .fixedSize()
         .help("Video & audio presets")
+        #endif
     }
 
     @ViewBuilder
@@ -1778,6 +1937,7 @@ struct PlayerView: View {
                 .shadow(color: .black.opacity(0.4), radius: 12, y: 4)
         }
         .buttonStyle(.plainRect)
+        .focused($focus, equals: .playPause)
         // No key equivalent on this button: the player root already binds
         // Space with `onKeyPress`, and a view-level equivalent would race
         // it (two toggles for one press, so pause would look dead).
@@ -1807,6 +1967,7 @@ struct PlayerView: View {
         }
         .font(Theme.Font.label(12, weight: .semibold))
         .monospacedDigit()
+        .lineLimit(1)
     }
 
     private var volumeControl: some View {
@@ -1972,6 +2133,10 @@ struct PlayerView: View {
 
     #if os(tvOS)
     private func remoteMove(_ direction: MoveCommandDirection) {
+        guard !controlsVisible else {
+            resetHideTimer()
+            return
+        }
         switch direction {
         case .left where !destination.isLive:  controller.skip(by: -10)
         case .right where !destination.isLive: controller.skip(by: 10)
@@ -1980,6 +2145,219 @@ struct PlayerView: View {
         default: break
         }
         flashControls()
+    }
+
+    private func handleSeekBarMove(_ direction: MoveCommandDirection) {
+        switch direction {
+        case .left, .right:
+            let duration = max(controller.duration, 0)
+            guard duration > 0 else { return }
+            let now = Date()
+            if now.timeIntervalSince(tvLastScrubTime) < 0.45 {
+                tvScrubStreak += 1
+            } else {
+                tvScrubStreak = 0
+            }
+            tvLastScrubTime = now
+            let step: Double
+            if tvScrubStreak >= 12 {
+                step = min(120, max(60, duration / 40))
+            } else if tvScrubStreak >= 4 {
+                step = 30
+            } else {
+                step = 10
+            }
+            let base = isScrubbing ? scrubValue : controller.position
+            let delta = direction == .left ? -step : step
+            scrubValue = max(0, min(duration, base + delta))
+            isScrubbing = true
+            resetHideTimer()
+            tvScrubCommitTask?.cancel()
+            tvScrubCommitTask = Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 280_000_000)
+                if Task.isCancelled { return }
+                controller.seek(to: scrubValue)
+                isScrubbing = false
+                resetHideTimer()
+            }
+        case .up:
+            commitTVScrubIfNeeded()
+            focus = .topBack
+            resetHideTimer()
+        case .down:
+            commitTVScrubIfNeeded()
+            focus = .playPause
+            resetHideTimer()
+        @unknown default:
+            break
+        }
+    }
+
+    private func commitTVScrubIfNeeded() {
+        tvScrubCommitTask?.cancel()
+        if isScrubbing {
+            controller.seek(to: scrubValue)
+            isScrubbing = false
+        }
+    }
+
+    @ViewBuilder
+    private func tvPickerPanel(_ panel: TVPlayerPanel) -> some View {
+        HStack {
+            Spacer()
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                HStack {
+                    Text(tvPanelTitle(panel))
+                        .eyebrow(Theme.Palette.accentOnDark, tracking: 2.6)
+                    Spacer()
+                    Button {
+                        withAnimation(.easeOut(duration: 0.2)) { tvPanel = nil }
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 40, height: 40)
+                            .background(Circle().fill(.white.opacity(0.14)))
+                    }
+                    .buttonStyle(.plainRect)
+                }
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 8) {
+                        tvPanelBody(panel)
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+            .padding(Theme.Spacing.xl)
+            .frame(width: 480, alignment: .leading)
+            .frame(maxHeight: .infinity, alignment: .top)
+            .background(Color.black.opacity(0.88))
+            .overlay(alignment: .leading) {
+                Rectangle().fill(.white.opacity(0.14)).frame(width: 1)
+            }
+        }
+        .ignoresSafeArea()
+    }
+
+    private func tvPanelTitle(_ panel: TVPlayerPanel) -> String {
+        switch panel {
+        case .audio:     return String(localized: "Audio track")
+        case .subtitles: return String(localized: "Subtitles")
+        case .speed:     return String(localized: "Playback speed")
+        case .aspect:    return String(localized: "Aspect ratio & zoom")
+        case .profile:   return String(localized: "Video & audio presets")
+        }
+    }
+
+    private func tvOptionRow(_ title: String, detail: String? = nil, active: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(Theme.Font.label(13, weight: active ? .bold : .medium))
+                        .foregroundStyle(active ? Theme.Palette.accentOnDark : .white)
+                        .lineLimit(1)
+                    if let detail, !detail.isEmpty {
+                        Text(detail)
+                            .font(Theme.Font.caption(10))
+                            .foregroundStyle(.white.opacity(0.6))
+                            .lineLimit(1)
+                    }
+                }
+                Spacer()
+                if active {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(Theme.Palette.accentOnDark)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(active ? Theme.Palette.accent.opacity(0.16) : .white.opacity(0.06))
+            )
+        }
+        .buttonStyle(.plainRect)
+    }
+
+    @ViewBuilder
+    private func tvPanelBody(_ panel: TVPlayerPanel) -> some View {
+        switch panel {
+        case .audio:
+            ForEach(controller.audioTracks) { track in
+                tvOptionRow(track.displayName, detail: track.secondaryLabel, active: track.id == controller.currentAudioId) {
+                    controller.setAudioTrack(track.id)
+                    tvPanel = nil
+                }
+            }
+        case .subtitles:
+            tvOptionRow(String(localized: "Off"), active: controller.currentSubtitleId == 0) {
+                controller.setSubtitleTrack(0)
+                tvPanel = nil
+            }
+            if !controller.subtitleTracks.isEmpty {
+                Text("Embedded").eyebrow(.white.opacity(0.6), tracking: 2.0).padding(.top, 8)
+                ForEach(controller.subtitleTracks) { track in
+                    tvOptionRow(track.displayName, detail: track.secondaryLabel, active: track.id == controller.currentSubtitleId) {
+                        controller.setSubtitleTrack(track.id)
+                        tvPanel = nil
+                    }
+                }
+            }
+            if !controller.externalSubtitles.isEmpty {
+                Text("From addons").eyebrow(.white.opacity(0.6), tracking: 2.0).padding(.top, 8)
+                ForEach(controller.externalSubtitles) { sub in
+                    tvOptionRow(sub.displayLanguage, detail: sub.addonName, active: false) {
+                        controller.addExternalSubtitle(url: sub.url, title: sub.displayLanguage, lang: sub.lang)
+                        tvPanel = nil
+                    }
+                }
+            }
+        case .speed:
+            let options: [Double] = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+            ForEach(options, id: \.self) { s in
+                let label = s == 1.0 ? String(localized: "Normal") : String(format: "%g×", s)
+                tvOptionRow(label, active: abs(controller.speed - s) < 0.01) {
+                    controller.setSpeed(s)
+                    tvPanel = nil
+                }
+            }
+        case .aspect:
+            ForEach(PlayerController.AspectMode.allCases) { mode in
+                tvOptionRow(mode.rawValue.localized, active: controller.aspectMode == mode) {
+                    controller.setAspectMode(mode)
+                    tvPanel = nil
+                }
+            }
+            Text("Zoom").eyebrow(.white.opacity(0.6), tracking: 2.0).padding(.top, 8)
+            tvOptionRow(String(localized: "Zoom in"), active: false) { controller.bumpZoom(by: 0.1) }
+            tvOptionRow(String(localized: "Zoom out"), active: false) { controller.bumpZoom(by: -0.1) }
+            tvOptionRow(String(format: "Reset  (%+.1f)".localized, controller.videoZoom), active: controller.videoZoom == 0) {
+                controller.resetZoom()
+            }
+        case .profile:
+            ForEach(PlayerController.PlaybackProfile.allCases) { p in
+                tvOptionRow(p.rawValue, active: controller.playbackProfile == p) {
+                    controller.applyPlaybackProfile(p)
+                    tvPanel = nil
+                }
+            }
+            Text("Tone mapping").eyebrow(.white.opacity(0.6), tracking: 2.0).padding(.top, 8)
+            ForEach(PlayerController.ToneMappingPreset.allCases) { t in
+                tvOptionRow(t.rawValue, active: controller.toneMappingPreset == t) {
+                    controller.setToneMappingPreset(t)
+                    tvPanel = nil
+                }
+            }
+            tvOptionRow(
+                String(localized: "Audio passthrough (DTS / AC3 / EAC3)"),
+                active: controller.audioPassthroughEnabled
+            ) {
+                controller.setAudioPassthrough(!controller.audioPassthroughEnabled)
+            }
+        }
     }
     #endif
 
@@ -2005,7 +2383,10 @@ struct PlayerView: View {
         hideTask = Task { @MainActor in
             try? await Task.sleep(nanoseconds: 3_000_000_000)
             if Task.isCancelled { return }
-            if controller.isPaused { return }
+            if controller.isPaused || isScrubbing || showMediaInfo || showChannelList || showCatchupSheet { return }
+            #if os(tvOS)
+            if tvPanel != nil { return }
+            #endif
             #if DEBUG
             // Screenshots of the controls in the simulator: `-veltrioKeepControls YES`.
             if UserDefaults.standard.bool(forKey: "veltrioKeepControls") { return }
@@ -2144,6 +2525,7 @@ private struct SeekSlider: View {
     var hoverTime: Binding<Double?> = .constant(nil)
     var chapters: [(title: String, start: Double)] = []
     var duration: Double = 0
+    var isRemoteFocused: Bool = false
 
     @State private var dragging = false
     @State private var isHovering = false
@@ -2156,9 +2538,11 @@ private struct SeekSlider: View {
 
     var body: some View {
         GeometryReader { geo in
-            let height: CGFloat = isHovering || dragging ? 8 : 4
-            let knobSize: CGFloat = isHovering || dragging ? 14 : 0
-            let width = geo.size.width
+            let active = isHovering || dragging || isRemoteFocused
+            let height: CGFloat = active ? 8 : 4
+            let knobSize: CGFloat = isRemoteFocused ? 18 : (active ? 14 : 0)
+            let horizontalInset: CGFloat = isRemoteFocused ? 10 : 0
+            let width = max(1, geo.size.width - horizontalInset * 2)
 
             ZStack(alignment: .leading) {
                 // Rail
@@ -2185,12 +2569,25 @@ private struct SeekSlider: View {
                 // Knob
                 Circle()
                     .fill(.white)
+                    .overlay(
+                        Circle()
+                            .stroke(isRemoteFocused ? Theme.Palette.accent : .clear, lineWidth: 2.5)
+                    )
                     .frame(width: knobSize, height: knobSize)
                     .shadow(color: .black.opacity(0.5), radius: 4, y: 2)
-                    .offset(x: max(0, normalized * width - knobSize / 2))
+                    .offset(x: max(0, min(width - knobSize, normalized * width - knobSize / 2)))
             }
+            .padding(.horizontal, horizontalInset)
             .frame(maxWidth: .infinity)
-            .frame(height: 24)
+            .frame(height: Platform.isTV ? 36 : 24)
+            .background(
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(isRemoteFocused ? Theme.Palette.accent.opacity(0.16) : .clear)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 18)
+                    .stroke(isRemoteFocused ? Theme.Palette.accent : .clear, lineWidth: 2.5)
+            )
             .contentShape(Rectangle())
             // A TV seeks with the remote's arrows; the bar only shows.
             #if !os(tvOS)
@@ -2229,7 +2626,8 @@ private struct SeekSlider: View {
             #endif
             .animation(.easeOut(duration: 0.12), value: isHovering)
             .animation(.easeOut(duration: 0.12), value: dragging)
+            .animation(.easeOut(duration: 0.12), value: isRemoteFocused)
         }
-        .frame(height: 24)
+        .frame(height: Platform.isTV ? 36 : 24)
     }
 }
