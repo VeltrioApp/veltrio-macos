@@ -16,6 +16,9 @@ struct SettingsView: View {
     }()
 
     enum Section: String, CaseIterable, Identifiable {
+        #if os(iOS)
+        case sources   = "Sources"
+        #endif
         case playback  = "Playback"
         case languages = "Languages"
         case debrid    = "Debrid"
@@ -28,6 +31,9 @@ struct SettingsView: View {
         var id: String { rawValue }
         var icon: String {
             switch self {
+            #if os(iOS)
+            case .sources:    return "puzzlepiece.extension.fill"
+            #endif
             case .playback:   return "play.rectangle.fill"
             case .languages:  return "character.bubble.fill"
             case .debrid:     return "bolt.fill"
@@ -134,6 +140,9 @@ struct SettingsView: View {
     @ViewBuilder
     private func page(_ section: Section) -> some View {
         switch section {
+        #if os(iOS)
+        case .sources:    SourcesView()
+        #endif
         case .playback:   PlaybackSettings()
         case .languages:  LanguageSettings()
         case .debrid:     DebridSettings()
