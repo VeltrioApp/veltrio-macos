@@ -71,6 +71,8 @@ FR = {
         "Les mises à jour sont téléchargées et installées automatiquement via Sparkle.",
     "Checks GitHub Releases for new macOS versions.":
         "Vérifie les nouvelles versions macOS sur GitHub Releases.",
+    "TestFlight updates automatically. You can also check GitHub Releases for the latest iOS build.":
+        "TestFlight met à jour l'app automatiquement. Vous pouvez aussi vérifier les dernières versions iOS sur GitHub Releases.",
     "Checking for updates…": "Recherche de mises à jour…",
     "Check for Updates": "Rechercher une mise à jour",
     "Could not reach GitHub Releases.": "Impossible de joindre GitHub Releases.",

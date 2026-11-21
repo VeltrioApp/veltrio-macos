@@ -7,6 +7,12 @@ struct OnboardingView: View {
     @Environment(AppStore.self) private var store
     @Environment(WatchStore.self) private var watch
     @State private var prefs = UserPrefs.shared
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isCompact: Bool { sizeClass == .compact }
+    #else
+    private var isCompact: Bool { false }
+    #endif
     let onFinish: (_ goToTab: NavItem?) -> Void
 
     private enum Step: Int, CaseIterable {
@@ -51,7 +57,7 @@ struct OnboardingView: View {
                         case .ready:   readyStep
                         }
                     }
-                    .padding(Theme.Spacing.xxl)
+                    .padding(isCompact ? Theme.Spacing.lg : Theme.Spacing.xxl)
                     .frame(maxWidth: 680, alignment: .leading)
                     .frame(maxWidth: .infinity)
                 }
@@ -69,7 +75,7 @@ struct OnboardingView: View {
         HStack {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 Text("Veltrio")
-                    .font(Theme.Font.displaySerif(24, weight: .bold))
+                    .font(Theme.Font.displaySerif(isCompact ? 22 : 24, weight: .bold))
                     .foregroundStyle(Theme.Palette.textPrimary)
                 Text(String(format: "%02d / %02d", step.rawValue + 1, Step.allCases.count))
                     .font(Theme.Font.mono(11, weight: .semibold))
@@ -90,8 +96,8 @@ struct OnboardingView: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(.horizontal, Theme.Spacing.xxl)
-        .padding(.vertical, 18)
+        .padding(.horizontal, isCompact ? Theme.Spacing.lg : Theme.Spacing.xxl)
+        .padding(.vertical, isCompact ? 14 : 18)
         .background(Theme.Palette.backgroundAlt)
     }
 
@@ -138,8 +144,8 @@ struct OnboardingView: View {
                 }
             }
         }
-        .padding(.horizontal, Theme.Spacing.xxl)
-        .padding(.vertical, 18)
+        .padding(.horizontal, isCompact ? Theme.Spacing.lg : Theme.Spacing.xxl)
+        .padding(.vertical, isCompact ? 14 : 18)
         .background(Theme.Palette.backgroundAlt)
     }
 
@@ -151,7 +157,7 @@ struct OnboardingView: View {
                 Text("01 — WELCOME")
                     .eyebrow(Theme.Palette.accentText, tracking: 2.6)
                 Text("Every source, one native player.")
-                    .font(Theme.Font.displaySerif(38, weight: .bold))
+                    .font(Theme.Font.displaySerif(isCompact ? 28 : 38, weight: .bold))
                     .tracking(-0.6)
                     .foregroundStyle(Theme.Palette.textPrimary)
                 Text("Sign in with your Stremio account to bring your addons and library over in one step, or start fresh.")
@@ -196,10 +202,15 @@ struct OnboardingView: View {
                         .font(Theme.Font.caption(12))
                         .foregroundStyle(Theme.Palette.textSecondary)
 
-                    HStack(spacing: Theme.Spacing.sm) {
+                    let fields = Group {
                         TextField("Email", text: $stremioEmail)
                             #if !os(tvOS)
                             .textFieldStyle(.plain)
+                            #endif
+                            #if os(iOS)
+                            .keyboardType(.emailAddress)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
                             #endif
                             .font(Theme.Font.body(13))
                             .padding(.horizontal, 12)
@@ -211,12 +222,21 @@ struct OnboardingView: View {
                             #if !os(tvOS)
                             .textFieldStyle(.plain)
                             #endif
+                            #if os(iOS)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            #endif
                             .font(Theme.Font.body(13))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 9)
                             .background(Theme.Palette.background)
                             .overlay(Rectangle().stroke(Theme.Palette.hairline, lineWidth: 1))
                             .onSubmit { Task { await signInAndImportStremio() } }
+                    }
+                    if isCompact {
+                        VStack(spacing: Theme.Spacing.sm) { fields }
+                    } else {
+                        HStack(spacing: Theme.Spacing.sm) { fields }
                     }
 
                     FrameButton(
@@ -309,7 +329,7 @@ struct OnboardingView: View {
                 Text("02 — SOURCES")
                     .eyebrow(Theme.Palette.accentText, tracking: 2.6)
                 Text("Connect what you already use.")
-                    .font(Theme.Font.displaySerif(36, weight: .bold))
+                    .font(Theme.Font.displaySerif(isCompact ? 28 : 36, weight: .bold))
                     .tracking(-0.6)
                     .foregroundStyle(Theme.Palette.textPrimary)
                 Text("Paste a Stremio addon link now, or skip and add your IPTV playlists, Plex / Jellyfin / Emby servers and debrid accounts later in Sources.")
@@ -322,10 +342,15 @@ struct OnboardingView: View {
                     .font(Theme.Font.label(14, weight: .semibold))
                     .foregroundStyle(Theme.Palette.textPrimary)
 
-                HStack(spacing: Theme.Spacing.sm) {
+                let addonInput = Group {
                     TextField("https://example.com/manifest.json", text: $customAddonURL)
                         #if !os(tvOS)
                         .textFieldStyle(.plain)
+                        #endif
+                        #if os(iOS)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                         #endif
                         .font(Theme.Font.mono(12))
                         .padding(.horizontal, 12)
@@ -343,6 +368,11 @@ struct OnboardingView: View {
                         Task { await installCustomAddon() }
                     }
                 }
+                if isCompact {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.sm) { addonInput }
+                } else {
+                    HStack(spacing: Theme.Spacing.sm) { addonInput }
+                }
 
                 if let feedback = addonFeedback {
                     Label(feedback, systemImage: "checkmark.circle.fill")
@@ -359,7 +389,7 @@ struct OnboardingView: View {
             .background(Theme.Palette.surface)
             .overlay(Rectangle().stroke(Theme.Palette.hairline, lineWidth: 1))
 
-            HStack(spacing: Theme.Spacing.md) {
+            let hintCards = Group {
                 onboardingHintCard(
                     icon: "dot.radiowaves.left.and.right",
                     title: "Live TV & IPTV",
@@ -376,6 +406,11 @@ struct OnboardingView: View {
                     detail: "AllDebrid, Real-Debrid, TorBox, Trakt & SIMKL."
                 )
             }
+            if isCompact {
+                VStack(spacing: Theme.Spacing.sm) { hintCards }
+            } else {
+                HStack(spacing: Theme.Spacing.md) { hintCards }
+            }
         }
     }
 
@@ -387,7 +422,7 @@ struct OnboardingView: View {
                 Text("03 — READY")
                     .eyebrow(Theme.Palette.accentText, tracking: 2.6)
                 Text("Lights down. You’re all set.")
-                    .font(Theme.Font.displaySerif(38, weight: .bold))
+                    .font(Theme.Font.displaySerif(isCompact ? 28 : 38, weight: .bold))
                     .tracking(-0.6)
                     .foregroundStyle(Theme.Palette.textPrimary)
                 Text("Everything can be adjusted later from Sources and Settings. You can also send your setup to an Apple TV or Android TV from Settings → Other devices.")
@@ -415,13 +450,18 @@ struct OnboardingView: View {
             .background(Theme.Palette.surface)
             .overlay(Rectangle().stroke(Theme.Palette.hairline, lineWidth: 1))
 
-            HStack(spacing: Theme.Spacing.md) {
+            let shortcutButtons = Group {
                 FrameButton(title: "Open Live TV setup", icon: "dot.radiowaves.left.and.right") {
                     Task { await completeOnboarding(goToTab: .iptv) }
                 }
                 FrameButton(title: "Open Sources", icon: "puzzlepiece.extension") {
                     Task { await completeOnboarding(goToTab: .addons) }
                 }
+            }
+            if isCompact {
+                VStack(alignment: .leading, spacing: Theme.Spacing.sm) { shortcutButtons }
+            } else {
+                HStack(spacing: Theme.Spacing.md) { shortcutButtons }
             }
         }
     }

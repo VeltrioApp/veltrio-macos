@@ -4951,6 +4951,16 @@
         }
       }
     },
+    "TestFlight updates automatically. You can also check GitHub Releases for the latest iOS build.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TestFlight met à jour l'app automatiquement. Vous pouvez aussi vérifier les dernières versions iOS sur GitHub Releases."
+          }
+        }
+      }
+    },
     "Testing…": {
       "localizations": {
         "fr": {
