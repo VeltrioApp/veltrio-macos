@@ -12,6 +12,57 @@ Run from the repo root after changing UI text:
 import json, pathlib
 
 FR = {
+    "01 — WELCOME": "01 — BIENVENUE",
+    "02 — SOURCES": "02 — SOURCES",
+    "03 — READY": "03 — PRÊT",
+    "Skip": "Passer",
+    "Continue": "Continuer",
+    "Start watching": "Commencer à regarder",
+    "Films, series and live TV from your addons, your personal media servers and your IPTV playlists — ready in less than a minute.":
+        "Films, séries et télévision en direct depuis vos addons, vos serveurs personnels et vos playlists IPTV — prêt en moins d'une minute.",
+    "Install Cinemeta catalog": "Installer le catalogue Cinemeta",
+    "Populates Home and Search with popular movies, series, posters and ratings right away.":
+        "Remplit immédiatement l'Accueil et la Recherche avec les films et séries populaires, affiches et notes.",
+    "Preferred languages": "Langues préférées",
+    "Connect what you already use.": "Connectez ce que vous utilisez déjà.",
+    "Paste a Stremio addon link now, or skip and add your IPTV playlists, Plex / Jellyfin / Emby servers and debrid accounts later in Sources.":
+        "Collez un lien d'addon Stremio maintenant, ou passez cette étape pour ajouter vos playlists IPTV, serveurs Plex / Jellyfin / Emby et comptes débrideurs plus tard dans Sources.",
+    "Add a Stremio addon": "Ajouter un addon Stremio",
+    "Live TV & IPTV": "TV en direct & IPTV",
+    "M3U playlists, Xtream Codes, TV guide & catchup.": "Playlists M3U, Xtream Codes, guide TV et replay.",
+    "Plex, Jellyfin & Emby": "Plex, Jellyfin & Emby",
+    "Your personal libraries appear on every title page.": "Vos bibliothèques personnelles apparaissent sur chaque fiche.",
+    "Debrid & Sync": "Débrideurs & Synchro",
+    "AllDebrid, Real-Debrid, TorBox, Trakt & SIMKL.": "AllDebrid, Real-Debrid, TorBox, Trakt & SIMKL.",
+    "Lights down. You’re all set.": "Lumière tamisée. Tout est prêt.",
+    "Everything can be adjusted later from Sources and Settings. You can also send your setup to an Apple TV or Android TV from Settings → Other devices.":
+        "Tout peut être modifié plus tard dans Sources et Réglages. Vous pouvez aussi envoyer votre configuration vers une Apple TV ou Android TV depuis Réglages → Autres appareils.",
+    "Catalog": "Catalogue",
+    "Cinemeta enabled": "Cinemeta activé",
+    "None yet": "Aucun pour l'instant",
+    "Installed addons": "Addons installés",
+    "Audio / Subtitles": "Audio / Sous-titres",
+    "Open Live TV setup": "Configurer la TV en direct",
+    "Open Sources": "Ouvrir les Sources",
+    "Addon installed.": "Addon installé.",
+    "Addon already installed.": "Addon déjà installé.",
+    "Welcome guide": "Assistant de bienvenue",
+    "Re-run the initial setup assistant to configure your catalog and languages.":
+        "Relancez l'assistant de premier lancement pour configurer votre catalogue et vos langues.",
+    "Show welcome guide": "Afficher l'assistant",
+    "Updates": "Mises à jour",
+    "Check automatically for updates": "Rechercher automatiquement les mises à jour",
+    "Updates are downloaded and installed automatically via Sparkle.":
+        "Les mises à jour sont téléchargées et installées automatiquement via Sparkle.",
+    "Checks GitHub Releases for new macOS versions.":
+        "Vérifie les nouvelles versions macOS sur GitHub Releases.",
+    "Checking for updates…": "Recherche de mises à jour…",
+    "Check for Updates": "Rechercher une mise à jour",
+    "Could not reach GitHub Releases.": "Impossible de joindre GitHub Releases.",
+    "Veltrio %@ is up to date.": "Veltrio %@ est à jour.",
+    "Version %@ is available.": "La version %@ est disponible.",
+    "Download v%@": "Télécharger la v%@",
+    "Veltrio %@ is available.": "Veltrio %@ est disponible.",
     "Other devices": "Autres appareils",
     "Send to a TV": "Envoyer vers une TV",
     "Set up a Veltrio TV (Android TV, Google TV) in one step: your sources, accounts and Collection, sent over the local network, encrypted with a key tied to the code the TV shows.":

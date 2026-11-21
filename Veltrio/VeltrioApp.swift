@@ -28,7 +28,6 @@ struct VeltrioApp: App {
             CommandGroup(replacing: .newItem) {}
             CommandGroup(after: .appInfo) {
                 Button("Check for Updates…") { AppUpdater.shared.checkForUpdates() }
-                    .disabled(!AppUpdater.shared.isConfigured)
             }
             CommandGroup(after: .appSettings) {
                 Divider()

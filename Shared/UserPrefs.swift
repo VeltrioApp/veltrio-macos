@@ -21,6 +21,8 @@ final class UserPrefs {
         static let cacheMiB = "veltrio.pref.cacheMiB"
         static let reduceMotion = "veltrio.pref.reduceMotion"
         static let colorScheme  = "veltrio.pref.colorScheme"
+        static let onboardingDone = "veltrio.pref.onboardingDone"
+        static let autoCheckUpdates = "veltrio.pref.autoCheckUpdates"
     }
 
     enum ColorSchemePreference: String, CaseIterable, Identifiable {
@@ -57,6 +59,12 @@ final class UserPrefs {
     var colorScheme: ColorSchemePreference {
         didSet { defaults.set(colorScheme.rawValue, forKey: Keys.colorScheme) }
     }
+    var hasCompletedOnboarding: Bool {
+        didSet { defaults.set(hasCompletedOnboarding, forKey: Keys.onboardingDone) }
+    }
+    var autoCheckUpdates: Bool {
+        didSet { defaults.set(autoCheckUpdates, forKey: Keys.autoCheckUpdates) }
+    }
 
     private init() {
         preferredAudioLang   = defaults.string(forKey: Keys.preferredAudioLang) ?? ""
@@ -70,6 +78,8 @@ final class UserPrefs {
             // the reference experience (as on Android).
             rawValue: defaults.string(forKey: Keys.colorScheme) ?? (Platform.isMac ? "system" : "dark")
         ) ?? .system
+        hasCompletedOnboarding = defaults.bool(forKey: Keys.onboardingDone)
+        autoCheckUpdates       = defaults.object(forKey: Keys.autoCheckUpdates) as? Bool ?? true
     }
 
     /// Readable list of language options for the Settings picker.

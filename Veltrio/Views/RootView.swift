@@ -31,10 +31,15 @@ enum NavItem: String, CaseIterable, Identifiable {
 struct SearchDestination: Hashable {}
 
 struct RootView: View {
+    @Environment(AppStore.self) private var store
     @State private var selection: NavItem = .home
     @State private var path = NavigationPath()
     @State private var showSettings = false
+    @State private var showOnboarding = false
     private let prefs = UserPrefs.shared
+    #if os(macOS)
+    @State private var updater = AppUpdater.shared
+    #endif
 
     private var preferredScheme: ColorScheme? {
         switch prefs.colorScheme {
@@ -57,6 +62,19 @@ struct RootView: View {
                     onSearch:   { path.append(SearchDestination()) },
                     onSettings: { showSettings.toggle() }
                 )
+
+                #if os(macOS)
+                if let update = updater.availableUpdate, !updater.bannerDismissed {
+                    UpdateBanner(
+                        version: update.version,
+                        onDownload: { updater.openDownload() },
+                        onDismiss: { updater.bannerDismissed = true }
+                    )
+                    .padding(.top, Theme.navBarInset + 10)
+                    .padding(.horizontal, Theme.Layout.contentInset)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+                #endif
             }
             .navigationDestination(for: DetailDestination.self) { dest in
                 DetailView(destination: dest)
@@ -88,7 +106,42 @@ struct RootView: View {
                 // pickers would fall back to the system blue.
                 .tint(Theme.Palette.accent)
         }
+        .sheet(isPresented: $showOnboarding) {
+            OnboardingView { goToTab in
+                showOnboarding = false
+                if let goToTab { selection = goToTab }
+            }
+            .frame(minWidth: 740, idealWidth: 780, minHeight: 540, idealHeight: 600)
+            .tint(Theme.Palette.accent)
+        }
+        .onAppear {
+            #if os(macOS)
+            updater.checkOnLaunchIfNeeded()
+            #endif
+            #if DEBUG
+            if UserDefaults.standard.bool(forKey: "veltrioOnboarding") {
+                showOnboarding = true
+                return
+            }
+            if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+                || ProcessInfo.processInfo.environment["XCTestSessionIdentifier"] != nil {
+                return
+            }
+            #endif
+            if !prefs.hasCompletedOnboarding {
+                let alreadyConfigured = !store.addons.isEmpty || !store.iptvPlaylists.isEmpty || store.jellyfin.isConnected || store.emby.isConnected || store.plex.isConnected
+                if alreadyConfigured {
+                    prefs.hasCompletedOnboarding = true
+                } else {
+                    showOnboarding = true
+                }
+            }
+        }
         .onChange(of: selection) { _, _ in path = NavigationPath() }
+        .onReceive(NotificationCenter.default.publisher(for: .veltrioShowOnboarding)) { _ in
+            showSettings = false
+            showOnboarding = true
+        }
         .onReceive(NotificationCenter.default.publisher(for: .veltrioGoto)) { note in
             if let item = note.object as? NavItem { selection = item }
         }
@@ -276,3 +329,42 @@ struct SettingsSheet: View {
         .background(Theme.Palette.background)
     }
 }
+
+#if os(macOS)
+private struct UpdateBanner: View {
+    let version: String
+    let onDownload: () -> Void
+    let onDismiss: () -> Void
+
+    var body: some View {
+        HStack(spacing: Theme.Spacing.md) {
+            Image(systemName: "arrow.down.circle.fill")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(Theme.Palette.accentText)
+            Text(String(localized: "Veltrio \(version) is available."))
+                .font(Theme.Font.label(13, weight: .semibold))
+                .foregroundStyle(Theme.Palette.textPrimary)
+            Spacer()
+            FrameButton(
+                title: "Download",
+                icon: "arrow.down",
+                color: Theme.Palette.onAccent,
+                fill: Theme.Palette.accent,
+                action: onDownload
+            )
+            Button(action: onDismiss) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(Theme.Palette.textTertiary)
+                    .padding(6)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, 10)
+        .background(Theme.Palette.surfaceElevated)
+        .overlay(Rectangle().stroke(Theme.Palette.accent.opacity(0.45), lineWidth: 1))
+        .shadow(color: .black.opacity(0.45), radius: 18, y: 8)
+    }
+}
+#endif

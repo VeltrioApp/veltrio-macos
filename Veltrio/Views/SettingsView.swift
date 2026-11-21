@@ -1261,7 +1261,21 @@ private struct AboutSettings: View {
             }
         }
         // Collected from macOS's diagnostic reports: nothing to show on iOS.
-        if Platform.isMac {
+        #if os(macOS)
+        MacUpdatesCard()
+        SurfaceCard {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Welcome guide").font(Theme.Font.heading(15))
+                    .foregroundStyle(Theme.Palette.textPrimary)
+                Text("Re-run the initial setup assistant to configure your catalog and languages.")
+                    .font(Theme.Font.body(13))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+                FrameButton(title: "Show welcome guide", icon: "sparkles") {
+                    UserPrefs.shared.hasCompletedOnboarding = false
+                    NotificationCenter.default.post(name: .veltrioShowOnboarding, object: nil)
+                }
+            }
+        }
         SurfaceCard {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Crash reports").font(Theme.Font.heading(15))
@@ -1274,7 +1288,7 @@ private struct AboutSettings: View {
                 }
             }
         }
-        }
+        #endif
     }
 
     private var crashReportSummary: String {
@@ -1285,6 +1299,71 @@ private struct AboutSettings: View {
         return String(localized: "\(count) reports from the last 60 days. Attach them to a bug report.")
     }
 }
+
+#if os(macOS)
+private struct MacUpdatesCard: View {
+    @State private var updater = AppUpdater.shared
+
+    var body: some View {
+        SurfaceCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Updates")
+                    .font(Theme.Font.heading(15))
+                    .foregroundStyle(Theme.Palette.textPrimary)
+
+                Toggle("Check automatically for updates", isOn: Binding(
+                    get: { updater.automaticallyChecks },
+                    set: { updater.automaticallyChecks = $0 }
+                ))
+                .toggleStyle(.switch)
+
+                if let statusLine {
+                    Text(statusLine)
+                        .font(Theme.Font.body(13))
+                        .foregroundStyle(Theme.Palette.textSecondary)
+                }
+
+                HStack(spacing: Theme.Spacing.sm) {
+                    if let update = updater.availableUpdate {
+                        FrameButton(
+                            title: String(localized: "Download v\(update.version)"),
+                            icon: "arrow.down.circle",
+                            color: Theme.Palette.onAccent,
+                            fill: Theme.Palette.accent
+                        ) {
+                            updater.openDownload()
+                        }
+                    }
+                    FrameButton(
+                        title: "Check for Updates",
+                        icon: "arrow.triangle.2.circlepath",
+                        isLoading: updater.status == .checking
+                    ) {
+                        updater.checkForUpdates()
+                    }
+                }
+            }
+        }
+    }
+
+    private var statusLine: String? {
+        switch updater.status {
+        case .idle:
+            return updater.usesSparkle
+                ? String(localized: "Updates are downloaded and installed automatically via Sparkle.")
+                : String(localized: "Checks GitHub Releases for new macOS versions.")
+        case .checking:
+            return String(localized: "Checking for updates…")
+        case .upToDate:
+            return String(localized: "Veltrio \(updater.currentVersion) is up to date.")
+        case .available(let u):
+            return String(localized: "Version \(u.version) is available.")
+        case .failed(let message):
+            return message
+        }
+    }
+}
+#endif
 
 // MARK: - Settings primitives
 

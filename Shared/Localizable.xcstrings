@@ -481,6 +481,36 @@
         }
       }
     },
+    "01 — WELCOME": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "01 — BIENVENUE"
+          }
+        }
+      }
+    },
+    "02 — SOURCES": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "02 — SOURCES"
+          }
+        }
+      }
+    },
+    "03 — READY": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "03 — PRÊT"
+          }
+        }
+      }
+    },
     "100 seeds": {
       "localizations": {
         "fr": {
@@ -571,6 +601,16 @@
         }
       }
     },
+    "Add a Stremio addon": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter un addon Stremio"
+          }
+        }
+      }
+    },
     "Add an M3U URL or an Xtream Codes provider. Channels then show up in Live and in search.": {
       "localizations": {
         "fr": {
@@ -631,6 +671,16 @@
         }
       }
     },
+    "Addon already installed.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Addon déjà installé."
+          }
+        }
+      }
+    },
     "Addon catalog": {
       "localizations": {
         "fr": {
@@ -651,22 +701,22 @@
         }
       }
     },
+    "Addon installed.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Addon installé."
+          }
+        }
+      }
+    },
     "Addons": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Addons"
-          }
-        }
-      }
-    },
-    "Address: %@": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adresse : %@"
           }
         }
       }
@@ -721,6 +771,16 @@
         }
       }
     },
+    "AllDebrid, Real-Debrid, TorBox, Trakt & SIMKL.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AllDebrid, Real-Debrid, TorBox, Trakt & SIMKL."
+          }
+        }
+      }
+    },
     "Any URL that returns an M3U playlist works, including provider-built `/get.php?…&type=m3u` links.": {
       "localizations": {
         "fr": {
@@ -767,6 +827,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Format d'image et zoom"
+          }
+        }
+      }
+    },
+    "Audio / Subtitles": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio / Sous-titres"
           }
         }
       }
@@ -1151,6 +1221,16 @@
         }
       }
     },
+    "Catalog": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catalogue"
+          }
+        }
+      }
+    },
     "Catalogs": {
       "localizations": {
         "fr": {
@@ -1211,12 +1291,52 @@
         }
       }
     },
+    "Check automatically for updates": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher automatiquement les mises à jour"
+          }
+        }
+      }
+    },
+    "Check for Updates": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher une mise à jour"
+          }
+        }
+      }
+    },
     "Check for Updates…": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Rechercher les mises à jour…"
+          }
+        }
+      }
+    },
+    "Checking for updates…": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche de mises à jour…"
+          }
+        }
+      }
+    },
+    "Checks GitHub Releases for new macOS versions.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifie les nouvelles versions macOS sur GitHub Releases."
           }
         }
       }
@@ -1237,6 +1357,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Choisir…"
+          }
+        }
+      }
+    },
+    "Cinemeta enabled": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cinemeta activé"
           }
         }
       }
@@ -1311,26 +1441,6 @@
         }
       }
     },
-    "Collection title": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "titre de la Collection"
-          }
-        }
-      }
-    },
-    "Collection titles": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "titres de la Collection"
-          }
-        }
-      }
-    },
     "Community catalogue": {
       "localizations": {
         "fr": {
@@ -1391,6 +1501,16 @@
         }
       }
     },
+    "Connect what you already use.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez ce que vous utilisez déjà."
+          }
+        }
+      }
+    },
     "Connected": {
       "localizations": {
         "fr": {
@@ -1441,6 +1561,16 @@
         }
       }
     },
+    "Continue": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer"
+          }
+        }
+      }
+    },
     "Continue Watching": {
       "localizations": {
         "fr": {
@@ -1481,26 +1611,6 @@
         }
       }
     },
-    "Could not listen on the network (%@).": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Impossible d'écouter sur le réseau (%@)."
-          }
-        }
-      }
-    },
-    "Could not listen on the network.": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Impossible d'écouter sur le réseau."
-          }
-        }
-      }
-    },
     "Could not load the catalogue": {
       "localizations": {
         "fr": {
@@ -1517,6 +1627,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Réponse Xtream illisible : %@"
+          }
+        }
+      }
+    },
+    "Could not reach GitHub Releases.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de joindre GitHub Releases."
           }
         }
       }
@@ -1611,6 +1731,16 @@
         }
       }
     },
+    "Debrid & Sync": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Débrideurs & Synchro"
+          }
+        }
+      }
+    },
     "Decoder": {
       "localizations": {
         "fr": {
@@ -1701,16 +1831,6 @@
         }
       }
     },
-    "Done": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Terminé"
-          }
-        }
-      }
-    },
     "Download for offline": {
       "localizations": {
         "fr": {
@@ -1727,6 +1847,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Emplacement des téléchargements"
+          }
+        }
+      }
+    },
+    "Download v%@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Télécharger la v%@"
           }
         }
       }
@@ -1911,6 +2041,16 @@
         }
       }
     },
+    "Everything can be adjusted later from Sources and Settings. You can also send your setup to an Apple TV or Android TV from Settings → Other devices.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout peut être modifié plus tard dans Sources et Réglages. Vous pouvez aussi envoyer votre configuration vers une Apple TV ou Android TV depuis Réglages → Autres appareils."
+          }
+        }
+      }
+    },
     "FETCHING FROM EVERY SOURCE": {
       "localizations": {
         "fr": {
@@ -1957,6 +2097,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Remplir"
+          }
+        }
+      }
+    },
+    "Films, series and live TV from your addons, your personal media servers and your IPTV playlists — ready in less than a minute.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Films, séries et télévision en direct depuis vos addons, vos serveurs personnels et vos playlists IPTV — prêt en moins d'une minute."
           }
         }
       }
@@ -2017,16 +2167,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Français"
-          }
-        }
-      }
-    },
-    "From a phone": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Depuis un téléphone"
           }
         }
       }
@@ -2237,6 +2377,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Installer"
+          }
+        }
+      }
+    },
+    "Install Cinemeta catalog": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installer le catalogue Cinemeta"
           }
         }
       }
@@ -2481,6 +2631,16 @@
         }
       }
     },
+    "Lights down. You’re all set.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumière tamisée. Tout est prêt."
+          }
+        }
+      }
+    },
     "Link your Plex account": {
       "localizations": {
         "fr": {
@@ -2507,6 +2667,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "TV en direct"
+          }
+        }
+      }
+    },
+    "Live TV & IPTV": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV en direct & IPTV"
           }
         }
       }
@@ -2677,6 +2847,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Playlists M3U et fournisseurs Xtream"
+          }
+        }
+      }
+    },
+    "M3U playlists, Xtream Codes, TV guide & catchup.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists M3U, Xtream Codes, guide TV et replay."
           }
         }
       }
@@ -3091,16 +3271,6 @@
         }
       }
     },
-    "No downloads yet. Touch and hold a stream on a title's page → Download for offline.": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucun téléchargement. Touchez longuement un flux sur la fiche d'un titre → Télécharger hors ligne."
-          }
-        }
-      }
-    },
     "No episodes": {
       "localizations": {
         "fr": {
@@ -3217,6 +3387,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "N° %lld dans votre collection"
+          }
+        }
+      }
+    },
+    "None yet": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun pour l'instant"
           }
         }
       }
@@ -3371,22 +3551,32 @@
         }
       }
     },
-    "On your phone or Mac, open Veltrio, Settings, “Send to a TV”, pick this TV (or type its address) and this code.": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sur votre téléphone ou votre Mac, ouvrez Veltrio, Réglages, « Envoyer vers une TV », choisissez cette TV (ou tapez son adresse) et ce code."
-          }
-        }
-      }
-    },
     "Open %@": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Ouvrir %@"
+          }
+        }
+      }
+    },
+    "Open Live TV setup": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurer la TV en direct"
+          }
+        }
+      }
+    },
+    "Open Sources": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les Sources"
           }
         }
       }
@@ -3507,6 +3697,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mot de passe"
+          }
+        }
+      }
+    },
+    "Paste a Stremio addon link now, or skip and add your IPTV playlists, Plex / Jellyfin / Emby servers and debrid accounts later in Sources.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collez un lien d'addon Stremio maintenant, ou passez cette étape pour ajouter vos playlists IPTV, serveurs Plex / Jellyfin / Emby et comptes débrideurs plus tard dans Sources."
           }
         }
       }
@@ -3661,6 +3861,16 @@
         }
       }
     },
+    "Plex, Jellyfin & Emby": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plex, Jellyfin & Emby"
+          }
+        }
+      }
+    },
     "Point Veltrio at your Jellyfin server to stream your personal library through the same player.": {
       "localizations": {
         "fr": {
@@ -3697,6 +3907,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Populaires"
+          }
+        }
+      }
+    },
+    "Populates Home and Search with popular movies, series, posters and ratings right away.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remplit immédiatement l'Accueil et la Recherche avec les films et séries populaires, affiches et notes."
           }
         }
       }
@@ -3741,6 +3961,16 @@
         }
       }
     },
+    "Preferred languages": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Langues préférées"
+          }
+        }
+      }
+    },
     "Preferred subtitles": {
       "localizations": {
         "fr": {
@@ -3781,6 +4011,16 @@
         }
       }
     },
+    "Re-run the initial setup assistant to configure your catalog and languages.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relancez l'assistant de premier lancement pour configurer votre catalogue et vos langues."
+          }
+        }
+      }
+    },
     "Ready": {
       "localizations": {
         "fr": {
@@ -3791,32 +4031,12 @@
         }
       }
     },
-    "Receive settings": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Recevoir des réglages"
-          }
-        }
-      }
-    },
     "Received by the TV: %@.": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Reçu par la TV : %@."
-          }
-        }
-      }
-    },
-    "Received from %@: %@.": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reçu de %@ : %@."
           }
         }
       }
@@ -4231,16 +4451,6 @@
         }
       }
     },
-    "Sent: addons, IPTV playlists, debrid services, accounts (Stremio, Trakt, SIMKL), media servers and the Collection. Nothing already here is removed. Everything travels encrypted, with a key tied to this code.": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Envoyés : addons, playlists IPTV, services debrid, comptes (Stremio, Trakt, SIMKL), serveurs multimédia et la Collection. Rien de ce qui est déjà ici n'est supprimé. Tout voyage chiffré, avec une clé liée à ce code."
-          }
-        }
-      }
-    },
     "Series": {
       "localizations": {
         "fr": {
@@ -4281,16 +4491,6 @@
         }
       }
     },
-    "Setting up…": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Configuration…"
-          }
-        }
-      }
-    },
     "Settings": {
       "localizations": {
         "fr": {
@@ -4317,6 +4517,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Affiche le compte à rebours de l'épisode suivant à la fin d'un épisode."
+          }
+        }
+      }
+    },
+    "Show welcome guide": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher l'assistant"
+          }
+        }
+      }
+    },
+    "Skip": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer"
           }
         }
       }
@@ -4407,6 +4627,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Espagnol"
+          }
+        }
+      }
+    },
+    "Start watching": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commencer à regarder"
           }
         }
       }
@@ -4871,16 +5101,6 @@
         }
       }
     },
-    "Too many tries: new code.": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trop d'essais : nouveau code."
-          }
-        }
-      }
-    },
     "Top": {
       "localizations": {
         "fr": {
@@ -4917,16 +5137,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Torrents"
-          }
-        }
-      }
-    },
-    "Torrents download into the app's cache, which iOS may clear when space runs low. Stop and cleanup happens on player close.": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Les torrents se téléchargent dans le cache de l'app, qu'iOS peut vider quand l'espace manque. Arrêt et nettoyage à la fermeture du lecteur."
           }
         }
       }
@@ -5081,6 +5291,26 @@
         }
       }
     },
+    "Updates": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mises à jour"
+          }
+        }
+      }
+    },
+    "Updates are downloaded and installed automatically via Sparkle.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les mises à jour sont téléchargées et installées automatiquement via Sparkle."
+          }
+        }
+      }
+    },
     "Use": {
       "localizations": {
         "fr": {
@@ -5121,6 +5351,26 @@
         }
       }
     },
+    "Veltrio %@ is available.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veltrio %@ est disponible."
+          }
+        }
+      }
+    },
+    "Veltrio %@ is up to date.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veltrio %@ est à jour."
+          }
+        }
+      }
+    },
     "Veltrio scrobbles start / pause / stop events to Trakt as you watch, and can import your watchlist and watched history into Collection.": {
       "localizations": {
         "fr": {
@@ -5141,12 +5391,12 @@
         }
       }
     },
-    "Veltrio · %@": {
+    "Version %@ is available.": {
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Veltrio · %@"
+            "value": "La version %@ est disponible."
           }
         }
       }
@@ -5221,16 +5471,6 @@
         }
       }
     },
-    "Waiting for a phone on the same network…": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En attente d'un téléphone sur le même réseau…"
-          }
-        }
-      }
-    },
     "Waiting on Real-Debrid confirmation…": {
       "localizations": {
         "fr": {
@@ -5281,6 +5521,16 @@
         }
       }
     },
+    "Welcome guide": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assistant de bienvenue"
+          }
+        }
+      }
+    },
     "What are we watching?": {
       "localizations": {
         "fr": {
@@ -5297,16 +5547,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Scénario"
-          }
-        }
-      }
-    },
-    "Wrong code.": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Code incorrect."
           }
         }
       }
@@ -5371,16 +5611,6 @@
         }
       }
     },
-    "Your IPTV provider is limiting connections. Try again in a few minutes.": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Votre fournisseur IPTV limite les connexions. Réessayez dans quelques minutes."
-          }
-        }
-      }
-    },
     "Your Jellyfin library is available in this session. Items appear in a future Library tab integration.": {
       "localizations": {
         "fr": {
@@ -5397,6 +5627,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vos bibliothèques"
+          }
+        }
+      }
+    },
+    "Your personal libraries appear on every title page.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos bibliothèques personnelles apparaissent sur chaque fiche."
           }
         }
       }
@@ -5427,26 +5667,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zoom arrière"
-          }
-        }
-      }
-    },
-    "account or service": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "compte ou service"
-          }
-        }
-      }
-    },
-    "accounts and services": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "comptes et services"
           }
         }
       }
@@ -5497,16 +5717,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "mpv choisit les pistes intégrées dans votre langue. Les sous-titres des addons sont ajoutés automatiquement dans la langue choisie."
-          }
-        }
-      }
-    },
-    "nothing new, everything was already here": {
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "rien de nouveau, tout était déjà là"
           }
         }
       }
