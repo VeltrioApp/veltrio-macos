@@ -58,6 +58,9 @@ struct LiveTVView: View {
             }
             .padding(.leading, Theme.Spacing.xl)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            // The remote: right from any channel reaches Watch, which sits
+            // lower than most rows.
+            .focusSection()
             .animation(.easeOut(duration: 0.22), value: selected?.id)
         }
     }
@@ -137,7 +140,9 @@ struct LiveTVView: View {
                 }
             }
         }
-        .onAppear { listFocused = true }
+        // A Mac's arrow keys go to the list at once; on a TV the focus
+        // stays where the remote left it.
+        .onAppear { if !Platform.isTV { listFocused = true } }
     }
 
     private func move(by step: Int, proxy: ScrollViewProxy) {
