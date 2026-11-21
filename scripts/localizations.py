@@ -13,6 +13,21 @@ import json, pathlib
 
 FR = {
     "01 — WELCOME": "01 — BIENVENUE",
+    "Sign in with your Stremio account to bring your addons and library over in one step, or start fresh.":
+        "Connectez votre compte Stremio pour importer vos addons et votre bibliothèque en un geste, ou démarrez à zéro.",
+    "Sign in with Stremio": "Se connecter à Stremio",
+    "CONNECTED": "CONNECTÉ",
+    "Signed in as %@ — your addons and library can be imported in one click.":
+        "Connecté en tant que %@ — vos addons et votre bibliothèque peuvent être importés en un clic.",
+    "Import addons & library": "Importer addons et bibliothèque",
+    "Imports your installed addons, saved collection and watch history automatically.":
+        "Importe automatiquement vos addons installés, votre collection et votre historique.",
+    "Email": "E-mail",
+    "Password": "Mot de passe",
+    "Sign in & import": "Se connecter et importer",
+    "Or start fresh": "Ou démarrer à zéro",
+    "%lld addons imported.": "%lld addons importés.",
+    "%lld addons imported · %@": "%lld addons importés · %@",
     "02 — SOURCES": "02 — SOURCES",
     "03 — READY": "03 — PRÊT",
     "Skip": "Passer",

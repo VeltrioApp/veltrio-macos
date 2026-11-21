@@ -5,6 +5,7 @@ import SwiftUI
 /// user paste an addon URL right away. Always skippable.
 struct OnboardingView: View {
     @Environment(AppStore.self) private var store
+    @Environment(WatchStore.self) private var watch
     @State private var prefs = UserPrefs.shared
     let onFinish: (_ goToTab: NavItem?) -> Void
 
@@ -15,6 +16,10 @@ struct OnboardingView: View {
     }
 
     @State private var step: Step = .welcome
+    @State private var stremioEmail = ""
+    @State private var stremioPassword = ""
+    @State private var isImportingStremio = false
+    @State private var stremioFeedback: String?
     @State private var installCinemeta = true
     @State private var customAddonURL = ""
     @State private var isInstallingAddon = false
@@ -23,6 +28,8 @@ struct OnboardingView: View {
     @State private var isFinishing = false
 
     private static let cinemetaURL = "https://v3-cinemeta.strem.io/manifest.json"
+
+    private var stremio: StremioAccountService { store.stremioAccount }
 
     private var hasCinemeta: Bool {
         store.addons.contains { $0.manifest.transportUrl.localizedCaseInsensitiveContains("cinemeta") }
@@ -147,12 +154,103 @@ struct OnboardingView: View {
                     .font(Theme.Font.displaySerif(38, weight: .bold))
                     .tracking(-0.6)
                     .foregroundStyle(Theme.Palette.textPrimary)
-                Text("Films, series and live TV from your addons, your personal media servers and your IPTV playlists — ready in less than a minute.")
+                Text("Sign in with your Stremio account to bring your addons and library over in one step, or start fresh.")
                     .font(Theme.Font.body(14))
                     .foregroundStyle(Theme.Palette.textSecondary)
             }
 
+            // Primary option: Stremio account sign-in + full import
             VStack(alignment: .leading, spacing: 14) {
+                HStack(spacing: 10) {
+                    Image(systemName: "person.crop.circle.badge.checkmark")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(Theme.Palette.accentText)
+                    Text("Sign in with Stremio")
+                        .font(Theme.Font.label(15, weight: .bold))
+                        .foregroundStyle(Theme.Palette.textPrimary)
+                    Spacer()
+                    if stremio.isConnected {
+                        Text("CONNECTED")
+                            .font(Theme.Font.mono(10, weight: .bold))
+                            .foregroundStyle(Theme.Palette.success)
+                    }
+                }
+
+                if stremio.isConnected {
+                    Text(String(localized: "Signed in as \(stremio.email ?? "Stremio") — your addons and library can be imported in one click."))
+                        .font(Theme.Font.caption(12))
+                        .foregroundStyle(Theme.Palette.textSecondary)
+                    HStack(spacing: Theme.Spacing.sm) {
+                        FrameButton(
+                            title: "Import addons & library",
+                            icon: "square.and.arrow.down",
+                            color: Theme.Palette.onAccent,
+                            fill: Theme.Palette.accent,
+                            isLoading: isImportingStremio
+                        ) {
+                            Task { await importFromStremio() }
+                        }
+                    }
+                } else {
+                    Text("Imports your installed addons, saved collection and watch history automatically.")
+                        .font(Theme.Font.caption(12))
+                        .foregroundStyle(Theme.Palette.textSecondary)
+
+                    HStack(spacing: Theme.Spacing.sm) {
+                        TextField("Email", text: $stremioEmail)
+                            #if !os(tvOS)
+                            .textFieldStyle(.plain)
+                            #endif
+                            .font(Theme.Font.body(13))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 9)
+                            .background(Theme.Palette.background)
+                            .overlay(Rectangle().stroke(Theme.Palette.hairline, lineWidth: 1))
+
+                        SecureField("Password", text: $stremioPassword)
+                            #if !os(tvOS)
+                            .textFieldStyle(.plain)
+                            #endif
+                            .font(Theme.Font.body(13))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 9)
+                            .background(Theme.Palette.background)
+                            .overlay(Rectangle().stroke(Theme.Palette.hairline, lineWidth: 1))
+                            .onSubmit { Task { await signInAndImportStremio() } }
+                    }
+
+                    FrameButton(
+                        title: "Sign in & import",
+                        icon: "arrow.right.circle",
+                        color: Theme.Palette.onAccent,
+                        fill: Theme.Palette.accent,
+                        isLoading: isImportingStremio || stremio.isWorking,
+                        isEnabled: !stremioEmail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !stremioPassword.isEmpty
+                    ) {
+                        Task { await signInAndImportStremio() }
+                    }
+                }
+
+                if let feedback = stremioFeedback {
+                    Label(feedback, systemImage: "checkmark.circle.fill")
+                        .font(Theme.Font.caption(12))
+                        .foregroundStyle(Theme.Palette.success)
+                }
+                if let err = stremio.error {
+                    Label(err, systemImage: "exclamationmark.triangle.fill")
+                        .font(Theme.Font.caption(12))
+                        .foregroundStyle(Theme.Palette.danger)
+                }
+            }
+            .padding(Theme.Spacing.lg)
+            .background(Theme.Palette.surface)
+            .overlay(Rectangle().stroke(Theme.Palette.accent.opacity(0.45), lineWidth: 1))
+
+            // Secondary option: Start fresh with Cinemeta + languages
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Or start fresh")
+                    .eyebrow(Theme.Palette.textTertiary, tracking: 2.0)
+
                 Toggle(isOn: $installCinemeta) {
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Install Cinemeta catalog")
@@ -166,14 +264,8 @@ struct OnboardingView: View {
                 #if !os(tvOS)
                 .toggleStyle(.switch)
                 #endif
-            }
-            .padding(Theme.Spacing.lg)
-            .background(Theme.Palette.surface)
-            .overlay(Rectangle().stroke(Theme.Palette.hairline, lineWidth: 1))
 
-            VStack(alignment: .leading, spacing: 14) {
-                Text("Preferred languages")
-                    .eyebrow(Theme.Palette.textTertiary, tracking: 2.0)
+                Rule(color: Theme.Palette.border)
 
                 HStack(spacing: Theme.Spacing.lg) {
                     VStack(alignment: .leading, spacing: 6) {
@@ -368,6 +460,38 @@ struct OnboardingView: View {
 
     private func languageName(_ code: String) -> String {
         UserPrefs.supportedLanguages.first(where: { $0.code == code })?.name ?? "Automatic"
+    }
+
+    private func signInAndImportStremio() async {
+        let email = stremioEmail.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !email.isEmpty, !stremioPassword.isEmpty else { return }
+        isImportingStremio = true
+        stremioFeedback = nil
+        await stremio.signIn(email: email, password: stremioPassword)
+        guard stremio.isConnected else {
+            isImportingStremio = false
+            return
+        }
+        stremioPassword = ""
+        await importFromStremio()
+    }
+
+    private func importFromStremio() async {
+        isImportingStremio = true
+        defer { isImportingStremio = false }
+        let existing = Set(store.addons.map { $0.manifest.transportUrl })
+        let urls = await stremio.addonURLs(excluding: existing)
+        var added = 0
+        for url in urls {
+            let before = store.addons.count
+            await store.installAddon(url: url)
+            if store.addons.count > before { added += 1 }
+        }
+        await stremio.importLibrary(into: watch)
+        let libSummary = stremio.lastResult ?? ""
+        stremioFeedback = libSummary.isEmpty
+            ? String(localized: "\(added) addons imported.")
+            : String(localized: "\(added) addons imported · \(libSummary)")
     }
 
     private func installCustomAddon() async {

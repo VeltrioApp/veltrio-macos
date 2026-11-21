@@ -81,6 +81,26 @@
         }
       }
     },
+    "%lld addons imported · %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld addons importés · %@"
+          }
+        }
+      }
+    },
+    "%lld addons imported.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld addons importés."
+          }
+        }
+      }
+    },
     "%lld addons installed": {
       "localizations": {
         "fr": {
@@ -1147,6 +1167,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "À VENIR"
+          }
+        }
+      }
+    },
+    "CONNECTED": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CONNECTÉ"
           }
         }
       }
@@ -2291,6 +2321,16 @@
         }
       }
     },
+    "Import addons & library": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importer addons et bibliothèque"
+          }
+        }
+      }
+    },
     "Import library": {
       "localizations": {
         "fr": {
@@ -2327,6 +2367,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Importe votre bibliothèque Stremio — titres enregistrés, films vus et reprise — et peut installer les addons de votre compte. Rien n'est renvoyé vers Stremio."
+          }
+        }
+      }
+    },
+    "Imports your installed addons, saved collection and watch history automatically.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importe automatiquement vos addons installés, votre collection et votre historique."
           }
         }
       }
@@ -3651,6 +3701,16 @@
         }
       }
     },
+    "Or start fresh": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ou démarrer à zéro"
+          }
+        }
+      }
+    },
     "Other devices": {
       "localizations": {
         "fr": {
@@ -4527,6 +4587,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "Afficher l'assistant"
+          }
+        }
+      }
+    },
+    "Sign in & import": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter et importer"
+          }
+        }
+      }
+    },
+    "Sign in with Stremio": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter à Stremio"
+          }
+        }
+      }
+    },
+    "Sign in with your Stremio account to bring your addons and library over in one step, or start fresh.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez votre compte Stremio pour importer vos addons et votre bibliothèque en un geste, ou démarrez à zéro."
+          }
+        }
+      }
+    },
+    "Signed in as %@ — your addons and library can be imported in one click.": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecté en tant que %@ — vos addons et votre bibliothèque peuvent être importés en un clic."
           }
         }
       }
