@@ -83,3 +83,33 @@ extension View {
         #endif
     }
 }
+
+extension View {
+    /// A sheet's size on a Mac. On an iPhone or iPad the system sizes the
+    /// sheet to the screen; a Mac's minimum width would push it off.
+    @ViewBuilder
+    func macSheetFrame(minWidth: CGFloat? = nil, idealWidth: CGFloat? = nil, width: CGFloat? = nil,
+                       minHeight: CGFloat? = nil, idealHeight: CGFloat? = nil, maxHeight: CGFloat? = nil) -> some View {
+        #if os(macOS)
+        if let width {
+            frame(width: width).frame(minHeight: minHeight, idealHeight: idealHeight, maxHeight: maxHeight)
+        } else {
+            frame(minWidth: minWidth, idealWidth: idealWidth, minHeight: minHeight, idealHeight: idealHeight, maxHeight: maxHeight)
+        }
+        #else
+        self
+        #endif
+    }
+}
+
+extension View {
+    /// A field for an address, a user name or a password: no capital
+    /// letter or correction from the keyboard.
+    func plainEntry() -> some View {
+        #if os(iOS)
+        self.textInputAutocapitalization(.never).autocorrectionDisabled()
+        #else
+        self.autocorrectionDisabled()
+        #endif
+    }
+}

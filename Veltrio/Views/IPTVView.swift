@@ -21,6 +21,10 @@ struct IPTVView: View {
         .sheet(isPresented: $showAddSheet) {
             AddPlaylistSheet()
         }
+        #if DEBUG
+        // Simulator checks: `-veltrioAddPlaylist YES` opens this sheet.
+        .onAppear { if UserDefaults.standard.bool(forKey: "veltrioAddPlaylist") { showAddSheet = true } }
+        #endif
     }
 
     // MARK: - main content
@@ -615,7 +619,7 @@ struct AddPlaylistSheet: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-                    field(label: "Name (optional)", placeholder: namePlaceholder, text: $name)
+                    field(label: "Name (optional)", placeholder: namePlaceholder, text: $name, plain: false)
 
                     switch mode {
                     case .xtream: xtreamForm
@@ -628,12 +632,12 @@ struct AddPlaylistSheet: View {
                 }
                 .padding(Theme.Spacing.lg)
             }
-            .frame(maxHeight: 340)
+            .macSheetFrame(maxHeight: 340)
 
             Divider().background(Theme.Palette.border)
             footerBar
         }
-        .frame(width: 560)
+        .macSheetFrame(width: 560)
         .background(Theme.Palette.background)
         .onAppear { focusInitial() }
     }
@@ -673,11 +677,13 @@ struct AddPlaylistSheet: View {
                     HStack(spacing: 6) {
                         Image(systemName: m.icon)
                             .font(.system(size: 11, weight: .bold))
-                        Text(m.rawValue)
+                        Text(m.rawValue.localized)
                             .font(Theme.Font.label(12, weight: mode == m ? .bold : .semibold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                     }
                     .foregroundStyle(mode == m ? .white : Theme.Palette.textSecondary)
-                    .padding(.horizontal, Theme.Spacing.md)
+                    .padding(.horizontal, Platform.isMac ? Theme.Spacing.md : Theme.Spacing.sm)
                     .padding(.vertical, 7)
                     .frame(maxWidth: .infinity)
                     .background(
@@ -734,6 +740,7 @@ struct AddPlaylistSheet: View {
                 .tracking(0.6)
             HStack(spacing: Theme.Spacing.sm) {
                 TextField("/path/to/playlist.m3u", text: $url)
+                    .plainEntry()
                     .textFieldStyle(.plain)
                     .font(.system(size: 13))
                     .foregroundStyle(Theme.Palette.textPrimary)
@@ -819,9 +826,9 @@ struct AddPlaylistSheet: View {
             HStack(spacing: 6) {
                 Group {
                     if revealPassword {
-                        TextField("••••••••", text: $xtreamPass)
+                        TextField("••••••••", text: $xtreamPass).plainEntry()
                     } else {
-                        SecureField("••••••••", text: $xtreamPass)
+                        SecureField("••••••••", text: $xtreamPass).plainEntry()
                     }
                 }
                 .textFieldStyle(.plain)
@@ -1020,14 +1027,16 @@ struct AddPlaylistSheet: View {
         label: String,
         placeholder: String,
         text: Binding<String>,
-        focus: Field? = nil
+        focus: Field? = nil,
+        plain: Bool = true
     ) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(label.localized)
                 .font(Theme.Font.label(11, weight: .bold))
                 .foregroundStyle(Theme.Palette.textSecondary)
                 .tracking(0.6)
-            TextField(placeholder, text: text)
+            TextField(placeholder.localized, text: text)
+                .if(plain) { $0.plainEntry() }
                 .textFieldStyle(.plain)
                 .font(.system(size: 13))
                 .foregroundStyle(Theme.Palette.textPrimary)

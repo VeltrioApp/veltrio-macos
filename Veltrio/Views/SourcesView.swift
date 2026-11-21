@@ -72,11 +72,11 @@ struct SourcesView: View {
         .background(Theme.Palette.background)
         .sheet(isPresented: $showingCatalog) {
             AddonCatalogSheet()
-                .frame(minWidth: 860, idealWidth: 960, minHeight: 600, idealHeight: 700)
+                .macSheetFrame(minWidth: 860, idealWidth: 960, minHeight: 600, idealHeight: 700)
         }
         .sheet(isPresented: $showingIPTVManager) {
             IPTVManagerSheet()
-                .frame(minWidth: 520, idealWidth: 600, minHeight: 420, idealHeight: 520)
+                .macSheetFrame(minWidth: 520, idealWidth: 600, minHeight: 420, idealHeight: 520)
         }
     }
 

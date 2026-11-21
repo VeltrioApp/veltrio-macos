@@ -42,7 +42,7 @@ struct JellyfinCard: View {
         }
         .sheet(isPresented: $showSheet) {
             JellyfinConnectSheet(isPresented: $showSheet)
-                .frame(minWidth: 480, idealWidth: 540, minHeight: 320)
+                .macSheetFrame(minWidth: 480, idealWidth: 540, minHeight: 320)
         }
     }
 
@@ -199,7 +199,7 @@ struct EmbyCard: View {
         }
         .sheet(isPresented: $showSheet) {
             sheet
-                .frame(minWidth: 480, idealWidth: 540, minHeight: 320)
+                .macSheetFrame(minWidth: 480, idealWidth: 540, minHeight: 320)
         }
     }
 
