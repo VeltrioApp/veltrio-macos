@@ -219,6 +219,8 @@ struct Chip: View {
                 Text(label.localized)
                     .font(Theme.Font.eyebrow(11, weight: isSelected ? .bold : .semibold))
                     .tracking(1.6)
+                    .lineLimit(1)
+                    .fixedSize()
                 if let count {
                     Text("\(count)")
                         .font(Theme.Font.mono(9, weight: .regular))

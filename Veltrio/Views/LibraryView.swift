@@ -78,22 +78,34 @@ struct LibraryView: View {
         .padding(.bottom, Theme.Spacing.sm)
     }
 
+    /// The status and type chips on one line (a Mac), or on two lines
+    /// that scroll sideways where they don't fit (a phone).
     private var filters: some View {
-        HStack(alignment: .center, spacing: Theme.Spacing.md) {
-            HStack(spacing: 6) {
-                ForEach(LibraryFilter.allCases) { f in
-                    Chip(label: f.rawValue, isSelected: filter == f) { filter = f }
-                }
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .center, spacing: Theme.Spacing.md) {
+                statusChips
+                Spacer()
+                typeChips
             }
-            Spacer()
-            HStack(spacing: 6) {
-                ForEach(TypeFilter.allCases) { f in
-                    Chip(
-                        label: f.rawValue,
-                        isSelected: typeFilter == f,
-                        filledUnselected: false
-                    ) { typeFilter = f }
-                }
+            VStack(alignment: .leading, spacing: 2) {
+                ScrollView(.horizontal, showsIndicators: false) { statusChips }
+                ScrollView(.horizontal, showsIndicators: false) { typeChips }
+            }
+        }
+    }
+
+    private var statusChips: some View {
+        HStack(spacing: 6) {
+            ForEach(LibraryFilter.allCases) { f in
+                Chip(label: f.rawValue, isSelected: filter == f) { filter = f }
+            }
+        }
+    }
+
+    private var typeChips: some View {
+        HStack(spacing: 6) {
+            ForEach(TypeFilter.allCases) { f in
+                Chip(label: f.rawValue, isSelected: typeFilter == f, filledUnselected: false) { typeFilter = f }
             }
         }
     }
