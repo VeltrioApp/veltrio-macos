@@ -62,7 +62,9 @@ struct RootView: View {
                 DetailView(destination: dest)
             }
             .navigationDestination(for: PlayerDestination.self) { dest in
-                PlayerView(destination: dest)
+                // One player per destination: zapping replaces the top of
+                // the stack, and a reused view would keep the old stream.
+                PlayerView(destination: dest).id(dest)
             }
             .navigationDestination(for: MediaServerSeriesDestination.self) { dest in
                 MediaServerSeriesView(destination: dest)

@@ -201,7 +201,7 @@ struct PlayerView: View {
         #endif
         .onAppear {
             #if os(iOS)
-            Self.requestOrientation(.landscape)
+            Self.playerAppeared()
             #endif
             focused = true
             resetHideTimer()
@@ -304,7 +304,7 @@ struct PlayerView: View {
         }
         .onDisappear {
             #if os(iOS)
-            Self.requestOrientation(.portrait)
+            Self.playerDisappeared()
             #endif
             // Stop the exact torrent we actually started. Using
             // `destination.streamSource` here would miss the case where
@@ -1980,6 +1980,23 @@ struct PlayerView: View {
     }
 
     #if os(iOS)
+    /// Players on screen. Zapping swaps one player for the next: portrait
+    /// comes back only once none is left, so the phone doesn't turn
+    /// between two channels.
+    @MainActor private static var openPlayers = 0
+
+    @MainActor static func playerAppeared() {
+        openPlayers += 1
+        requestOrientation(.landscape)
+    }
+
+    @MainActor static func playerDisappeared() {
+        openPlayers = max(0, openPlayers - 1)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            if openPlayers == 0 { requestOrientation(.portrait) }
+        }
+    }
+
     /// The player turns the phone to landscape, and gives portrait back.
     static func requestOrientation(_ mask: UIInterfaceOrientationMask) {
         guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return }
