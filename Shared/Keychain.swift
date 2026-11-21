@@ -1,23 +1,23 @@
 import Foundation
 import Security
 
-/// Minimal Keychain wrapper for storing provider API keys and other
-/// per-account secrets. Items are written with
-/// `kSecAttrAccessibleWhenUnlockedThisDeviceOnly` so they're never synced
-/// to another device via iCloud backups.
+/// Minimal secret store for provider API keys and per-account tokens.
 ///
-/// In macOS Debug builds (ad-hoc signed), every rebuild changes the binary's
-/// cdhash and triggers a macOS Keychain password prompt for every stored key.
-/// Debug macOS builds therefore store secrets in a user-only (0600) JSON file
-/// under Application Support instead; Release macOS and all iOS/tvOS builds
-/// always use the system Keychain.
+/// On iOS and tvOS, items are written to the system Keychain with
+/// `kSecAttrAccessibleWhenUnlockedThisDeviceOnly` so they're never synced
+/// via iCloud backups.
+///
+/// On macOS, ad-hoc signed builds (and Sparkle updates between them) change
+/// the binary's cdhash and would otherwise trigger a macOS Keychain password
+/// prompt for every stored key. macOS therefore stores secrets in a user-only
+/// (0600) JSON file under Application Support instead.
 enum Keychain {
     private static let accessGroup: String? = nil
 
     @discardableResult
     static func set(_ value: String, service: String, account: String = "default") -> Bool {
-        #if os(macOS) && DEBUG
-        return DebugSecretFile.set(value, service: service, account: account)
+        #if os(macOS)
+        return MacSecretFile.set(value, service: service, account: account)
         #else
         let data = Data(value.utf8)
         // Try an update first; fall back to add. This keeps the write
@@ -37,8 +37,8 @@ enum Keychain {
     }
 
     static func get(service: String, account: String = "default") -> String? {
-        #if os(macOS) && DEBUG
-        return DebugSecretFile.get(service: service, account: account)
+        #if os(macOS)
+        return MacSecretFile.get(service: service, account: account)
         #else
         var query = baseQuery(service: service, account: account)
         query[kSecReturnData as String] = true
@@ -52,13 +52,14 @@ enum Keychain {
     }
 
     static func delete(service: String, account: String = "default") {
-        #if os(macOS) && DEBUG
-        DebugSecretFile.delete(service: service, account: account)
+        #if os(macOS)
+        MacSecretFile.delete(service: service, account: account)
         #else
         SecItemDelete(baseQuery(service: service, account: account) as CFDictionary)
         #endif
     }
 
+    #if !os(macOS)
     private static func baseQuery(service: String, account: String) -> [String: Any] {
         var q: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -68,18 +69,29 @@ enum Keychain {
         if let group = accessGroup { q[kSecAttrAccessGroup as String] = group }
         return q
     }
+    #endif
 }
 
-#if os(macOS) && DEBUG
-private enum DebugSecretFile {
+#if os(macOS)
+private enum MacSecretFile {
     private static let lock = NSLock()
 
-    private static var url: URL {
+    private static var dir: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
-        let dir = base.appendingPathComponent("Veltrio", isDirectory: true)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appendingPathComponent("debug-secrets.json")
+        let folder = base.appendingPathComponent("Veltrio", isDirectory: true)
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        return folder
+    }
+
+    private static var url: URL {
+        let primary = dir.appendingPathComponent("secrets.json")
+        let legacy = dir.appendingPathComponent("debug-secrets.json")
+        if !FileManager.default.fileExists(atPath: primary.path),
+           FileManager.default.fileExists(atPath: legacy.path) {
+            try? FileManager.default.moveItem(at: legacy, to: primary)
+        }
+        return primary
     }
 
     private static func key(_ service: String, _ account: String) -> String {
