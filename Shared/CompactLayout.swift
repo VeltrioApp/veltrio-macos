@@ -154,3 +154,16 @@ extension View {
         #endif
     }
 }
+
+extension View {
+    /// A focus section for the remote (tvOS) and the keyboard (macOS);
+    /// iOS has none.
+    @ViewBuilder
+    func remoteFocusSection() -> some View {
+        #if os(iOS)
+        self
+        #else
+        focusSection()
+        #endif
+    }
+}

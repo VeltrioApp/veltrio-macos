@@ -60,7 +60,7 @@ struct LiveTVView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             // The remote: right from any channel reaches Watch, which sits
             // lower than most rows.
-            .focusSection()
+            .remoteFocusSection()
             .animation(.easeOut(duration: 0.22), value: selected?.id)
         }
     }
