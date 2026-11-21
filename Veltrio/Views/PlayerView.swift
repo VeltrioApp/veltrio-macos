@@ -185,6 +185,7 @@ struct PlayerView: View {
                     .allowsHitTesting(false)
             }
         }
+        .typeErased()
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
         .hidesWindowToolbarOnMac()
@@ -201,6 +202,7 @@ struct PlayerView: View {
         .statusBarHidden(true)
         .persistentSystemOverlays(.hidden)
         #endif
+        .typeErased()
         .onAppear {
             #if os(iOS)
             Self.playerAppeared()
@@ -260,6 +262,7 @@ struct PlayerView: View {
             }
         }
         #endif
+        .typeErased()
         .onKeyPress(.space)      { controller.togglePause(); return .handled }
         .onKeyPress(.leftArrow)  {
             if destination.isLive { return .ignored }
@@ -306,6 +309,7 @@ struct PlayerView: View {
             if case .active = phase { flashControls() }
         }
         #endif
+        .typeErased()
         .task { await resolve() }
         .onChange(of: controller.eofReached) { _, done in
             if done {

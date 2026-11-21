@@ -167,3 +167,10 @@ extension View {
         #endif
     }
 }
+
+extension View {
+    /// Cuts a long modifier chain's type short. The player's body is a
+    /// hundred modifiers deep; resolving that type for a navigation push
+    /// overflowed the main thread's stack on an iPhone (debug build).
+    func typeErased() -> AnyView { AnyView(self) }
+}
