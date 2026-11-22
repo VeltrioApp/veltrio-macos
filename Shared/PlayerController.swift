@@ -277,6 +277,10 @@ final class PlayerController {
         view?.applyPlaybackProfile(p)
     }
 
+    func setSubtitleAppearance(scale: Double, color: String) {
+        view?.setSubtitleAppearance(scale: scale, color: color)
+    }
+
     func applyLanguagePreferences(audio: String, subtitle: String) {
         view?.setPreferredAudioLanguage(audio.isEmpty ? nil : audio)
         view?.setPreferredSubtitleLanguage(subtitle.isEmpty ? nil : subtitle)

@@ -72,6 +72,28 @@ struct SubtitleFetcher {
         }
     }
 
+    /// Direct manual search against OpenSubtitles v3 (works even if no subtitle
+    /// addon is installed).
+    func searchOpenSubtitles(type: String, id: String, videoId: String? = nil) async -> [AddonSubtitle] {
+        let queryId = (videoId?.isEmpty == false) ? videoId! : id
+        guard queryId.hasPrefix("tt") else { return [] }
+        let encodedId = queryId.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? queryId
+        guard let url = URL(string: "https://opensubtitles-v3.strem.io/subtitles/\(type)/\(encodedId).json") else {
+            return []
+        }
+        do {
+            let (data, response) = try await session.data(from: url)
+            guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else { return [] }
+            let decoded = try JSONDecoder().decode(Response.self, from: data)
+            return decoded.subtitles.compactMap {
+                guard let u = $0.url, !u.isEmpty else { return nil }
+                return AddonSubtitle(id: $0.id ?? u, url: u, lang: $0.lang, addonName: "OpenSubtitles")
+            }
+        } catch {
+            return []
+        }
+    }
+
     private func fetchOne(addon: InstalledAddon, type: String, id: String) async -> [AddonSubtitle] {
         var base = addon.manifest.transportUrl.trimmingCharacters(in: .whitespacesAndNewlines)
         // Addons publish their transport URL with or without a trailing

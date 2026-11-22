@@ -17,6 +17,10 @@ struct LiveTVView: View {
     @State private var selectedId: String?
     @FocusState private var listFocused: Bool
     @FocusState private var focusedChannel: String?
+    #if os(tvOS)
+    @State private var previewChannel: IptvChannel?
+    @State private var previewController = PlayerController()
+    #endif
 
     private var selected: IptvChannel? {
         channels.first { $0.id == selectedId } ?? channels.first
@@ -45,6 +49,46 @@ struct LiveTVView: View {
                 .frame(width: 1)
                 .frame(maxHeight: .infinity)
             ZStack(alignment: .topLeading) {
+                #if os(tvOS)
+                if let channel = selected {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                        if let live = previewChannel, let url = URL(string: live.streamUrl) {
+                            ZStack(alignment: .topTrailing) {
+                                MPVPlayer(url: url, controller: previewController)
+                                    .id(live.id)
+                                    .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                                    .background(Color.black)
+                                    .overlay(Rectangle().stroke(Theme.Palette.accent.opacity(0.6), lineWidth: 1.5))
+                                HStack(spacing: 6) {
+                                    Circle().fill(Theme.Palette.danger).frame(width: 8, height: 8)
+                                    Text("LIVE").font(Theme.Font.mono(11, weight: .bold)).foregroundStyle(.white)
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(Color.black.opacity(0.7))
+                                .padding(12)
+                            }
+                            HStack(spacing: 16) {
+                                CTAButton(
+                                    title: AppLocalization.isFrench ? "Plein écran" : "Fullscreen",
+                                    icon: "arrow.up.left.and.arrow.down.right"
+                                ) {
+                                    let target = live
+                                    previewChannel = nil
+                                    play(target)
+                                }
+                                Text(live.name)
+                                    .font(Theme.Font.title(22))
+                                    .foregroundStyle(Theme.Palette.textPrimary)
+                                    .lineLimit(1)
+                            }
+                        } else {
+                            LiveChannelHero(channel: channel, number: numbers[channel.id])
+                                .id(channel.id)
+                        }
+                    }
+                }
+                #else
                 if let channel = selected {
                     // A fresh hero per channel, so changing channel fades the
                     // new one in instead of swapping text in place.
@@ -55,6 +99,7 @@ struct LiveTVView: View {
                             removal: .opacity
                         ))
                 }
+                #endif
             }
             .padding(.leading, Theme.Spacing.xl)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -62,6 +107,9 @@ struct LiveTVView: View {
             // lower than most rows.
             .remoteFocusSection()
             .animation(.easeOut(duration: 0.22), value: selected?.id)
+            #if os(tvOS)
+            .onDisappear { previewChannel = nil }
+            #endif
         }
     }
 
@@ -101,11 +149,18 @@ struct LiveTVView: View {
                     LazyVStack(spacing: 0) {
                         ForEach(channels, id: \.id) { channel in
                             #if os(tvOS)
-                            // The remote: focus picks the channel (the panel
-                            // follows), a click tunes in.
-                            Button { play(channel) } label: {
+                            // 1st click = live preview in right pane; 2nd click = fullscreen player.
+                            Button {
+                                if previewChannel?.id == channel.id {
+                                    previewChannel = nil
+                                    play(channel)
+                                } else {
+                                    selectedId = channel.id
+                                    previewChannel = channel
+                                }
+                            } label: {
                                 LiveChannelRow(channel: channel, number: numbers[channel.id],
-                                               isSelected: !tapToPlay && channel.id == selected?.id)
+                                               isSelected: !tapToPlay && (previewChannel?.id == channel.id || channel.id == selected?.id))
                             }
                             .buttonStyle(.plainRect)
                             .focused($focusedChannel, equals: channel.id)

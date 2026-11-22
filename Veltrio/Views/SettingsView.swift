@@ -1032,12 +1032,7 @@ private struct AppearanceSettings: View {
                     let selected = prefs.appLanguage == opt.code
                     Button {
                         prefs.appLanguage = opt.code
-                        let tmdbLang: String = switch opt.code {
-                        case "fr": "fr-FR"
-                        case "en": "en-US"
-                        default: AppLocalization.isFrench ? "fr-FR" : "en-US"
-                        }
-                        TmdbService.shared.setLanguage(tmdbLang)
+                        TmdbService.shared.setLanguage(AppLocalization.tmdbLanguage(for: opt.code))
                     } label: {
                         Text(opt.label.localized)
                             .font(Theme.Font.eyebrow(10, weight: .bold))

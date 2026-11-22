@@ -89,6 +89,9 @@ final class UserPrefs {
         ("", "Automatic"),
         ("fr", "Français"),
         ("en", "English"),
+        ("es", "Español"),
+        ("de", "Deutsch"),
+        ("it", "Italiano"),
     ]
 
     static let subtitleScales: [(value: Double, label: String)] = [

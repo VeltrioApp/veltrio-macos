@@ -692,6 +692,24 @@ struct PlayerView: View {
         }
     }
 
+    private func searchManualSubtitles() {
+        let target: (type: String, id: String, videoId: String?)? = {
+            if case .stream(let p) = destination.kind { return (p.contentType, p.contentId, p.videoId) }
+            if let ctx = destination.watchContext { return (ctx.contentType, ctx.contentId, ctx.videoId) }
+            return nil
+        }()
+        guard let target else { return }
+        controller.isFetchingExternalSubs = true
+        Task { @MainActor in
+            let fetcher = SubtitleFetcher()
+            let found = await fetcher.searchOpenSubtitles(type: target.type, id: target.id, videoId: target.videoId)
+            var existing = Set(controller.externalSubtitles.map(\.url))
+            let merged = controller.externalSubtitles + found.filter { existing.insert($0.url).inserted }
+            controller.externalSubtitles = merged
+            controller.isFetchingExternalSubs = false
+        }
+    }
+
     // MARK: - Live EPG (Xtream short EPG)
 
     /// Fetch now/next for the current live channel, if the selected
@@ -1629,6 +1647,37 @@ struct PlayerView: View {
                 }
                 Divider()
                 Button {
+                    searchManualSubtitles()
+                } label: {
+                    Label("Search OpenSubtitles".localized, systemImage: "magnifyingglass")
+                }
+                Menu("Subtitle size".localized) {
+                    ForEach(UserPrefs.subtitleScales, id: \.value) { opt in
+                        Button {
+                            prefs.subtitleScale = opt.value
+                            controller.setSubtitleAppearance(scale: opt.value, color: prefs.subtitleColor)
+                        } label: {
+                            HStack {
+                                Text(opt.label.localized)
+                                if abs(prefs.subtitleScale - opt.value) < 0.01 { Image(systemName: "checkmark") }
+                            }
+                        }
+                    }
+                }
+                Menu("Subtitle color".localized) {
+                    ForEach(UserPrefs.subtitleColors, id: \.value) { opt in
+                        Button {
+                            prefs.subtitleColor = opt.value
+                            controller.setSubtitleAppearance(scale: prefs.subtitleScale, color: opt.value)
+                        } label: {
+                            HStack {
+                                Text(opt.label.localized)
+                                if prefs.subtitleColor == opt.value { Image(systemName: "checkmark") }
+                            }
+                        }
+                    }
+                }
+                Button {
                     loadLocalSubtitle()
                 } label: {
                     Label("Load from file…", systemImage: "doc.badge.plus")
@@ -2329,6 +2378,23 @@ struct PlayerView: View {
                         controller.addExternalSubtitle(url: sub.url, title: sub.displayLanguage, lang: sub.lang)
                         tvPanel = nil
                     }
+                }
+            }
+            tvOptionRow("Search OpenSubtitles".localized, active: false) {
+                searchManualSubtitles()
+            }
+            Text("Subtitle size".localized).eyebrow(.white.opacity(0.6), tracking: 2.0).padding(.top, 8)
+            ForEach(UserPrefs.subtitleScales, id: \.value) { opt in
+                tvOptionRow(opt.label.localized, active: abs(prefs.subtitleScale - opt.value) < 0.01) {
+                    prefs.subtitleScale = opt.value
+                    controller.setSubtitleAppearance(scale: opt.value, color: prefs.subtitleColor)
+                }
+            }
+            Text("Subtitle color".localized).eyebrow(.white.opacity(0.6), tracking: 2.0).padding(.top, 8)
+            ForEach(UserPrefs.subtitleColors, id: \.value) { opt in
+                tvOptionRow(opt.label.localized, active: prefs.subtitleColor == opt.value) {
+                    prefs.subtitleColor = opt.value
+                    controller.setSubtitleAppearance(scale: prefs.subtitleScale, color: opt.value)
                 }
             }
         case .speed:
