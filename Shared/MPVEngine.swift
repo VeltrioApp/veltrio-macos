@@ -153,7 +153,9 @@ final class MPVEngine {
                     let prefix = String(cString: log.prefix)
                     let text = String(cString: log.text).trimmingCharacters(in: .whitespacesAndNewlines)
                     if !text.isEmpty {
-                        NSLog("MPV[%@] %@", prefix, DebugLog.redact(text))
+                        let clean = DebugLog.redact(text)
+                        NSLog("MPV[%@] %@", prefix, clean)
+                        Task { @MainActor in DebugLog.shared.warn("mpv:\(prefix)", clean) }
                     }
                 }
 
