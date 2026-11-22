@@ -473,6 +473,14 @@ final class MPVEngine {
         _ = mpv_set_property_string(mpv, "slang", code ?? "")
     }
 
+    /// Subtitle size multiplier and color.
+    func setSubtitleAppearance(scale: Double, color: String) {
+        guard let mpv else { return }
+        var s = scale
+        _ = mpv_set_property(mpv, "sub-scale", MPV_FORMAT_DOUBLE, &s)
+        _ = mpv_set_property_string(mpv, "sub-color", color)
+    }
+
     // MARK: - advanced controls
 
     func setAspectMode(_ mode: PlayerController.AspectMode) {

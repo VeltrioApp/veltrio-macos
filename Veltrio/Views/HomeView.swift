@@ -5,6 +5,9 @@ struct HomeView: View {
     @Environment(WatchStore.self) private var watch
     @State private var tmdb = TmdbService.shared
     @State private var tmdbKeyInput = ""
+    #if os(tvOS)
+    @State private var focusedItem: (addon: InstalledAddon, item: MetaPreview)?
+    #endif
 
     var body: some View {
         ScrollView {
@@ -15,6 +18,9 @@ struct HomeView: View {
                 } else {
                     if let hero = heroItem {
                         EditorialHero(item: hero.item, addon: hero.addon)
+                            .id(hero.item.id)
+                            .transition(.opacity)
+                            .animation(.easeInOut(duration: 0.25), value: hero.item.id)
                     } else {
                         Color.clear.frame(height: Theme.navBarInset + 60)
                     }
@@ -45,10 +51,19 @@ struct HomeView: View {
             }
             let base = watch.continueWatching.isEmpty ? 1 : 2
             ForEach(Array(catalogIndex.enumerated()), id: \.offset) { offset, pair in
+                #if os(tvOS)
+                CatalogRow(addon: pair.addon, catalog: pair.catalog, number: base + offset) { addon, meta in
+                    focusedItem = (addon, meta)
+                }
+                .task(id: "\(pair.addon.id)|\(pair.catalog.type)|\(pair.catalog.id)|\(tmdb.revision)") {
+                    await store.loadCatalog(addon: pair.addon, catalog: pair.catalog)
+                }
+                #else
                 CatalogRow(addon: pair.addon, catalog: pair.catalog, number: base + offset)
                     .task(id: "\(pair.addon.id)|\(pair.catalog.type)|\(pair.catalog.id)|\(tmdb.revision)") {
                         await store.loadCatalog(addon: pair.addon, catalog: pair.catalog)
                     }
+                #endif
             }
         }
     }
@@ -102,6 +117,9 @@ struct HomeView: View {
     }
 
     private var heroItem: (addon: InstalledAddon, item: MetaPreview)? {
+        #if os(tvOS)
+        if let focused = focusedItem { return focused }
+        #endif
         for addon in homeAddons {
             for catalog in addon.manifest.catalogs {
                 let key = CatalogKey(addonId: addon.id, type: catalog.type, id: catalog.id)
@@ -381,8 +399,12 @@ struct CatalogRow: View {
     let addon: InstalledAddon
     let catalog: Catalog
     var number: Int = 1
+    var onFocus: ((InstalledAddon, MetaPreview) -> Void)? = nil
 
     @Environment(AppStore.self) private var store
+    #if os(tvOS)
+    @FocusState private var focusedId: String?
+    #endif
 
     private var key: CatalogKey {
         CatalogKey(addonId: addon.id, type: catalog.type, id: catalog.id)
@@ -443,8 +465,18 @@ struct CatalogRow: View {
                             .frame(width: Platform.isMac ? 180 : 124)
                         }
                         .buttonStyle(.plainRect)
+                        #if os(tvOS)
+                        .focused($focusedId, equals: meta.id)
+                        #endif
                     }
                 }
+                #if os(tvOS)
+                .onChange(of: focusedId) { _, newId in
+                    if let newId, let hit = metas.first(where: { $0.id == newId }) {
+                        onFocus?(addon, hit)
+                    }
+                }
+                #endif
             }
         }
     }

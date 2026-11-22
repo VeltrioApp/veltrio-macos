@@ -4,6 +4,7 @@ struct DetailView: View {
     let destination: DetailDestination
     @Environment(AppStore.self) private var store
     @Environment(WatchStore.self) private var watch
+    @Environment(\.openURL) private var openURL
     @Environment(\.dismiss) private var dismiss
 
     @State private var meta: Meta?
@@ -216,6 +217,19 @@ struct DetailView: View {
 
             actionButtons
 
+            #if !os(tvOS)
+            if let trailerURL = tmdbExtras?.trailerURL {
+                FrameButton(
+                    title: AppLocalization.isFrench ? "Bande-annonce" : "Trailer",
+                    icon: "play.rectangle",
+                    color: Theme.Palette.textPrimary,
+                    fill: nil
+                ) {
+                    openURL(trailerURL)
+                }
+            }
+            #endif
+
             if let loadError {
                 errorBanner(loadError)
             }
@@ -227,6 +241,43 @@ struct DetailView: View {
                     director: meta?.director ?? [],
                     writer: meta?.writer ?? []
                 )
+            }
+
+            if let recs = tmdbExtras?.recommendations, !recs.isEmpty {
+                Rule().padding(.vertical, Theme.Spacing.sm)
+                recommendationsBlock(recs)
+            }
+        }
+    }
+
+    private var tmdbExtras: TmdbService.TitleExtras? {
+        TmdbService.shared.extras(for: meta?.id ?? destination.id)
+            ?? TmdbService.shared.extras(for: destination.id)
+    }
+
+    private func recommendationsBlock(_ items: [MetaPreview]) -> some View {
+        let tmdbAddon = TmdbService.shared.virtualAddon()
+        return VStack(alignment: .leading, spacing: 12) {
+            Text(AppLocalization.isFrench ? "Titres similaires" : "More like this")
+                .eyebrow(Theme.Palette.textTertiary, tracking: 2.4)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .top, spacing: Theme.Spacing.md) {
+                    ForEach(items, id: \.id) { item in
+                        NavigationLink(value: DetailDestination(
+                            addon: tmdbAddon, type: item.type, id: item.id, name: item.name
+                        )) {
+                            PosterCard(
+                                title: item.name,
+                                posterURL: item.poster,
+                                subtitle: item.releaseInfo,
+                                rating: item.imdbRating
+                            )
+                            .frame(width: Platform.isMac ? 132 : 112)
+                        }
+                        .buttonStyle(.plainRect)
+                    }
+                }
+                .padding(.vertical, 4)
             }
         }
     }

@@ -36,6 +36,11 @@ final class TmdbService {
         let overview: String?
     }
 
+    struct TitleExtras: Sendable {
+        let trailerURL: URL?
+        let recommendations: [MetaPreview]
+    }
+
     private(set) var isConnected = false
     private(set) var language = "fr-FR"
     private(set) var isBusy = false
@@ -45,6 +50,11 @@ final class TmdbService {
 
     private var localizeCache: [String: LocalizedMeta] = [:]
     private var genreCache: [String: [Int: String]] = [:]
+    private var extrasCache: [String: TitleExtras] = [:]
+
+    func extras(for id: String) -> TitleExtras? {
+        extrasCache["\(id)|\(effectiveLanguage())"]
+    }
 
     private init() {
         reload()
@@ -194,7 +204,7 @@ final class TmdbService {
 
         let mediaType = isSeries ? "tv" : "movie"
         let langShort = String(lang.prefix(while: { $0 != "-" }))
-        let path = "/\(mediaType)/\(tmdbId)?language=\(lang)&append_to_response=external_ids,credits,images&include_image_language=\(langShort),en,null"
+        let path = "/\(mediaType)/\(tmdbId)?language=\(lang)&append_to_response=external_ids,credits,images,videos,recommendations&include_image_language=\(langShort),en,null"
         let data = try await get(path: path, key: key)
         let detail = try JSONDecoder().decode(TmdbDetailResponse.self, from: data)
 
@@ -231,6 +241,16 @@ final class TmdbService {
         if isSeries {
             videos = await fetchEpisodes(tmdbId: tmdbId, canonicalId: canonicalId, seasons: detail.seasons ?? [], lang: lang, key: key)
         }
+
+        let trailerURL = pickTrailer(detail.videos?.results ?? [], langShort: langShort)
+        let genresMap = await genreMap(isSeries: isSeries, lang: lang, key: key)
+        let recs = (detail.recommendations?.results ?? [])
+            .prefix(12)
+            .compactMap { parsePreview($0, type: isSeries ? "series" : "movie", genres: genresMap) }
+        let titleExtras = TitleExtras(trailerURL: trailerURL, recommendations: recs)
+        extrasCache["\(canonicalId)|\(lang)"] = titleExtras
+        extrasCache["tmdb:\(tmdbId)|\(lang)"] = titleExtras
+        extrasCache["\(id)|\(lang)"] = titleExtras
 
         return Meta(
             id: canonicalId,
@@ -380,6 +400,16 @@ final class TmdbService {
         return chosen.map { Self.imgLogo + $0.file_path }
     }
 
+    private func pickTrailer(_ videos: [TmdbVideoItem], langShort: String) -> URL? {
+        let yt = videos.filter { $0.site?.lowercased() == "youtube" && !($0.key ?? "").isEmpty }
+        guard !yt.isEmpty else { return nil }
+        let chosen = yt.first(where: { $0.type == "Trailer" && $0.iso_639_1 == langShort })
+            ?? yt.first(where: { $0.type == "Trailer" })
+            ?? yt.first(where: { $0.type == "Teaser" })
+            ?? yt.first
+        return chosen?.key.flatMap { URL(string: "https://www.youtube.com/watch?v=\($0)") }
+    }
+
     private nonisolated func buildRequest(path: String, key: String) -> URLRequest? {
         let isBearer = key.count > 40 || key.contains(".")
         let sep = path.contains("?") ? "&" : "?"
@@ -455,6 +485,15 @@ private struct TmdbDetailResponse: Decodable {
     let external_ids: TmdbExternalIds?
     let imdb_id: String?
     let seasons: [TmdbSeasonRef]?
+    let videos: TmdbVideoList?
+    let recommendations: TmdbListResponse?
+}
+private struct TmdbVideoList: Decodable { let results: [TmdbVideoItem]? }
+private struct TmdbVideoItem: Decodable {
+    let key: String?
+    let site: String?
+    let type: String?
+    let iso_639_1: String?
 }
 private struct TmdbSeasonResponse: Decodable { let episodes: [TmdbEpisodeItem]? }
 private struct TmdbEpisodeItem: Decodable {

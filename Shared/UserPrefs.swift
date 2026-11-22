@@ -24,6 +24,8 @@ final class UserPrefs {
         static let onboardingDone = "veltrio.pref.onboardingDone"
         static let autoCheckUpdates = "veltrio.pref.autoCheckUpdates"
         static let appLanguage = "veltrio.pref.appLanguage"
+        static let subtitleScale = "veltrio.pref.subtitleScale"
+        static let subtitleColor = "veltrio.pref.subtitleColor"
     }
 
     enum ColorSchemePreference: String, CaseIterable, Identifiable {
@@ -73,6 +75,12 @@ final class UserPrefs {
             AppLocalization.overrideCode = appLanguage
         }
     }
+    var subtitleScale: Double {
+        didSet { defaults.set(subtitleScale, forKey: Keys.subtitleScale) }
+    }
+    var subtitleColor: String {
+        didSet { defaults.set(subtitleColor, forKey: Keys.subtitleColor) }
+    }
     var resolvedLocale: Locale {
         appLanguage.isEmpty ? .autoupdatingCurrent : Locale(identifier: appLanguage)
     }
@@ -81,6 +89,19 @@ final class UserPrefs {
         ("", "Automatic"),
         ("fr", "Français"),
         ("en", "English"),
+    ]
+
+    static let subtitleScales: [(value: Double, label: String)] = [
+        (0.75, "Small"),
+        (1.0, "Normal"),
+        (1.25, "Large"),
+        (1.5, "Extra large"),
+    ]
+
+    static let subtitleColors: [(value: String, label: String)] = [
+        ("#FFFFFFFF", "White"),
+        ("#FFFFE066", "Yellow"),
+        ("#FFD0D0D0", "Light gray"),
     ]
 
     private init() {
@@ -100,6 +121,8 @@ final class UserPrefs {
         let savedLang          = defaults.string(forKey: Keys.appLanguage) ?? ""
         appLanguage            = savedLang
         AppLocalization.overrideCode = savedLang
+        subtitleScale          = (defaults.object(forKey: Keys.subtitleScale) as? Double) ?? 1.0
+        subtitleColor          = defaults.string(forKey: Keys.subtitleColor) ?? "#FFFFFFFF"
     }
 
     /// Readable list of language options for the Settings picker.

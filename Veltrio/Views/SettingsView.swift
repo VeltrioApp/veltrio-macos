@@ -276,6 +276,24 @@ private struct LanguageSettings: View {
                 ),
                 options: UserPrefs.supportedLanguages.map { ($0.code, $0.name) }
             )
+            SettingsPicker(
+                title: "Subtitle size",
+                hint: nil,
+                selection: Binding(
+                    get: { String(prefs.subtitleScale) },
+                    set: { prefs.subtitleScale = Double($0) ?? 1.0 }
+                ),
+                options: UserPrefs.subtitleScales.map { (String($0.value), $0.label) }
+            )
+            SettingsPicker(
+                title: "Subtitle color",
+                hint: nil,
+                selection: Binding(
+                    get: { prefs.subtitleColor },
+                    set: { prefs.subtitleColor = $0 }
+                ),
+                options: UserPrefs.subtitleColors.map { ($0.value, $0.label) }
+            )
             Text("mpv auto-selects embedded tracks matching your language. Addon subtitles are attached automatically in the chosen language when the player opens.")
                 .font(Theme.Font.caption(11))
                 .foregroundStyle(Theme.Palette.textTertiary)

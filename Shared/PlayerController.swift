@@ -269,5 +269,9 @@ final class PlayerController {
     func applyLanguagePreferences(audio: String, subtitle: String) {
         view?.setPreferredAudioLanguage(audio.isEmpty ? nil : audio)
         view?.setPreferredSubtitleLanguage(subtitle.isEmpty ? nil : subtitle)
+        let d = UserDefaults.standard
+        let scale = (d.object(forKey: "veltrio.pref.subtitleScale") as? Double) ?? 1.0
+        let color = d.string(forKey: "veltrio.pref.subtitleColor") ?? "#FFFFFFFF"
+        view?.setSubtitleAppearance(scale: scale, color: color)
     }
 }
