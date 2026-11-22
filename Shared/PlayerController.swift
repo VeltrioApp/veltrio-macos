@@ -97,13 +97,41 @@ final class PlayerController {
     var isInSkippableIntro: Bool = false
     /// Next chapter time — the target of a "Skip intro" click.
     var nextChapterTimeAfterIntro: Double?
-    /// External intro window from IntroDB (api.introdb.app) when the file
-    /// has no intro chapter markers.
+    /// External segments from IntroDB (api.introdb.app/segments) when the file
+    /// has no chapter markers: recap, intro, and outro.
+    var externalRecapWindow: (start: Double, end: Double)?
     var externalIntroWindow: (start: Double, end: Double)?
+    var externalOutroWindow: (start: Double, end: Double)?
 
-    var effectiveIsInSkippableIntro: Bool {
-        if isInSkippableIntro && nextChapterTimeAfterIntro != nil { return true }
-        if let w = externalIntroWindow, position >= w.start && position < w.end { return true }
+    enum SkippableKind: Equatable {
+        case recap
+        case intro
+    }
+
+    var activeSkippableSegment: (kind: SkippableKind, end: Double)? {
+        guard !isBuffering, position >= 2.0 else { return nil }
+        if let w = externalRecapWindow, position >= w.start && position < w.end - 1.0 {
+            return (.recap, w.end)
+        }
+        if isInSkippableIntro, let target = nextChapterTimeAfterIntro {
+            return (.intro, target)
+        }
+        if let w = externalIntroWindow, position >= w.start && position < w.end - 1.0 {
+            return (.intro, w.end)
+        }
+        return nil
+    }
+
+    var effectiveIsInSkippableIntro: Bool { activeSkippableSegment != nil }
+
+    var isInOutroWindow: Bool {
+        if let w = externalOutroWindow, position >= w.start && position < w.end {
+            return true
+        }
+        // Fallback when IntroDB has no outro or file timing differs: trigger in the last 45s of an episode.
+        if duration > 180 && position > 0 && (duration - position) <= 45 {
+            return true
+        }
         return false
     }
 
@@ -263,12 +291,10 @@ final class PlayerController {
         view?.setAudioPassthrough(enabled)
     }
 
-    /// Seek to the end of the current "intro" chapter or IntroDB window.
+    /// Seek to the end of the current recap/intro chapter or IntroDB window.
     func skipIntro() {
-        if let target = nextChapterTimeAfterIntro, isInSkippableIntro {
-            seek(to: target)
-        } else if let w = externalIntroWindow, position >= w.start && position < w.end {
-            seek(to: w.end)
+        if let seg = activeSkippableSegment {
+            seek(to: seg.end)
         }
     }
 
@@ -291,25 +317,54 @@ final class PlayerController {
     }
 }
 
-/// Automatic TV episode intro detection via IntroDB (api.introdb.app).
+/// Automatic TV episode recap / intro / outro detection via IntroDB (api.introdb.app).
 enum IntroService {
-    private struct Resp: Decodable {
-        let start_sec: Double?
-        let end_sec: Double?
+    struct Segments: Sendable {
+        let recap: (start: Double, end: Double)?
+        let intro: (start: Double, end: Double)?
+        let outro: (start: Double, end: Double)?
     }
 
-    static func fetchIntro(imdbId: String, season: Int, episode: Int) async -> (start: Double, end: Double)? {
+    private struct WindowDTO: Decodable {
+        let start_sec: Double?
+        let end_sec: Double?
+        var valid: (start: Double, end: Double)? {
+            guard let s = start_sec, let e = end_sec, e > s + 2.0 else { return nil }
+            return (s, e)
+        }
+    }
+
+    private struct SegmentsResp: Decodable {
+        let recap: WindowDTO?
+        let intro: WindowDTO?
+        let outro: WindowDTO?
+    }
+
+    static func fetchSegments(imdbId: String, season: Int, episode: Int) async -> Segments? {
         guard imdbId.hasPrefix("tt"), season > 0, episode > 0,
-              let url = URL(string: "https://api.introdb.app/intro?imdb_id=\(imdbId)&season=\(season)&episode=\(episode)")
+              let url = URL(string: "https://api.introdb.app/segments?imdb_id=\(imdbId)&season=\(season)&episode=\(episode)")
         else { return nil }
         var req = URLRequest(url: url)
         req.timeoutInterval = 8
         req.setValue("application/json", forHTTPHeaderField: "Accept")
-        guard let (data, resp) = try? await URLSession.shared.data(for: req),
-              let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode),
-              let decoded = try? JSONDecoder().decode(Resp.self, from: data),
-              let s = decoded.start_sec, let e = decoded.end_sec, e > s + 2.0
-        else { return nil }
-        return (s, e)
+        if let (data, resp) = try? await URLSession.shared.data(for: req),
+           let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode),
+           let decoded = try? JSONDecoder().decode(SegmentsResp.self, from: data) {
+            let segs = Segments(recap: decoded.recap?.valid, intro: decoded.intro?.valid, outro: decoded.outro?.valid)
+            if segs.recap != nil || segs.intro != nil || segs.outro != nil { return segs }
+        }
+        // Fallback to /intro endpoint if /segments had nothing.
+        if let introUrl = URL(string: "https://api.introdb.app/intro?imdb_id=\(imdbId)&season=\(season)&episode=\(episode)") {
+            var ireq = URLRequest(url: introUrl)
+            ireq.timeoutInterval = 8
+            ireq.setValue("application/json", forHTTPHeaderField: "Accept")
+            if let (data, resp) = try? await URLSession.shared.data(for: ireq),
+               let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode),
+               let decoded = try? JSONDecoder().decode(WindowDTO.self, from: data),
+               let valid = decoded.valid {
+                return Segments(recap: nil, intro: valid, outro: nil)
+            }
+        }
+        return nil
     }
 }

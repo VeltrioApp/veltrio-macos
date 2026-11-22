@@ -577,8 +577,8 @@ struct DetailView: View {
                 // Selected episode banner: horizontal thumbnail + title.
                 HStack(alignment: .top, spacing: Theme.Spacing.md) {
                     episodeThumb(episode)
-                        .frame(width: 180)
-                        .aspectRatio(16.0/9.0, contentMode: .fit)
+                        .frame(width: 180, height: 101)
+                        .clipped()
                     VStack(alignment: .leading, spacing: 6) {
                         if let s = episode.season, let e = episode.episode {
                             Text("Season \(s) · Episode \(e)")
@@ -608,19 +608,22 @@ struct DetailView: View {
     }
 
     private func episodeThumb(_ video: Video) -> some View {
-        ZStack {
-            Rectangle().fill(Theme.Palette.surface)
-            if let thumb = video.thumbnail, let url = URL(string: thumb) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let img): img.resizable().scaledToFill()
-                    default: EmptyView()
+        Rectangle()
+            .fill(Theme.Palette.surface)
+            .overlay {
+                if let thumb = video.thumbnail, let url = URL(string: thumb) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let img):
+                            img.resizable().scaledToFill()
+                        default:
+                            EmptyView()
+                        }
                     }
                 }
             }
-        }
-        .clipped()
-        .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
+            .clipped()
+            .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
     }
 
     /// When meta failed AND the content type looks like a series, offer a

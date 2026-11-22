@@ -42,7 +42,9 @@ struct PlayerView: View {
     @State private var simklStarted = false
     @State private var progressTask: Task<Void, Never>?
     @State private var showNextEpisodeOverlay = false
-    @State private var nextEpisodeCountdown = 10
+    @State private var nextEpisodeCountdown = 5
+    /// Tracks which segment key ("recap", "intro", "outro") the user dismissed manually.
+    @State private var dismissedSegmentKeys: Set<String> = []
     /// The episode after this one, found from the title's meta when the
     /// player opens; nil for a film, the last episode or specials.
     @State private var nextEpisode: Video?
@@ -186,13 +188,48 @@ struct PlayerView: View {
             }
             #endif
 
-            if controller.effectiveIsInSkippableIntro {
-                skipIntroOverlay
-                    .frame(maxWidth: .infinity, maxHeight: .infinity,
-                           alignment: .bottomTrailing)
-                    .padding(.trailing, Theme.Spacing.xl)
-                    .padding(.bottom, 130)
-                    .transition(.opacity.combined(with: .move(edge: .trailing)))
+            if let seg = controller.activeSkippableSegment,
+               !dismissedSegmentKeys.contains(seg.kind == .recap ? "recap" : "intro") {
+                let key = seg.kind == .recap ? "recap" : "intro"
+                let title = seg.kind == .recap
+                    ? (AppLocalization.isFrench ? "Passer le récap" : "Skip recap")
+                    : (AppLocalization.isFrench ? "Passer l'intro" : "Skip intro")
+                AutoFillActionButton(
+                    key: "\(key)-\(Int(seg.end))",
+                    title: title,
+                    duration: 5.0,
+                    onTrigger: {
+                        controller.skipIntro()
+                        flashControls()
+                    },
+                    onDismiss: {
+                        dismissedSegmentKeys.insert(key)
+                    }
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                .padding(.trailing, Theme.Spacing.xl)
+                .padding(.bottom, 130)
+                .transition(.opacity.combined(with: .move(edge: .trailing)))
+            } else if controller.isInOutroWindow,
+                      let next = nextEpisode,
+                      !showNextEpisodeOverlay,
+                      !isResolvingNext,
+                      !dismissedSegmentKeys.contains("outro") {
+                AutoFillActionButton(
+                    key: "outro-\(next.id)",
+                    title: (AppLocalization.isFrench ? "Prochain épisode · " : "Next episode · ") + Self.label(for: next),
+                    duration: 5.0,
+                    onTrigger: {
+                        playNextEpisode()
+                    },
+                    onDismiss: {
+                        dismissedSegmentKeys.insert("outro")
+                    }
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                .padding(.trailing, Theme.Spacing.xl)
+                .padding(.bottom, 130)
+                .transition(.opacity.combined(with: .move(edge: .trailing)))
             }
 
             if showCatchupSheet {
@@ -254,19 +291,39 @@ struct PlayerView: View {
             fetchLiveEPG()
             fetchCatchupEPG()
             let introTarget: (String, Int, Int)? = {
-                if case .stream(let p) = destination.kind, p.contentId.hasPrefix("tt"),
-                   let s = p.season, let ep = p.episode {
-                    return (p.contentId, Int(s), Int(ep))
+                func parseVideoId(_ vid: String?) -> (String, Int, Int)? {
+                    guard let vid else { return nil }
+                    let parts = vid.split(separator: ":")
+                    if parts.count >= 3, parts[0].hasPrefix("tt"),
+                       let s = Int(parts[1]), let ep = Int(parts[2]) {
+                        return (String(parts[0]), s, ep)
+                    }
+                    return nil
                 }
-                if let ctx = destination.watchContext, ctx.contentId.hasPrefix("tt"),
-                   let s = ctx.season, let ep = ctx.episode {
-                    return (ctx.contentId, Int(s), Int(ep))
+                if case .stream(let p) = destination.kind {
+                    if p.contentId.hasPrefix("tt"), let s = p.season, let ep = p.episode {
+                        return (p.contentId, Int(s), Int(ep))
+                    }
+                    if let parsed = parseVideoId(p.videoId) { return parsed }
+                }
+                if let ctx = destination.watchContext {
+                    if ctx.contentId.hasPrefix("tt"), let s = ctx.season, let ep = ctx.episode {
+                        return (ctx.contentId, Int(s), Int(ep))
+                    }
+                    if let parsed = parseVideoId(ctx.videoId) { return parsed }
                 }
                 return nil
             }()
             if let (cid, s, ep) = introTarget {
                 Task {
-                    controller.externalIntroWindow = await IntroService.fetchIntro(imdbId: cid, season: s, episode: ep)
+                    if let segs = await IntroService.fetchSegments(imdbId: cid, season: s, episode: ep) {
+                        controller.externalRecapWindow = segs.recap
+                        controller.externalIntroWindow = segs.intro
+                        controller.externalOutroWindow = segs.outro
+                        DebugLog.shared.info("IntroDB", "\(cid) S\(s)E\(ep) recap=\(segs.recap != nil) intro=\(segs.intro != nil) outro=\(segs.outro != nil)")
+                    } else {
+                        DebugLog.shared.info("IntroDB", "no segments for \(cid) S\(s)E\(ep)")
+                    }
                 }
             }
         }
@@ -595,17 +652,32 @@ struct PlayerView: View {
     /// The episode after this one in the title's meta (the next season's
     /// first after a season's last). Specials (season 0) aren't chained.
     private func findNextEpisode() {
-        guard case .stream(let p) = destination.kind, p.contentType == "series", let videoId = p.videoId,
-              let addon = store.metaAddon(for: "series", preferredId: p.addonId) else { return }
+        let info: (contentId: String, videoId: String?, season: Int32?, episode: Int32?, addonId: String?)? = {
+            if case .stream(let p) = destination.kind, p.contentType == "series" {
+                return (p.contentId, p.videoId, p.season, p.episode, p.addonId)
+            }
+            if let ctx = destination.watchContext, ctx.contentType == "series" {
+                return (ctx.contentId, ctx.videoId, ctx.season, ctx.episode, ctx.addonId)
+            }
+            return nil
+        }()
+        guard let info,
+              let addon = store.metaAddon(for: "series", preferredId: info.addonId) else { return }
         Task {
             guard case .success(_, let meta) = await store.fetchMetaWithFallback(
-                preferred: addon, type: "series", id: p.contentId
+                preferred: addon, type: "series", id: info.contentId
             ) else { return }
             let episodes = meta.videos
                 .filter { ($0.season ?? 0) > 0 }
                 .sorted { ($0.season ?? 0, $0.episode ?? 0) < ($1.season ?? 0, $1.episode ?? 0) }
-            guard let index = episodes.firstIndex(where: { $0.id == videoId }), index + 1 < episodes.count else { return }
+            let index = episodes.firstIndex(where: { ep in
+                if let vid = info.videoId, ep.id == vid { return true }
+                if let s = info.season, let e = info.episode, ep.season == s, ep.episode == e { return true }
+                return false
+            })
+            guard let index, index + 1 < episodes.count else { return }
             nextEpisode = episodes[index + 1]
+            DebugLog.shared.info("NextEp", "Ready: \(Self.label(for: episodes[index + 1]))")
         }
     }
 
@@ -613,7 +685,13 @@ struct PlayerView: View {
     /// playing — same release (`bingeGroup`), else same addon and quality,
     /// else the best — and replaces this player with it.
     private func playNextEpisode() {
-        guard case .stream(let p) = destination.kind, let next = nextEpisode, !isResolvingNext else { return }
+        guard let next = nextEpisode, !isResolvingNext else { return }
+        let streamPayload: PlayerDestination.StreamPayload? = {
+            if case .stream(let p) = destination.kind { return p }
+            return nil
+        }()
+        let ctx = destination.watchContext
+        guard streamPayload != nil || ctx != nil else { return }
         isResolvingNext = true
         nextEpisodeError = nil
         Task {
@@ -624,10 +702,15 @@ struct PlayerView: View {
                 default: return false
                 }
             }
-            let current = p.stream
-            let pick = Self.bingeGroup(of: current).flatMap { group in playable.first { Self.bingeGroup(of: $0.stream) == group } }
-                ?? playable.first { $0.addonName == p.addonName && Self.quality(of: $0.stream) == Self.quality(of: current) }
-                ?? playable.max { store.scoreStream($0) < store.scoreStream($1) }
+            let pick: LabeledStream?
+            if let p = streamPayload {
+                let current = p.stream
+                pick = Self.bingeGroup(of: current).flatMap { group in playable.first { Self.bingeGroup(of: $0.stream) == group } }
+                    ?? playable.first { $0.addonName == p.addonName && Self.quality(of: $0.stream) == Self.quality(of: current) }
+                    ?? playable.max { store.scoreStream($0) < store.scoreStream($1) }
+            } else {
+                pick = playable.max { store.scoreStream($0) < store.scoreStream($1) }
+            }
             isResolvingNext = false
             guard let pick else {
                 nextEpisodeError = String(localized: "No stream found for this episode.")
@@ -635,15 +718,15 @@ struct PlayerView: View {
             }
             let payload = PlayerDestination.StreamPayload(
                 stream: pick.stream,
-                addonId: p.addonId,
+                addonId: streamPayload?.addonId ?? ctx?.addonId ?? TmdbService.addonId,
                 addonName: pick.addonName,
-                contentId: p.contentId,
+                contentId: streamPayload?.contentId ?? ctx?.contentId ?? "",
                 contentType: "series",
                 videoId: next.id,
                 season: next.season,
                 episode: next.episode,
-                poster: p.poster,
-                background: p.background
+                poster: streamPayload?.poster ?? ctx?.poster,
+                background: streamPayload?.background ?? ctx?.background
             )
             showNextEpisodeOverlay = false
             // The same swap as zapping: this player gives way to the next
@@ -2645,6 +2728,75 @@ struct PlayerView: View {
         isFloatingPiP = false
     }
     #endif
+}
+
+private struct AutoFillActionButton: View {
+    let key: String
+    let title: String
+    let duration: Double
+    let onTrigger: () -> Void
+    let onDismiss: () -> Void
+
+    @State private var progress: CGFloat = 0
+    @State private var triggered = false
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Button {
+                guard !triggered else { return }
+                triggered = true
+                onTrigger()
+            } label: {
+                ZStack(alignment: .leading) {
+                    Rectangle().fill(Color.black.opacity(0.75))
+                    GeometryReader { geo in
+                        Rectangle()
+                            .fill(Theme.Palette.accent)
+                            .frame(width: geo.size.width * progress)
+                    }
+                    HStack(spacing: 10) {
+                        Image(systemName: "forward.end.fill")
+                            .font(.system(size: 11, weight: .black))
+                        Text(title)
+                            .font(Theme.Font.eyebrow(11, weight: .heavy))
+                            .tracking(2.0)
+                            .textCase(.uppercase)
+                            .lineLimit(1)
+                    }
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 14)
+                }
+                .fixedSize(horizontal: true, vertical: true)
+            }
+            .buttonStyle(.plainRect)
+
+            Button {
+                triggered = true
+                onDismiss()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .frame(width: 40, height: 42)
+                    .background(Color.black.opacity(0.85))
+            }
+            .buttonStyle(.plainRect)
+        }
+        .overlay(Rectangle().stroke(.white.opacity(0.25), lineWidth: 1))
+        .shadow(color: Theme.Palette.accentGlow, radius: 18, y: 8)
+        .task(id: key) {
+            progress = 0
+            triggered = false
+            withAnimation(.linear(duration: duration)) {
+                progress = 1.0
+            }
+            try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
+            guard !Task.isCancelled, !triggered else { return }
+            triggered = true
+            onTrigger()
+        }
+    }
 }
 
 // MARK: - Styled slider
