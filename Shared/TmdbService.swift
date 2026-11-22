@@ -190,6 +190,58 @@ final class TmdbService {
         return resp.results.compactMap { parsePreview($0, type: isSeries ? "series" : "movie", genres: genres) }
     }
 
+    static let discoverProviders: [(id: Int, name: String)] = [
+        (8, "Netflix"),
+        (350, "Apple TV+"),
+        (337, "Disney+"),
+        (119, "Prime Video"),
+        (1899, "Max"),
+        (381, "Canal+"),
+    ]
+
+    struct DiscoverGenre: Identifiable, Hashable {
+        let movieId: Int
+        let tvId: Int
+        let fr: String
+        let en: String
+        var id: Int { movieId }
+        var label: String { AppLocalization.isFrench ? fr : en }
+    }
+
+    static let discoverGenres: [DiscoverGenre] = [
+        .init(movieId: 28, tvId: 10759, fr: "Action", en: "Action"),
+        .init(movieId: 878, tvId: 10765, fr: "Sci-Fi", en: "Sci-Fi"),
+        .init(movieId: 35, tvId: 35, fr: "Comédie", en: "Comedy"),
+        .init(movieId: 18, tvId: 18, fr: "Drame", en: "Drama"),
+        .init(movieId: 53, tvId: 9648, fr: "Thriller", en: "Thriller"),
+        .init(movieId: 16, tvId: 16, fr: "Animation", en: "Animation"),
+        .init(movieId: 27, tvId: 9648, fr: "Horreur", en: "Horror"),
+        .init(movieId: 99, tvId: 99, fr: "Documentaire", en: "Documentary"),
+    ]
+
+    func discover(type: String, genreId: Int? = nil, providerId: Int? = nil, page: Int = 1) async throws -> [MetaPreview] {
+        guard let key = currentKey() else { return [] }
+        let lang = effectiveLanguage()
+        let region = lang.split(separator: "-").last.map(String.init) ?? "FR"
+        let isSeries = type.lowercased() == "series"
+        let endpoint = isSeries ? "tv" : "movie"
+        var params = [
+            "language=\(lang)",
+            "sort_by=popularity.desc",
+            "include_adult=false",
+            "page=\(page)",
+        ]
+        if let genreId { params.append("with_genres=\(genreId)") }
+        if let providerId {
+            params.append("with_watch_providers=\(providerId)")
+            params.append("watch_region=\(region)")
+        }
+        let genres = await genreMap(isSeries: isSeries, lang: lang, key: key)
+        let data = try await get(path: "/discover/\(endpoint)?\(params.joined(separator: "&"))", key: key)
+        let resp = try JSONDecoder().decode(TmdbListResponse.self, from: data)
+        return resp.results.compactMap { parsePreview($0, type: isSeries ? "series" : "movie", genres: genres) }
+    }
+
     // MARK: - Full Meta + Episodes
 
     func fetchMeta(type: String, id: String) async throws -> Meta {

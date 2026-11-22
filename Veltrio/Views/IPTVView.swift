@@ -7,6 +7,7 @@ struct IPTVView: View {
     @State private var showAddSheet = false
     @State private var searchText = ""
     @State private var selectedGroup: String?
+    @State private var favoritesOnly = false
     /// Channel grid, or the XMLTV guide when the playlist has one.
     @State private var showGuide = false
 
@@ -300,16 +301,43 @@ struct IPTVView: View {
                     label: "All",
                     icon: "square.grid.2x2",
                     count: store.iptvChannels.count,
-                    isSelected: selectedGroup == nil
-                ) { selectedGroup = nil }
+                    isSelected: selectedGroup == nil && !favoritesOnly
+                ) { selectedGroup = nil; favoritesOnly = false }
+
+                let favCount = store.iptvChannels.filter { store.iptvFavorites.contains($0.id) }.count
+                Chip(
+                    label: AppLocalization.isFrench ? "Favoris" : "Favorites",
+                    icon: "star.fill",
+                    count: favCount,
+                    isSelected: favoritesOnly
+                ) { favoritesOnly.toggle(); if favoritesOnly { selectedGroup = nil } }
 
                 ForEach(groups, id: \.name) { g in
                     Chip(
                         label: g.name,
                         icon: iconFor(group: g.name),
                         count: g.count,
-                        isSelected: selectedGroup == g.name
-                    ) { selectedGroup = g.name }
+                        isSelected: selectedGroup == g.name && !favoritesOnly
+                    ) { selectedGroup = g.name; favoritesOnly = false }
+                    .contextMenu {
+                        Button(role: .destructive) {
+                            store.toggleIptvHiddenGroup(g.name)
+                            if selectedGroup == g.name { selectedGroup = nil }
+                        } label: {
+                            Label(AppLocalization.isFrench ? "Masquer ce bouquet" : "Hide group", systemImage: "eye.slash")
+                        }
+                    }
+                }
+
+                if !store.iptvHiddenGroups.isEmpty {
+                    Chip(
+                        label: AppLocalization.isFrench ? "Réafficher (\(store.iptvHiddenGroups.count))" : "Show hidden (\(store.iptvHiddenGroups.count))",
+                        icon: "eye",
+                        count: nil,
+                        isSelected: false
+                    ) {
+                        for g in Array(store.iptvHiddenGroups) { store.toggleIptvHiddenGroup(g) }
+                    }
                 }
             }
             .padding(.vertical, 2)
@@ -446,6 +474,7 @@ struct IPTVView: View {
     private var groups: [(name: String, count: Int)] {
         let grouped = Dictionary(grouping: store.iptvChannels) { $0.group ?? "Ungrouped" }
         return grouped
+            .filter { !store.iptvHiddenGroups.contains($0.key) }
             .map { (name: $0.key, count: $0.value.count) }
             .sorted { $0.name < $1.name }
     }
@@ -454,8 +483,13 @@ struct IPTVView: View {
 
     private var filteredChannels: [IptvChannel] {
         var list = store.iptvChannels
-        if let group = selectedGroup {
-            list = list.filter { ($0.group ?? "Ungrouped") == group }
+        if favoritesOnly {
+            list = list.filter { store.iptvFavorites.contains($0.id) }
+        } else {
+            list = list.filter { !store.iptvHiddenGroups.contains($0.group ?? "Ungrouped") }
+            if let group = selectedGroup {
+                list = list.filter { ($0.group ?? "Ungrouped") == group }
+            }
         }
         let needle = searchText.trimmingCharacters(in: .whitespaces).lowercased()
         if !needle.isEmpty {

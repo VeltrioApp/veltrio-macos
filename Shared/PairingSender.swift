@@ -149,6 +149,12 @@ enum PairingSender {
         if !UserPrefs.shared.appLanguage.isEmpty {
             out["appLanguage"] = UserPrefs.shared.appLanguage
         }
+        if !store.iptvFavorites.isEmpty {
+            out["iptvFavorites"] = Array(store.iptvFavorites)
+        }
+        if !store.iptvHiddenGroups.isEmpty {
+            out["iptvHiddenGroups"] = Array(store.iptvHiddenGroups)
+        }
         return out
     }
 

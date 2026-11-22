@@ -114,6 +114,19 @@ struct LiveTVView: View {
                             LiveChannelRow(channel: channel, number: numbers[channel.id],
                                            isSelected: !tapToPlay && channel.id == selected?.id)
                                 .id(channel.id)
+                                .contextMenu {
+                                    let isFav = store.iptvFavorites.contains(channel.id)
+                                    Button {
+                                        store.toggleIptvFavorite(channel.id)
+                                    } label: {
+                                        Label(
+                                            isFav
+                                                ? (AppLocalization.isFrench ? "Retirer des favoris" : "Remove from Favorites")
+                                                : (AppLocalization.isFrench ? "Ajouter aux favoris" : "Add to Favorites"),
+                                            systemImage: isFav ? "star.slash" : "star.fill"
+                                        )
+                                    }
+                                }
                                 .if(tapToPlay) { row in
                                     row.onTapGesture { play(channel) }
                                 }

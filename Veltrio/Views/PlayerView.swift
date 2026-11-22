@@ -182,7 +182,7 @@ struct PlayerView: View {
             }
             #endif
 
-            if controller.isInSkippableIntro {
+            if controller.effectiveIsInSkippableIntro {
                 skipIntroOverlay
                     .frame(maxWidth: .infinity, maxHeight: .infinity,
                            alignment: .bottomTrailing)
@@ -249,6 +249,22 @@ struct PlayerView: View {
             findNextEpisode()
             fetchLiveEPG()
             fetchCatchupEPG()
+            let introTarget: (String, Int, Int)? = {
+                if case .stream(let p) = destination.kind, p.contentId.hasPrefix("tt"),
+                   let s = p.season, let ep = p.episode {
+                    return (p.contentId, Int(s), Int(ep))
+                }
+                if let ctx = destination.watchContext, ctx.contentId.hasPrefix("tt"),
+                   let s = ctx.season, let ep = ctx.episode {
+                    return (ctx.contentId, Int(s), Int(ep))
+                }
+                return nil
+            }()
+            if let (cid, s, ep) = introTarget {
+                Task {
+                    controller.externalIntroWindow = await IntroService.fetchIntro(imdbId: cid, season: s, episode: ep)
+                }
+            }
         }
         .onChange(of: controller.isPaused) { _, paused in
             // Pause lifts the display-sleep guard; resume reinstates it.

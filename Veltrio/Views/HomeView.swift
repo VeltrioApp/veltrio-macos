@@ -43,6 +43,13 @@ struct HomeView: View {
 
     private var rows: some View {
         VStack(alignment: .leading, spacing: Theme.Layout.sectionGap) {
+            if tmdb.isConnected {
+                #if os(tvOS)
+                HomeDiscoverBar { addon, meta in focusedItem = (addon, meta) }
+                #else
+                HomeDiscoverBar()
+                #endif
+            }
             // Continue watching takes slot 01 when present; the first
             // catalog then starts at 02. The numerals are a design element
             // that carries the editorial grammar.
@@ -173,6 +180,121 @@ struct HomeView: View {
         }
         .pageContainer()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+}
+
+// MARK: - TMDB Discover filter bar
+
+private struct HomeDiscoverBar: View {
+    var onFocus: ((InstalledAddon, MetaPreview) -> Void)? = nil
+
+    @State private var tmdb = TmdbService.shared
+    @State private var mediaType = "movie"
+    @State private var selectedProvider: Int? = nil
+    @State private var selectedGenre: TmdbService.DiscoverGenre? = nil
+    @State private var results: [MetaPreview]? = nil
+    #if os(tvOS)
+    @FocusState private var focusedId: String?
+    #endif
+
+    private var isActive: Bool { selectedProvider != nil || selectedGenre != nil }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    filterChip(AppLocalization.isFrench ? "Films" : "Movies", selected: mediaType == "movie") {
+                        mediaType = "movie"
+                    }
+                    filterChip(AppLocalization.isFrench ? "Séries" : "Series", selected: mediaType == "series") {
+                        mediaType = "series"
+                    }
+                    ForEach(TmdbService.discoverProviders, id: \.id) { p in
+                        filterChip(p.name, selected: selectedProvider == p.id) {
+                            selectedProvider = (selectedProvider == p.id) ? nil : p.id
+                        }
+                    }
+                    ForEach(TmdbService.discoverGenres) { g in
+                        filterChip(g.label, selected: selectedGenre == g) {
+                            selectedGenre = (selectedGenre == g) ? nil : g
+                        }
+                    }
+                    if isActive {
+                        filterChip(AppLocalization.isFrench ? "Effacer" : "Clear", selected: false) {
+                            selectedProvider = nil
+                            selectedGenre = nil
+                        }
+                    }
+                }
+                .padding(.vertical, 2)
+            }
+
+            if isActive {
+                let addon = tmdb.virtualAddon()
+                if let results {
+                    if results.isEmpty {
+                        Text("No items.")
+                            .font(Theme.Font.caption(12))
+                            .foregroundStyle(Theme.Palette.textTertiary)
+                    } else {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(alignment: .top, spacing: Theme.Spacing.md) {
+                                ForEach(results, id: \.id) { meta in
+                                    NavigationLink(value: DetailDestination(
+                                        addon: addon, type: meta.type, id: meta.id, name: meta.name
+                                    )) {
+                                        PosterCard(
+                                            title: meta.name,
+                                            posterURL: meta.poster,
+                                            subtitle: meta.releaseInfo,
+                                            rating: meta.imdbRating
+                                        )
+                                        .frame(width: Platform.isMac ? 180 : 124)
+                                    }
+                                    .buttonStyle(.plainRect)
+                                    #if os(tvOS)
+                                    .focused($focusedId, equals: meta.id)
+                                    #endif
+                                }
+                            }
+                            .padding(.vertical, Theme.Spacing.sm)
+                        }
+                        #if os(tvOS)
+                        .onChange(of: focusedId) { _, newId in
+                            if let newId, let hit = results.first(where: { $0.id == newId }) {
+                                onFocus?(addon, hit)
+                            }
+                        }
+                        #endif
+                    }
+                } else {
+                    LoadingRow()
+                }
+            }
+        }
+        .task(id: "\(mediaType)|\(selectedProvider ?? -1)|\(selectedGenre?.id ?? -1)|\(tmdb.revision)") {
+            guard isActive else {
+                results = nil
+                return
+            }
+            results = nil
+            let gid = selectedGenre.map { mediaType == "series" ? $0.tvId : $0.movieId }
+            results = (try? await tmdb.discover(type: mediaType, genreId: gid, providerId: selectedProvider)) ?? []
+        }
+    }
+
+    private func filterChip(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(Theme.Font.eyebrow(10, weight: .bold))
+                .tracking(1.4)
+                .foregroundStyle(selected ? Theme.Palette.onAccent : Theme.Palette.textSecondary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(selected ? Theme.Palette.accent : Theme.Palette.surface)
+                .overlay(Rectangle().stroke(selected ? Theme.Palette.accent : Theme.Palette.border, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 }
 

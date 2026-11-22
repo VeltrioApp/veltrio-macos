@@ -84,7 +84,38 @@ final class AppStore {
     private(set) var isLoadingIptv = false
     private(set) var iptvError: String?
     var iptvMode: IptvMode = .live
+    private(set) var iptvFavorites: Set<String> = []
+    private(set) var iptvHiddenGroups: Set<String> = []
     private var iptvLoadTask: Task<Void, Never>?
+
+    private static let iptvFavsKey = "veltrio.iptv.favorites"
+    private static let iptvHiddenKey = "veltrio.iptv.hiddenGroups"
+
+    @MainActor
+    func toggleIptvFavorite(_ channelId: String) {
+        if iptvFavorites.contains(channelId) { iptvFavorites.remove(channelId) }
+        else { iptvFavorites.insert(channelId) }
+        UserDefaults.standard.set(Array(iptvFavorites), forKey: Self.iptvFavsKey)
+    }
+
+    @MainActor
+    func toggleIptvHiddenGroup(_ group: String) {
+        if iptvHiddenGroups.contains(group) { iptvHiddenGroups.remove(group) }
+        else { iptvHiddenGroups.insert(group) }
+        UserDefaults.standard.set(Array(iptvHiddenGroups), forKey: Self.iptvHiddenKey)
+    }
+
+    @MainActor
+    func mergeIptvFavoritesAndHidden(favorites: [String], hiddenGroups: [String]) {
+        if !favorites.isEmpty {
+            iptvFavorites.formUnion(favorites)
+            UserDefaults.standard.set(Array(iptvFavorites), forKey: Self.iptvFavsKey)
+        }
+        if !hiddenGroups.isEmpty {
+            iptvHiddenGroups.formUnion(hiddenGroups)
+            UserDefaults.standard.set(Array(iptvHiddenGroups), forKey: Self.iptvHiddenKey)
+        }
+    }
 
     @MainActor
     func setIptvMode(_ mode: IptvMode) async {
@@ -168,6 +199,8 @@ final class AppStore {
         self.addons = persistence.load()
         self.disabledAddonIds = persistence.loadDisabled()
         self.iptvPlaylists = iptvPersistence.load()
+        self.iptvFavorites = Set(UserDefaults.standard.stringArray(forKey: Self.iptvFavsKey) ?? [])
+        self.iptvHiddenGroups = Set(UserDefaults.standard.stringArray(forKey: Self.iptvHiddenKey) ?? [])
         // The playlist used last, else the first one.
         let saved = UserDefaults.standard.string(forKey: Self.selectedPlaylistKey).flatMap(UUID.init)
         self.selectedIptvPlaylistId = iptvPlaylists.first(where: { $0.id == saved })?.id ?? iptvPlaylists.first?.id

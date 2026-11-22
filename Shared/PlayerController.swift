@@ -97,6 +97,15 @@ final class PlayerController {
     var isInSkippableIntro: Bool = false
     /// Next chapter time — the target of a "Skip intro" click.
     var nextChapterTimeAfterIntro: Double?
+    /// External intro window from IntroDB (api.introdb.app) when the file
+    /// has no intro chapter markers.
+    var externalIntroWindow: (start: Double, end: Double)?
+
+    var effectiveIsInSkippableIntro: Bool {
+        if isInSkippableIntro && nextChapterTimeAfterIntro != nil { return true }
+        if let w = externalIntroWindow, position >= w.start && position < w.end { return true }
+        return false
+    }
 
     // Set by MPVOpenGLView when it initializes. Weak so a torn-down view
     // doesn't keep itself alive through a controller the UI still holds.
@@ -254,11 +263,13 @@ final class PlayerController {
         view?.setAudioPassthrough(enabled)
     }
 
-    /// Seek to the end of the current "intro" chapter. No-op when no
-    /// intro is detected at the playhead.
+    /// Seek to the end of the current "intro" chapter or IntroDB window.
     func skipIntro() {
-        guard let target = nextChapterTimeAfterIntro else { return }
-        seek(to: target)
+        if let target = nextChapterTimeAfterIntro, isInSkippableIntro {
+            seek(to: target)
+        } else if let w = externalIntroWindow, position >= w.start && position < w.end {
+            seek(to: w.end)
+        }
     }
 
     func applyPlaybackProfile(_ p: PlaybackProfile) {
@@ -273,5 +284,28 @@ final class PlayerController {
         let scale = (d.object(forKey: "veltrio.pref.subtitleScale") as? Double) ?? 1.0
         let color = d.string(forKey: "veltrio.pref.subtitleColor") ?? "#FFFFFFFF"
         view?.setSubtitleAppearance(scale: scale, color: color)
+    }
+}
+
+/// Automatic TV episode intro detection via IntroDB (api.introdb.app).
+enum IntroService {
+    private struct Resp: Decodable {
+        let start_sec: Double?
+        let end_sec: Double?
+    }
+
+    static func fetchIntro(imdbId: String, season: Int, episode: Int) async -> (start: Double, end: Double)? {
+        guard imdbId.hasPrefix("tt"), season > 0, episode > 0,
+              let url = URL(string: "https://api.introdb.app/intro?imdb_id=\(imdbId)&season=\(season)&episode=\(episode)")
+        else { return nil }
+        var req = URLRequest(url: url)
+        req.timeoutInterval = 8
+        req.setValue("application/json", forHTTPHeaderField: "Accept")
+        guard let (data, resp) = try? await URLSession.shared.data(for: req),
+              let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode),
+              let decoded = try? JSONDecoder().decode(Resp.self, from: data),
+              let s = decoded.start_sec, let e = decoded.end_sec, e > s + 2.0
+        else { return nil }
+        return (s, e)
     }
 }
