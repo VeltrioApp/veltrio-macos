@@ -12,6 +12,7 @@ final class MPVEngine {
     private var initialized = false
     private(set) var isShutdown = false
     weak var controller: PlayerController?
+    private var lastPositionPublish: CFAbsoluteTime = 0
 
     /// Live-pointer registry so the C callbacks can decide whether the
     /// engine is still around without holding a strong reference to it.
@@ -56,6 +57,9 @@ final class MPVEngine {
         setOption("terminal", "no")
         setOption("input-default-bindings", "no")
         setOption("input-vo-keyboard", "no")
+        // Set default hwdec BEFORE platform videoOutput so iOS/tvOS can
+        // enforce zero-copy `videotoolbox` without being overwritten.
+        setOption("hwdec", "auto-safe")
         videoOutput(mpv)
 
         // Lock mpv down to the network protocols we actually route through
@@ -65,7 +69,6 @@ final class MPVEngine {
         setOption("demuxer-lavf-o", "protocol_whitelist=file,crypto,data,http,https,tcp,tls,hls,rtmp,rtmps,udp,rtp")
         setOption("load-unsafe-playlists", "no")
 
-        setOption("hwdec", "auto-safe")
         setOption("keep-open", "yes")
         setOption("audio-channels", "auto-safe")
         setOption("cache", "yes")
@@ -263,7 +266,13 @@ final class MPVEngine {
         switch (name, format) {
         case ("time-pos", MPV_FORMAT_DOUBLE):
             if let p = data?.assumingMemoryBound(to: Double.self).pointee {
-                controller.position = p
+                // Throttle @Observable position updates to ~4 Hz (unless seeking
+                // or jumping > 1s) so SwiftUI PlayerView doesn't re-layout 60x/s.
+                let now = CFAbsoluteTimeGetCurrent()
+                if abs(p - controller.position) >= 1.0 || now - lastPositionPublish >= 0.25 {
+                    lastPositionPublish = now
+                    controller.position = p
+                }
             }
         case ("duration", MPV_FORMAT_DOUBLE):
             if let p = data?.assumingMemoryBound(to: Double.self).pointee {

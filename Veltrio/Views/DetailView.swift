@@ -435,8 +435,10 @@ struct DetailView: View {
         .disabled(best == nil)
     }
 
+    private var canonicalId: String { meta?.id ?? destination.id }
+
     private var saveButton: some View {
-        let inLibrary = watch.isInLibrary(type: destination.type, id: destination.id)
+        let inLibrary = watch.isInLibrary(type: destination.type, id: canonicalId)
         return FrameButton(
             title: inLibrary ? "In library" : "Save",
             icon: inLibrary ? "bookmark.fill" : "bookmark",
@@ -445,7 +447,7 @@ struct DetailView: View {
         ) {
             watch.toggleLibrary(
                 type: destination.type,
-                id: destination.id,
+                id: canonicalId,
                 name: meta?.name ?? destination.name,
                 poster: meta?.poster,
                 background: meta?.background,
@@ -591,7 +593,7 @@ struct DetailView: View {
     private var canFallbackSeries: Bool {
         meta == nil &&
         (destination.type == "series" || manualForcedSeries) &&
-        destination.id.hasPrefix("tt")
+        canonicalId.hasPrefix("tt")
     }
 
     private var manualEpisodePicker: some View {
@@ -664,7 +666,7 @@ struct DetailView: View {
     }
 
     private func loadManualEpisodeStreams() async {
-        let composite = "\(destination.id):\(manualSeason):\(manualEpisode)"
+        let composite = "\(canonicalId):\(manualSeason):\(manualEpisode)"
         await loadStreams(for: composite, type: "series")
     }
 
@@ -1046,7 +1048,7 @@ struct DetailView: View {
         var dest = d.destination
         dest.watchContext = .init(
             contentType: isSeriesType ? "series" : "movie",
-            contentId: destination.id,
+            contentId: canonicalId,
             videoId: isSeriesType ? selectedVideoId : nil,
             season: currentSeason ?? (canFallbackSeries ? Int32(manualSeason) : nil),
             episode: currentEpisode ?? (canFallbackSeries ? Int32(manualEpisode) : nil),
@@ -1068,7 +1070,7 @@ struct DetailView: View {
             stream: labeled.stream,
             addonId: destination.addon.id,
             addonName: labeled.addonName,
-            contentId: destination.id,
+            contentId: canonicalId,
             contentType: isSeriesType ? "series" : "movie",
             videoId: isSeriesType ? selectedVideoId : nil,
             season: effSeason,
@@ -1092,14 +1094,16 @@ struct DetailView: View {
         switch result {
         case .success(_, let fetched):
             meta = fetched
-            Task {
-                if let loc = await TmdbService.shared.localize(imdbId: destination.id, type: destination.type) {
-                    localizedTitle = loc.title
-                    localizedOverview = loc.overview
+            if destination.addon.id != TmdbService.addonId {
+                Task {
+                    if let loc = await TmdbService.shared.localize(imdbId: fetched.id, type: destination.type) {
+                        localizedTitle = loc.title
+                        localizedOverview = loc.overview
+                    }
                 }
             }
             if fetched.videos.isEmpty {
-                await loadStreams(for: destination.id)
+                await loadStreams(for: fetched.id)
             } else if let first = fetched.videos
                 .filter({ $0.season != nil })
                 .sorted(by: { ($0.season ?? 0, $0.episode ?? 0) < ($1.season ?? 0, $1.episode ?? 0) })
