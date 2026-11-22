@@ -3,11 +3,13 @@ import SwiftUI
 struct HomeView: View {
     @Environment(AppStore.self) private var store
     @Environment(WatchStore.self) private var watch
+    @State private var tmdb = TmdbService.shared
+    @State private var tmdbKeyInput = ""
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                if enabledAddons.isEmpty {
+                if homeAddons.isEmpty {
                     emptyState
                         .padding(.top, Theme.navBarInset + 60)
                 } else {
@@ -23,12 +25,15 @@ struct HomeView: View {
             }
             .padding(.bottom, Theme.Spacing.xxl)
         }
+        .onChange(of: tmdb.revision) { _, _ in
+            store.clearCatalogCache()
+        }
         .task {
             await store.stremioAccount.syncOnLaunchIfNeeded(into: watch)
         }
     }
 
-    private var enabledAddons: [InstalledAddon] { store.enabledAddons }
+    private var homeAddons: [InstalledAddon] { store.homeAddons }
 
     private var rows: some View {
         VStack(alignment: .leading, spacing: Theme.Layout.sectionGap) {
@@ -41,7 +46,7 @@ struct HomeView: View {
             let base = watch.continueWatching.isEmpty ? 1 : 2
             ForEach(Array(catalogIndex.enumerated()), id: \.offset) { offset, pair in
                 CatalogRow(addon: pair.addon, catalog: pair.catalog, number: base + offset)
-                    .task(id: CatalogKey(addonId: pair.addon.id, type: pair.catalog.type, id: pair.catalog.id)) {
+                    .task(id: "\(pair.addon.id)|\(pair.catalog.type)|\(pair.catalog.id)|\(tmdb.revision)") {
                         await store.loadCatalog(addon: pair.addon, catalog: pair.catalog)
                     }
             }
@@ -50,7 +55,7 @@ struct HomeView: View {
 
     private typealias CatalogPair = (addon: InstalledAddon, catalog: Catalog)
     private var catalogIndex: [CatalogPair] {
-        enabledAddons.flatMap { addon in
+        homeAddons.flatMap { addon in
             addon.manifest.catalogs.map { (addon, $0) }
         }
     }
@@ -97,7 +102,7 @@ struct HomeView: View {
     }
 
     private var heroItem: (addon: InstalledAddon, item: MetaPreview)? {
-        for addon in enabledAddons {
+        for addon in homeAddons {
             for catalog in addon.manifest.catalogs {
                 let key = CatalogKey(addonId: addon.id, type: catalog.type, id: catalog.id)
                 if case .loaded(let metas) = store.catalogs[key],
@@ -118,10 +123,31 @@ struct HomeView: View {
                 .foregroundStyle(Theme.Palette.textPrimary)
                 .lineLimit(nil)
             Rule().frame(maxWidth: 420)
-            Text("Install a source to start browsing. Cinemeta surfaces every mainstream title; add more sources to widen the catalog.")
+            Text("Connect your free TMDB API key (themoviedb.org/settings/api) to browse movies, series, synopses and search in your language.")
                 .font(Theme.Font.body(15))
                 .foregroundStyle(Theme.Palette.textSecondary)
                 .frame(maxWidth: 480, alignment: .leading)
+            HStack(spacing: Theme.Spacing.sm) {
+                SecureField("TMDB API key or Read Access Token", text: $tmdbKeyInput)
+                    .textFieldStyle(.plain)
+                    .font(Theme.Font.mono(13))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 9)
+                    .background(Theme.Palette.surface)
+                    .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
+                    .frame(maxWidth: 360)
+                CTAButton(title: tmdb.isBusy ? "Connecting…" : "Connect TMDB", icon: "checkmark") {
+                    Task {
+                        if await tmdb.connect(rawKey: tmdbKeyInput) { tmdbKeyInput = "" }
+                    }
+                }
+                .disabled(tmdb.isBusy || tmdbKeyInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+            if let err = tmdb.error {
+                Text(err)
+                    .font(Theme.Font.caption(12))
+                    .foregroundStyle(Theme.Palette.danger)
+            }
             TextLinkButton(title: "Open sources", icon: "arrow.right") {
                 NotificationCenter.default.post(name: .veltrioGoto, object: NavItem.addons)
             }

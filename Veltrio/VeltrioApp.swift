@@ -4,6 +4,7 @@ import SwiftUI
 struct VeltrioApp: App {
     @State private var store: AppStore
     @State private var watch = WatchStore()
+    @State private var prefs = UserPrefs.shared
 
     init() {
         initLogging()
@@ -17,6 +18,7 @@ struct VeltrioApp: App {
             RootView()
                 .environment(store)
                 .environment(watch)
+                .environment(\.locale, prefs.resolvedLocale)
                 .frame(minWidth: 960, minHeight: 620)
                 // The theme preference is applied by RootView, which is
                 // deeper in the hierarchy and therefore wins. Forcing

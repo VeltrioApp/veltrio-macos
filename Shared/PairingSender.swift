@@ -141,11 +141,15 @@ enum PairingSender {
             return out
         }
 
-        return [
+        var out: [String: Any] = [
             "v": 1, "from": deviceName,
             "addons": addons, "disabledAddons": disabled, "playlists": playlists,
             "secrets": secrets, "mediaServers": servers, "watch": entries,
         ]
+        if !UserPrefs.shared.appLanguage.isEmpty {
+            out["appLanguage"] = UserPrefs.shared.appLanguage
+        }
+        return out
     }
 
     static var deviceName: String {

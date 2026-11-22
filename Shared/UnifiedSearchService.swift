@@ -173,7 +173,7 @@ final class UnifiedSearchService {
         struct Candidate: Hashable { let addon: InstalledAddon; let catalog: Catalog }
 
         var candidates: [Candidate] = []
-        for addon in (store?.addons ?? []) where addon.manifest.resources.contains("catalog") {
+        for addon in (store?.homeAddons ?? []) where addon.manifest.resources.contains("catalog") {
             for catalog in addon.manifest.catalogs
             where catalog.extra.contains(where: { $0.name == "search" })
                 && Self.mediaKind(stremioType: catalog.type) != nil {

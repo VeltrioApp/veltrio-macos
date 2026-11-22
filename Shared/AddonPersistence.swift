@@ -53,8 +53,6 @@ struct AddonPersistence {
     static func defaultAddons() -> [InstalledAddon] { [] }
 
     static let suggestedAddons: [SuggestedAddon] = [
-        .init(name: "Cinemeta", url: "https://v3-cinemeta.strem.io/manifest.json",
-              blurb: "Official catalogs for movies and series (TMDB-powered)."),
         .init(name: "OpenSubtitles v3", url: "https://opensubtitles-v3.strem.io/manifest.json",
               blurb: "Subtitles in 50+ languages."),
         .init(name: "WatchHub", url: "https://watchhub.strem.io/manifest.json",

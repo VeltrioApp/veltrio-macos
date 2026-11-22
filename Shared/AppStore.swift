@@ -27,6 +27,23 @@ final class AppStore {
         addons.filter { !disabledAddonIds.contains($0.id) }
     }
 
+    static func isCinemeta(_ addon: InstalledAddon) -> Bool {
+        addon.manifest.transportUrl.localizedCaseInsensitiveContains("cinemeta")
+            || addon.id.localizedCaseInsensitiveContains("cinemeta")
+    }
+
+    /// Addons powering Home & Search: native TMDB first when connected,
+    /// followed by any non-Cinemeta enabled Stremio addons.
+    var homeAddons: [InstalledAddon] {
+        let tmdb = TmdbService.shared.isConnected ? [TmdbService.shared.virtualAddon()] : []
+        return tmdb + enabledAddons.filter { !Self.isCinemeta($0) }
+    }
+
+    @MainActor
+    func clearCatalogCache() {
+        catalogs.removeAll()
+    }
+
     func isAddonEnabled(id: String) -> Bool {
         !disabledAddonIds.contains(id)
     }
@@ -305,12 +322,17 @@ final class AppStore {
         if case .loaded = catalogs[key] { return }
         catalogs[key] = .loading
         do {
-            let items = try await client.fetchCatalog(
-                transportUrl: addon.manifest.transportUrl,
-                type: catalog.type,
-                id: catalog.id,
-                extras: []
-            )
+            let items: [MetaPreview]
+            if addon.id == TmdbService.addonId {
+                items = try await TmdbService.shared.fetchCatalog(type: catalog.type, catalogId: catalog.id, skip: 0)
+            } else {
+                items = try await client.fetchCatalog(
+                    transportUrl: addon.manifest.transportUrl,
+                    type: catalog.type,
+                    id: catalog.id,
+                    extras: []
+                )
+            }
             catalogs[key] = .loaded(items)
         } catch {
             catalogs[key] = .failed(humanize(error))
@@ -320,7 +342,10 @@ final class AppStore {
     // -------------------- meta ---------------------
 
     func fetchMeta(addon: InstalledAddon, type: String, id: String) async throws -> Meta {
-        try await client.fetchMeta(transportUrl: addon.manifest.transportUrl, type: type, id: id)
+        if addon.id == TmdbService.addonId || (TmdbService.shared.isConnected && (id.hasPrefix("tmdb:") || id.hasPrefix("tt"))) {
+            return try await TmdbService.shared.fetchMeta(type: type, id: id)
+        }
+        return try await client.fetchMeta(transportUrl: addon.manifest.transportUrl, type: type, id: id)
     }
 
     /// Try the preferred addon first, then every other enabled addon that
@@ -333,9 +358,15 @@ final class AppStore {
         case failure(message: String)
     }
 
-    /// The addon to open a title's page with: the one that surfaced it
-    /// when known, else the first metadata addon serving that type.
+    /// The addon to open a title's page with: TMDB when connected, else
+    /// the preferred addon or first metadata addon serving that type.
     func metaAddon(for type: String, preferredId: String? = nil) -> InstalledAddon? {
+        if preferredId == TmdbService.addonId && TmdbService.shared.isConnected {
+            return TmdbService.shared.virtualAddon()
+        }
+        if TmdbService.shared.isConnected && (type == "movie" || type == "series") {
+            return TmdbService.shared.virtualAddon()
+        }
         if let preferredId, let addon = addons.first(where: { $0.id == preferredId }) {
             return addon
         }
@@ -350,15 +381,29 @@ final class AppStore {
         type: String,
         id: String
     ) async -> MetaFetchOutcome {
-        var ordered: [InstalledAddon] = [preferred]
-        for addon in enabledAddons where addon.id != preferred.id {
+        var lastError: String?
+        if TmdbService.shared.isConnected && (preferred.id == TmdbService.addonId || id.hasPrefix("tmdb:") || id.hasPrefix("tt")) {
+            do {
+                let meta = try await Self.withTimeout(.seconds(20)) {
+                    try await TmdbService.shared.fetchMeta(type: type, id: id)
+                }
+                return .success(addon: TmdbService.shared.virtualAddon(), meta: meta)
+            } catch {
+                lastError = error.localizedDescription
+                if preferred.id == TmdbService.addonId || id.hasPrefix("tmdb:") {
+                    return .failure(message: lastError ?? String(localized: "Title not found on TMDB."))
+                }
+            }
+        }
+
+        var ordered: [InstalledAddon] = preferred.id == TmdbService.addonId ? [] : [preferred]
+        for addon in enabledAddons where addon.id != preferred.id && addon.id != TmdbService.addonId {
             guard addon.manifest.resources.contains("meta") else { continue }
             if addon.manifest.types.contains(type) || addon.manifest.types.isEmpty {
                 ordered.append(addon)
             }
         }
 
-        var lastError: String?
         for addon in ordered {
             do {
                 let meta = try await Self.withTimeout(.seconds(15)) {
@@ -386,6 +431,11 @@ final class AppStore {
     /// whichever addons answered quickly.
     func searchCatalog(addon: InstalledAddon, catalog: Catalog, query: String) async -> [MetaPreview] {
         do {
+            if addon.id == TmdbService.addonId {
+                return try await Self.withTimeout(.seconds(10)) {
+                    try await TmdbService.shared.search(query: query, type: catalog.type)
+                }
+            }
             return try await Self.withTimeout(.seconds(10)) {
                 try await self.client.fetchCatalog(
                     transportUrl: addon.manifest.transportUrl,
@@ -406,6 +456,11 @@ final class AppStore {
         skip: Int, extras: [String] = []
     ) async -> [MetaPreview] {
         do {
+            if addon.id == TmdbService.addonId {
+                return try await Self.withTimeout(.seconds(15)) {
+                    try await TmdbService.shared.fetchCatalog(type: catalog.type, catalogId: catalog.id, skip: skip)
+                }
+            }
             return try await Self.withTimeout(.seconds(15)) {
                 try await self.client.fetchCatalog(
                     transportUrl: addon.manifest.transportUrl,

@@ -1,15 +1,30 @@
 import Foundation
 
+enum AppLocalization {
+    nonisolated(unsafe) static var overrideCode: String = ""
+
+    static func bundle() -> Bundle {
+        let code = overrideCode
+        guard !code.isEmpty,
+              let path = Bundle.main.path(forResource: code, ofType: "lproj"),
+              let b = Bundle(path: path)
+        else { return .main }
+        return b
+    }
+
+    static var isFrench: Bool {
+        switch overrideCode {
+        case "fr": return true
+        case "en": return false
+        default: return Locale.preferredLanguages.first?.hasPrefix("fr") ?? false
+        }
+    }
+}
+
 extension String {
-    /// This string looked up in the app's string catalog, or itself when
-    /// it isn't there.
-    ///
-    /// For text that reaches a view as a `String` — component titles, enum
-    /// labels — rather than as a literal SwiftUI can localize on its own.
-    /// Names from outside the app (addons, catalogs, servers) have no
-    /// entry and come back unchanged. Unlike `LocalizedStringKey`, this
-    /// never reads `%` in the text as a format specifier.
+    /// This string looked up in the app's string catalog (respecting the
+    /// user's in-app language override when set), or itself when absent.
     var localized: String {
-        Bundle.main.localizedString(forKey: self, value: self, table: nil)
+        AppLocalization.bundle().localizedString(forKey: self, value: self, table: nil)
     }
 }

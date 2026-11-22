@@ -1005,6 +1005,36 @@ private struct AppearanceSettings: View {
             title: "Appearance",
             subtitle: "How Veltrio looks and feels."
         )
+        SettingsSection(title: "Language") {
+            Text("App interface language (also syncs TMDB catalogs and synopses).")
+                .font(Theme.Font.caption(11))
+                .foregroundStyle(Theme.Palette.textTertiary)
+            HStack(spacing: 8) {
+                ForEach(UserPrefs.appLanguages, id: \.code) { opt in
+                    let selected = prefs.appLanguage == opt.code
+                    Button {
+                        prefs.appLanguage = opt.code
+                        let tmdbLang: String = switch opt.code {
+                        case "fr": "fr-FR"
+                        case "en": "en-US"
+                        default: AppLocalization.isFrench ? "fr-FR" : "en-US"
+                        }
+                        TmdbService.shared.setLanguage(tmdbLang)
+                    } label: {
+                        Text(opt.label.localized)
+                            .font(Theme.Font.eyebrow(10, weight: .bold))
+                            .tracking(1.4)
+                            .foregroundStyle(selected ? Theme.Palette.onAccent : Theme.Palette.textSecondary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 7)
+                            .background(selected ? Theme.Palette.accent : Theme.Palette.surface)
+                            .overlay(Rectangle().stroke(selected ? Theme.Palette.accent : Theme.Palette.border, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+                Spacer()
+            }
+        }
         SettingsSection(title: "Motion") {
             Toggle(isOn: Binding(
                 get: { prefs.reduceMotion },

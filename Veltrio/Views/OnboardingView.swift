@@ -26,7 +26,6 @@ struct OnboardingView: View {
     @State private var stremioPassword = ""
     @State private var isImportingStremio = false
     @State private var stremioFeedback: String?
-    @State private var installCinemeta = true
     @State private var customAddonURL = ""
     @State private var isInstallingAddon = false
     @State private var addonFeedback: String?
@@ -35,13 +34,7 @@ struct OnboardingView: View {
     @State private var tmdbKey = ""
     @State private var isFinishing = false
 
-    private static let cinemetaURL = "https://v3-cinemeta.strem.io/manifest.json"
-
     private var stremio: StremioAccountService { store.stremioAccount }
-
-    private var hasCinemeta: Bool {
-        store.addons.contains { $0.manifest.transportUrl.localizedCaseInsensitiveContains("cinemeta") }
-    }
 
     var body: some View {
         ZStack {
@@ -268,24 +261,30 @@ struct OnboardingView: View {
             .background(Theme.Palette.surface)
             .overlay(Rectangle().stroke(Theme.Palette.accent.opacity(0.45), lineWidth: 1))
 
-            // Secondary option: Start fresh with Cinemeta + languages
+            // Language & playback preferences
             VStack(alignment: .leading, spacing: 14) {
-                Text("Or start fresh")
+                Text("App language")
                     .eyebrow(Theme.Palette.textTertiary, tracking: 2.0)
 
-                Toggle(isOn: $installCinemeta) {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Install Cinemeta catalog")
-                            .font(Theme.Font.label(14, weight: .semibold))
-                            .foregroundStyle(Theme.Palette.textPrimary)
-                        Text("Populates Home and Search with popular movies, series, posters and ratings right away.")
-                            .font(Theme.Font.caption(12))
-                            .foregroundStyle(Theme.Palette.textSecondary)
+                HStack(spacing: 8) {
+                    ForEach([("fr", "Français"), ("en", "English")], id: \.0) { code, label in
+                        let selected = prefs.appLanguage == code || (prefs.appLanguage.isEmpty && (code == "fr") == AppLocalization.isFrench)
+                        Button {
+                            prefs.appLanguage = code
+                            tmdb.setLanguage(code == "en" ? "en-US" : "fr-FR")
+                        } label: {
+                            Text(label)
+                                .font(Theme.Font.eyebrow(10, weight: .bold))
+                                .tracking(1.4)
+                                .foregroundStyle(selected ? Theme.Palette.onAccent : Theme.Palette.textSecondary)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 7)
+                                .background(selected ? Theme.Palette.accent : Theme.Palette.background)
+                                .overlay(Rectangle().stroke(selected ? Theme.Palette.accent : Theme.Palette.border, lineWidth: 1))
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
-                #if !os(tvOS)
-                .toggleStyle(.switch)
-                #endif
 
                 Rule(color: Theme.Palette.border)
 
@@ -485,12 +484,12 @@ struct OnboardingView: View {
             VStack(alignment: .leading, spacing: 12) {
                 summaryRow(
                     label: "Catalog",
-                    value: (installCinemeta || hasCinemeta) ? "Cinemeta enabled" : "None yet"
+                    value: tmdb.isConnected ? "TMDB enabled" : "None yet"
                 )
                 Rule(color: Theme.Palette.border)
                 summaryRow(
                     label: "Installed addons",
-                    value: "\(store.addons.count + (installCinemeta && !hasCinemeta ? 1 : 0))"
+                    value: "\(store.addons.count)"
                 )
                 Rule(color: Theme.Palette.border)
                 summaryRow(
@@ -608,9 +607,6 @@ struct OnboardingView: View {
 
     private func completeOnboarding(goToTab: NavItem?) async {
         isFinishing = true
-        if installCinemeta && !hasCinemeta {
-            await store.installAddon(url: Self.cinemetaURL)
-        }
         prefs.hasCompletedOnboarding = true
         isFinishing = false
         onFinish(goToTab)

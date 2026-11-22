@@ -23,6 +23,7 @@ final class UserPrefs {
         static let colorScheme  = "veltrio.pref.colorScheme"
         static let onboardingDone = "veltrio.pref.onboardingDone"
         static let autoCheckUpdates = "veltrio.pref.autoCheckUpdates"
+        static let appLanguage = "veltrio.pref.appLanguage"
     }
 
     enum ColorSchemePreference: String, CaseIterable, Identifiable {
@@ -65,6 +66,22 @@ final class UserPrefs {
     var autoCheckUpdates: Bool {
         didSet { defaults.set(autoCheckUpdates, forKey: Keys.autoCheckUpdates) }
     }
+    /// "" = follow system, "fr" = Français, "en" = English.
+    var appLanguage: String {
+        didSet {
+            defaults.set(appLanguage, forKey: Keys.appLanguage)
+            AppLocalization.overrideCode = appLanguage
+        }
+    }
+    var resolvedLocale: Locale {
+        appLanguage.isEmpty ? .autoupdatingCurrent : Locale(identifier: appLanguage)
+    }
+
+    static let appLanguages: [(code: String, label: String)] = [
+        ("", "Automatic"),
+        ("fr", "Français"),
+        ("en", "English"),
+    ]
 
     private init() {
         preferredAudioLang   = defaults.string(forKey: Keys.preferredAudioLang) ?? ""
@@ -80,6 +97,9 @@ final class UserPrefs {
         ) ?? .system
         hasCompletedOnboarding = defaults.bool(forKey: Keys.onboardingDone)
         autoCheckUpdates       = defaults.object(forKey: Keys.autoCheckUpdates) as? Bool ?? true
+        let savedLang          = defaults.string(forKey: Keys.appLanguage) ?? ""
+        appLanguage            = savedLang
+        AppLocalization.overrideCode = savedLang
     }
 
     /// Readable list of language options for the Settings picker.
