@@ -155,6 +155,10 @@ enum PairingSender {
         if !store.iptvHiddenGroups.isEmpty {
             out["iptvHiddenGroups"] = Array(store.iptvHiddenGroups)
         }
+        out["kidsMode"] = UserPrefs.shared.kidsMode
+        if !UserPrefs.shared.kidsPin.isEmpty {
+            out["kidsPin"] = UserPrefs.shared.kidsPin
+        }
         return out
     }
 

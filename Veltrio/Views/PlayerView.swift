@@ -69,6 +69,10 @@ struct PlayerView: View {
     @State private var isScrubbing = false
     @State private var scrubValue: Double = 0
     @State private var hoverTime: Double? = nil
+    #if os(macOS)
+    @State private var isFloatingPiP = false
+    @State private var savedWindowFrame: NSRect?
+    #endif
 
     private enum PlayerFocus: Hashable {
         case root, seekBar, playPause, topBack
@@ -407,6 +411,11 @@ struct PlayerView: View {
             }
         }
         .onDisappear {
+            #if os(macOS)
+            if isFloatingPiP {
+                restoreFromFloatingPiP()
+            }
+            #endif
             #if os(iOS)
             Self.playerDisappeared()
             #endif
@@ -1313,6 +1322,15 @@ struct PlayerView: View {
             profileMenu
             #if !os(tvOS)
             castMenu
+            #endif
+            #if os(macOS)
+            Button {
+                toggleFloatingPiP()
+            } label: {
+                glassIcon(isFloatingPiP ? "pip.exit" : "pip.enter")
+            }
+            .buttonStyle(.plainRect)
+            .help(AppLocalization.isFrench ? "Mini-lecteur flottant" : "Floating mini-player")
             #endif
             if destination.isLive && !catchupEntries.isEmpty {
                 Button {
@@ -2592,6 +2610,41 @@ struct PlayerView: View {
         }
         return error.localizedDescription
     }
+
+    #if os(macOS)
+    private func toggleFloatingPiP() {
+        guard let window = NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) else { return }
+        if isFloatingPiP {
+            restoreFromFloatingPiP()
+        } else {
+            if window.styleMask.contains(.fullScreen) {
+                window.toggleFullScreen(nil)
+            }
+            savedWindowFrame = window.frame
+            let miniSize = NSSize(width: 480, height: 270)
+            let screenFrame = (window.screen ?? NSScreen.main)?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1280, height: 800)
+            let origin = NSPoint(x: screenFrame.maxX - miniSize.width - 24, y: screenFrame.minY + 24)
+            window.level = .floating
+            window.collectionBehavior.insert(.canJoinAllSpaces)
+            window.setFrame(NSRect(origin: origin, size: miniSize), display: true, animate: true)
+            isFloatingPiP = true
+        }
+    }
+
+    private func restoreFromFloatingPiP() {
+        guard let window = NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) else {
+            isFloatingPiP = false
+            return
+        }
+        window.level = .normal
+        window.collectionBehavior.remove(.canJoinAllSpaces)
+        if let saved = savedWindowFrame {
+            window.setFrame(saved, display: true, animate: true)
+            savedWindowFrame = nil
+        }
+        isFloatingPiP = false
+    }
+    #endif
 }
 
 // MARK: - Styled slider

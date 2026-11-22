@@ -472,9 +472,10 @@ struct IPTVView: View {
     }
 
     private var groups: [(name: String, count: Int)] {
+        let kids = UserPrefs.shared.kidsMode
         let grouped = Dictionary(grouping: store.iptvChannels) { $0.group ?? "Ungrouped" }
         return grouped
-            .filter { !store.iptvHiddenGroups.contains($0.key) }
+            .filter { !store.iptvHiddenGroups.contains($0.key) && (!kids || !UserPrefs.isAdultIptvGroup($0.key)) }
             .map { (name: $0.key, count: $0.value.count) }
             .sorted { $0.name < $1.name }
     }
@@ -482,7 +483,11 @@ struct IPTVView: View {
     private var guideAvailable: Bool { store.iptvMode == .live && store.epg.hasGuide }
 
     private var filteredChannels: [IptvChannel] {
+        let kids = UserPrefs.shared.kidsMode
         var list = store.iptvChannels
+        if kids {
+            list = list.filter { !UserPrefs.isAdultIptvGroup($0.group ?? "Ungrouped") }
+        }
         if favoritesOnly {
             list = list.filter { store.iptvFavorites.contains($0.id) }
         } else {

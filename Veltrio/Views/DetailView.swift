@@ -16,6 +16,12 @@ struct DetailView: View {
     @State private var loadError: String?
     @State private var localizedTitle: String?
     @State private var localizedOverview: String?
+    @State private var selectedPerson: PersonSelection?
+
+    private struct PersonSelection: Identifiable {
+        let name: String
+        var id: String { name }
+    }
 
     /// Media-server and IPTV copies of this title (or of the selected episode).
     @State private var direct: [DirectStream] = []
@@ -135,6 +141,9 @@ struct DetailView: View {
         // it was reserving at the top of the page.
         .navigationBarBackButtonHidden(true)
         .task { await load() }
+        .sheet(item: $selectedPerson) { person in
+            PersonFilmographySheet(personName: person.name)
+        }
     }
 
     /// Reserve ~44% to the info column, cap it at 560pt so the streams
@@ -470,12 +479,39 @@ struct DetailView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Credits").eyebrow(Theme.Palette.textTertiary, tracking: 2.4)
             if !director.isEmpty {
-                labeledFact("Directed", director.prefix(3).joined(separator: ", "))
+                personChipsFact("Directed", Array(director.prefix(3)))
             }
             if !writer.isEmpty {
                 labeledFact("Written", writer.prefix(3).joined(separator: ", "))
             }
-            labeledFact("Cast", cast.prefix(6).joined(separator: ", "))
+            personChipsFact("Cast", Array(cast.prefix(8)))
+        }
+    }
+
+    private func personChipsFact(_ label: String, _ names: [String]) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(label.localized.uppercased())
+                .font(Theme.Font.eyebrow(9, weight: .bold))
+                .tracking(1.6)
+                .foregroundStyle(Theme.Palette.textQuaternary)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(names, id: \.self) { name in
+                        Button {
+                            selectedPerson = PersonSelection(name: name)
+                        } label: {
+                            Text(name)
+                                .font(Theme.Font.caption(12))
+                                .foregroundStyle(Theme.Palette.textPrimary)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(Theme.Palette.surface)
+                                .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
+                        }
+                        .buttonStyle(.plainRect)
+                    }
+                }
+            }
         }
     }
 
@@ -1496,5 +1532,102 @@ private struct DirectStreamRow: View {
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .overlay(Rectangle().stroke(color.opacity(0.4), lineWidth: 1))
+    }
+}
+
+// MARK: - Actor / Director Filmography Sheet
+
+private struct PersonFilmographySheet: View {
+    let personName: String
+    @Environment(\.dismiss) private var dismiss
+    @State private var credits: [MetaPreview]?
+    @State private var error: String?
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                HStack(alignment: .center) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(AppLocalization.isFrench ? "FILMOGRAPHIE" : "FILMOGRAPHY")
+                            .eyebrow(Theme.Palette.accentText, tracking: 2.2)
+                        Text(personName)
+                            .font(Theme.Font.display(26))
+                            .foregroundStyle(Theme.Palette.textPrimary)
+                            .lineLimit(1)
+                    }
+                    Spacer()
+                    Button(AppLocalization.isFrench ? "Fermer" : "Close") {
+                        dismiss()
+                    }
+                    .buttonStyle(.plainRect)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Theme.Palette.surface)
+                    .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
+                }
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.top, Theme.Spacing.lg)
+
+                if let error {
+                    Text(error)
+                        .font(Theme.Font.caption(12))
+                        .foregroundStyle(Theme.Palette.danger)
+                        .padding(.horizontal, Theme.Spacing.lg)
+                    Spacer()
+                } else if let credits {
+                    if credits.isEmpty {
+                        Text(AppLocalization.isFrench ? "Aucun titre trouvé sur TMDB." : "No titles found on TMDB.")
+                            .font(Theme.Font.caption(13))
+                            .foregroundStyle(Theme.Palette.textTertiary)
+                            .padding(.horizontal, Theme.Spacing.lg)
+                        Spacer()
+                    } else {
+                        let tmdbAddon = TmdbService.shared.virtualAddon()
+                        let columns = [GridItem(.adaptive(minimum: 130, maximum: 165), spacing: Theme.Spacing.md)]
+                        ScrollView {
+                            LazyVGrid(columns: columns, spacing: Theme.Spacing.lg) {
+                                ForEach(credits, id: \.id) { item in
+                                    NavigationLink(value: DetailDestination(
+                                        addon: tmdbAddon, type: item.type, id: item.id, name: item.name
+                                    )) {
+                                        PosterCard(
+                                            title: item.name,
+                                            posterURL: item.poster,
+                                            subtitle: item.releaseInfo,
+                                            rating: item.imdbRating
+                                        )
+                                    }
+                                    .buttonStyle(.plainRect)
+                                }
+                            }
+                            .padding(Theme.Spacing.lg)
+                        }
+                    }
+                } else {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                        Spacer()
+                    }
+                    .padding(.top, Theme.Spacing.xl)
+                    Spacer()
+                }
+            }
+            .background(Theme.Palette.background)
+            .navigationDestination(for: DetailDestination.self) { dest in
+                DetailView(destination: dest)
+            }
+        }
+        #if os(macOS)
+        .frame(minWidth: 640, minHeight: 480)
+        #endif
+        .task {
+            do {
+                credits = try await TmdbService.shared.fetchPersonCredits(name: personName)
+            } catch {
+                self.error = error.localizedDescription
+                credits = []
+            }
+        }
     }
 }

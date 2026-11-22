@@ -26,6 +26,8 @@ final class UserPrefs {
         static let appLanguage = "veltrio.pref.appLanguage"
         static let subtitleScale = "veltrio.pref.subtitleScale"
         static let subtitleColor = "veltrio.pref.subtitleColor"
+        static let kidsMode = "veltrio.pref.kidsMode"
+        static let kidsPin = "veltrio.pref.kidsPin"
     }
 
     enum ColorSchemePreference: String, CaseIterable, Identifiable {
@@ -81,6 +83,15 @@ final class UserPrefs {
     var subtitleColor: String {
         didSet { defaults.set(subtitleColor, forKey: Keys.subtitleColor) }
     }
+    var kidsMode: Bool {
+        didSet {
+            defaults.set(kidsMode, forKey: Keys.kidsMode)
+            TmdbService.shared.bumpRevision()
+        }
+    }
+    var kidsPin: String {
+        didSet { defaults.set(kidsPin, forKey: Keys.kidsPin) }
+    }
     var resolvedLocale: Locale {
         appLanguage.isEmpty ? .autoupdatingCurrent : Locale(identifier: appLanguage)
     }
@@ -126,6 +137,18 @@ final class UserPrefs {
         AppLocalization.overrideCode = savedLang
         subtitleScale          = (defaults.object(forKey: Keys.subtitleScale) as? Double) ?? 1.0
         subtitleColor          = defaults.string(forKey: Keys.subtitleColor) ?? "#FFFFFFFF"
+        kidsMode               = defaults.bool(forKey: Keys.kidsMode)
+        kidsPin                = defaults.string(forKey: Keys.kidsPin) ?? ""
+    }
+
+    private static let adultGroupKeywords = [
+        "adult", "xxx", "18+", "+18", "porn", "erotic", "érotique", "erotique",
+        "charme", "nsfw", "x-rated", "for adults", "adults only", "sex",
+    ]
+
+    static func isAdultIptvGroup(_ group: String) -> Bool {
+        let g = group.lowercased()
+        return adultGroupKeywords.contains { g.contains($0) }
     }
 
     /// Readable list of language options for the Settings picker.

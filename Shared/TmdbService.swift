@@ -157,20 +157,32 @@ final class TmdbService {
 
     // MARK: - Catalogs & Search
 
+    func bumpRevision() {
+        revision += 1
+    }
+
     func fetchCatalog(type: String, catalogId: String, skip: Int = 0) async throws -> [MetaPreview] {
         guard let key = currentKey() else { return [] }
         let lang = effectiveLanguage()
         let page = (skip / 20) + 1
         let isSeries = type.lowercased() == "series"
+        let kids = UserPrefs.shared.kidsMode
         let path: String
-        switch (isSeries, catalogId) {
-        case (false, "trending"):    path = "/trending/movie/week?language=\(lang)&page=\(page)"
-        case (true, "trending"):     path = "/trending/tv/week?language=\(lang)&page=\(page)"
-        case (false, "now_playing"): path = "/movie/now_playing?language=\(lang)&page=\(page)"
-        case (true, "on_the_air"):   path = "/tv/on_the_air?language=\(lang)&page=\(page)"
-        case (false, "top_rated"):   path = "/movie/top_rated?language=\(lang)&page=\(page)"
-        case (true, "top_rated"):    path = "/tv/top_rated?language=\(lang)&page=\(page)"
-        default: return []
+        if kids {
+            let endpoint = isSeries ? "tv" : "movie"
+            let sort = catalogId == "top_rated" ? "vote_average.desc&vote_count.gte=100" : "popularity.desc"
+            let cert = isSeries ? "" : "&certification_country=US&certification.lte=PG"
+            path = "/discover/\(endpoint)?language=\(lang)&page=\(page)&include_adult=false&with_genres=10751|16&sort_by=\(sort)\(cert)"
+        } else {
+            switch (isSeries, catalogId) {
+            case (false, "trending"):    path = "/trending/movie/week?language=\(lang)&page=\(page)"
+            case (true, "trending"):     path = "/trending/tv/week?language=\(lang)&page=\(page)"
+            case (false, "now_playing"): path = "/movie/now_playing?language=\(lang)&page=\(page)"
+            case (true, "on_the_air"):   path = "/tv/on_the_air?language=\(lang)&page=\(page)"
+            case (false, "top_rated"):   path = "/movie/top_rated?language=\(lang)&page=\(page)"
+            case (true, "top_rated"):    path = "/tv/top_rated?language=\(lang)&page=\(page)"
+            default: return []
+            }
         }
         let genres = await genreMap(isSeries: isSeries, lang: lang, key: key)
         let data = try await get(path: path, key: key)
@@ -187,7 +199,15 @@ final class TmdbService {
         let genres = await genreMap(isSeries: isSeries, lang: lang, key: key)
         let data = try await get(path: "/search/\(endpoint)?query=\(q)&language=\(lang)&include_adult=false", key: key)
         let resp = try JSONDecoder().decode(TmdbListResponse.self, from: data)
-        return resp.results.compactMap { parsePreview($0, type: isSeries ? "series" : "movie", genres: genres) }
+        let kids = UserPrefs.shared.kidsMode
+        return resp.results
+            .filter { item in
+                guard kids else { return true }
+                if item.adult == true { return false }
+                let gids = item.genre_ids ?? []
+                return gids.isEmpty || gids.contains(10751) || gids.contains(16)
+            }
+            .compactMap { parsePreview($0, type: isSeries ? "series" : "movie", genres: genres) }
     }
 
     static let discoverProviders: [(id: Int, name: String)] = [
@@ -225,13 +245,19 @@ final class TmdbService {
         let region = lang.split(separator: "-").last.map(String.init) ?? "FR"
         let isSeries = type.lowercased() == "series"
         let endpoint = isSeries ? "tv" : "movie"
+        let kids = UserPrefs.shared.kidsMode
         var params = [
             "language=\(lang)",
             "sort_by=popularity.desc",
             "include_adult=false",
             "page=\(page)",
         ]
-        if let genreId { params.append("with_genres=\(genreId)") }
+        if kids {
+            params.append("with_genres=10751|16")
+            if !isSeries { params.append("certification_country=US&certification.lte=PG") }
+        } else if let genreId {
+            params.append("with_genres=\(genreId)")
+        }
         if let providerId {
             params.append("with_watch_providers=\(providerId)")
             params.append("watch_region=\(region)")
@@ -240,6 +266,44 @@ final class TmdbService {
         let data = try await get(path: "/discover/\(endpoint)?\(params.joined(separator: "&"))", key: key)
         let resp = try JSONDecoder().decode(TmdbListResponse.self, from: data)
         return resp.results.compactMap { parsePreview($0, type: isSeries ? "series" : "movie", genres: genres) }
+    }
+
+    /// Searches TMDB for a person by name and returns their combined movie & TV filmography.
+    func fetchPersonCredits(name: String) async throws -> [MetaPreview] {
+        guard let key = currentKey() else { return [] }
+        let clean = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !clean.isEmpty else { return [] }
+        let lang = effectiveLanguage()
+        let q = clean.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? clean
+        let searchData = try await get(path: "/search/person?query=\(q)&language=\(lang)&include_adult=false", key: key)
+        let searchResp = try JSONDecoder().decode(TmdbPersonSearchResponse.self, from: searchData)
+        guard let personId = searchResp.results.first?.id else { return [] }
+
+        let creditsData = try await get(path: "/person/\(personId)/combined_credits?language=\(lang)", key: key)
+        let creditsResp = try JSONDecoder().decode(TmdbPersonCreditsResponse.self, from: creditsData)
+        let movieGenres = await genreMap(isSeries: false, lang: lang, key: key)
+        let tvGenres = await genreMap(isSeries: true, lang: lang, key: key)
+        let kids = UserPrefs.shared.kidsMode
+        var seen = Set<String>()
+        let all = ((creditsResp.cast ?? []) + (creditsResp.crew ?? []))
+            .sorted { ($0.popularity ?? 0) > ($1.popularity ?? 0) }
+        var out: [MetaPreview] = []
+        for item in all {
+            guard let mt = item.media_type, (mt == "movie" || mt == "tv") else { continue }
+            let dedupKey = "\(mt):\(item.id)"
+            guard seen.insert(dedupKey).inserted else { continue }
+            if kids {
+                if item.adult == true { continue }
+                let gids = item.genre_ids ?? []
+                if !gids.isEmpty && !gids.contains(10751) && !gids.contains(16) { continue }
+            }
+            let isSeries = mt == "tv"
+            if let preview = parsePreview(item, type: isSeries ? "series" : "movie", genres: isSeries ? tvGenres : movieGenres) {
+                out.append(preview)
+                if out.count >= 24 { break }
+            }
+        }
+        return out
     }
 
     // MARK: - Full Meta + Episodes
@@ -503,6 +567,14 @@ private struct TmdbListItem: Decodable {
     let first_air_date: String?
     let vote_average: Double?
     let genre_ids: [Int]?
+    let adult: Bool?
+    let media_type: String?
+    let popularity: Double?
+}
+private struct TmdbPersonSearchResponse: Decodable { let results: [TmdbNamed] }
+private struct TmdbPersonCreditsResponse: Decodable {
+    let cast: [TmdbListItem]?
+    let crew: [TmdbListItem]?
 }
 private struct TmdbFindResponse: Decodable {
     let movie_results: [TmdbListItem]?

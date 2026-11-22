@@ -1013,6 +1013,130 @@ private struct DownloadRow: View {
 }
 
 
+// MARK: - Parental Control / Kids Mode
+
+private struct ParentalControlSettings: View {
+    @State private var prefs = UserPrefs.shared
+    @State private var pinInput = ""
+    @State private var unlocking = false
+    @State private var pinError: String?
+
+    var body: some View {
+        SettingsSection(title: AppLocalization.isFrench ? "Contrôle parental" : "Parental Control") {
+            Text(AppLocalization.isFrench
+                 ? "Le Mode Enfants filtre les catalogues TMDB vers les films et séries familiaux et masque les bouquets IPTV adultes."
+                 : "Kids Mode filters TMDB catalogs to family-friendly titles and hides adult IPTV groups.")
+                .font(Theme.Font.caption(11))
+                .foregroundStyle(Theme.Palette.textTertiary)
+
+            Toggle(isOn: Binding(
+                get: { prefs.kidsMode },
+                set: { wantOn in
+                    pinError = nil
+                    if wantOn {
+                        unlocking = false
+                        prefs.kidsMode = true
+                    } else if !prefs.kidsPin.isEmpty {
+                        unlocking = true
+                        pinInput = ""
+                    } else {
+                        prefs.kidsMode = false
+                    }
+                }
+            )) {
+                SettingRowLabel(
+                    title: AppLocalization.isFrench ? "Mode Enfants" : "Kids Mode",
+                    hint: AppLocalization.isFrench ? "Contenu familial uniquement." : "Family-friendly content only."
+                )
+            }
+            .toggleStyle(.switch)
+
+            if unlocking {
+                HStack(spacing: 8) {
+                    SecureField(AppLocalization.isFrench ? "Code PIN (4 chiffres)" : "4-digit PIN", text: $pinInput)
+                        .textFieldStyle(.plain)
+                        .font(Theme.Font.mono(13))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .frame(width: 150)
+                        .background(Theme.Palette.surface)
+                        .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
+                    Button(AppLocalization.isFrench ? "Déverrouiller" : "Unlock") {
+                        if pinInput == prefs.kidsPin {
+                            unlocking = false
+                            pinInput = ""
+                            pinError = nil
+                            prefs.kidsMode = false
+                        } else {
+                            pinError = AppLocalization.isFrench ? "Code PIN incorrect." : "Incorrect PIN."
+                        }
+                    }
+                    .buttonStyle(.plainRect)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Theme.Palette.accent)
+                    .foregroundStyle(Theme.Palette.onAccent)
+                    Button(AppLocalization.isFrench ? "Annuler" : "Cancel") {
+                        unlocking = false
+                        pinInput = ""
+                        pinError = nil
+                    }
+                    .buttonStyle(.plainRect)
+                    .foregroundStyle(Theme.Palette.textSecondary)
+                }
+            } else {
+                HStack(spacing: 8) {
+                    SecureField(
+                        prefs.kidsPin.isEmpty
+                            ? (AppLocalization.isFrench ? "Code PIN (4 chiffres)" : "4-digit PIN")
+                            : (AppLocalization.isFrench ? "PIN actif (••••)" : "PIN active (••••)"),
+                        text: $pinInput
+                    )
+                    .textFieldStyle(.plain)
+                    .font(Theme.Font.mono(13))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .frame(width: 160)
+                    .background(Theme.Palette.surface)
+                    .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
+
+                    Button(AppLocalization.isFrench ? "Définir le PIN" : "Set PIN") {
+                        let digits = pinInput.filter(\.isNumber)
+                        if digits.count == 4 {
+                            prefs.kidsPin = digits
+                            pinInput = ""
+                            pinError = nil
+                        } else {
+                            pinError = AppLocalization.isFrench ? "Saisissez 4 chiffres." : "Enter 4 digits."
+                        }
+                    }
+                    .buttonStyle(.plainRect)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Theme.Palette.surface)
+                    .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
+
+                    if !prefs.kidsPin.isEmpty && !prefs.kidsMode {
+                        Button(AppLocalization.isFrench ? "Retirer" : "Remove") {
+                            prefs.kidsPin = ""
+                            pinInput = ""
+                            pinError = nil
+                        }
+                        .buttonStyle(.plainRect)
+                        .foregroundStyle(Theme.Palette.textSecondary)
+                    }
+                }
+            }
+
+            if let pinError {
+                Text(pinError)
+                    .font(Theme.Font.caption(11))
+                    .foregroundStyle(Theme.Palette.danger)
+            }
+        }
+    }
+}
+
 // MARK: - Appearance
 
 private struct AppearanceSettings: View {
@@ -1072,6 +1196,7 @@ private struct AppearanceSettings: View {
                 Spacer()
             }
         }
+        ParentalControlSettings()
     }
 
     /// Three side by side fit a phone's settings card.
