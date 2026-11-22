@@ -476,6 +476,7 @@ private struct AccountsSettings: View {
             subtitle: "Sync progress and bridge your personal library."
         )
         StremioAccountCard()
+        TmdbSettingsCard()
         TraktCard()
         SimklCard()
     }
@@ -610,6 +611,83 @@ private struct ImportRow: View {
                 Text(result)
                     .font(Theme.Font.caption(11))
                     .foregroundStyle(Theme.Palette.textSecondary)
+            }
+        }
+    }
+}
+
+// MARK: - TMDB metadata localization
+
+private struct TmdbSettingsCard: View {
+    @State private var tmdb = TmdbService.shared
+    @State private var apiKey = ""
+
+    var body: some View {
+        SurfaceCard {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                HStack(spacing: Theme.Spacing.md) {
+                    Rectangle().fill(Color(hex: 0x01B4E4)).frame(width: 4, height: 32)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("TMDB")
+                            .font(Theme.Font.heading(16))
+                            .foregroundStyle(Theme.Palette.textPrimary)
+                        Text(tmdb.isConnected ? "CONNECTED" : "OPTIONAL · LOCALIZED METADATA")
+                            .font(Theme.Font.mono(10, weight: .semibold))
+                            .foregroundStyle(tmdb.isConnected ? Theme.Palette.success : Theme.Palette.textTertiary)
+                    }
+                    Spacer()
+                    if tmdb.isConnected {
+                        FrameButton(title: "Disconnect", icon: "xmark", color: Theme.Palette.danger) {
+                            tmdb.disconnect()
+                        }
+                    }
+                }
+
+                Text("Translates movie and series titles and synopses into your chosen language using a free TMDB API key (themoviedb.org/settings/api). Transferred automatically when pairing a TV.")
+                    .font(Theme.Font.caption(12))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+
+                if tmdb.isConnected {
+                    HStack(spacing: 12) {
+                        Text("Metadata language")
+                            .font(Theme.Font.label(13, weight: .medium))
+                            .foregroundStyle(Theme.Palette.textPrimary)
+                        Spacer()
+                        Picker("", selection: Binding(
+                            get: { tmdb.language },
+                            set: { tmdb.setLanguage($0) }
+                        )) {
+                            ForEach(TmdbService.languages, id: \.code) { item in
+                                Text(item.label).tag(item.code)
+                            }
+                        }
+                        .labelsHidden()
+                    }
+                } else {
+                    HStack(spacing: Theme.Spacing.sm) {
+                        SecureField("TMDB API key or Read Access Token", text: $apiKey)
+                            .textFieldStyle(.plain)
+                            .font(Theme.Font.mono(12))
+                            .padding(10)
+                            .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1))
+                        FrameButton(
+                            title: "Connect",
+                            icon: "arrow.right",
+                            color: Theme.Palette.onAccent,
+                            fill: Theme.Palette.accent,
+                            isLoading: tmdb.isBusy,
+                            isEnabled: !tmdb.isBusy && !apiKey.trimmingCharacters(in: .whitespaces).isEmpty
+                        ) {
+                            Task {
+                                if await tmdb.connect(rawKey: apiKey) { apiKey = "" }
+                            }
+                        }
+                    }
+                }
+
+                if let err = tmdb.error {
+                    Text(err).font(Theme.Font.caption(12)).foregroundStyle(Theme.Palette.danger)
+                }
             }
         }
     }

@@ -13,6 +13,8 @@ struct DetailView: View {
     @State private var selectedSeason: Int32?
     @State private var isLoadingStreams = false
     @State private var loadError: String?
+    @State private var localizedTitle: String?
+    @State private var localizedOverview: String?
 
     /// Media-server and IPTV copies of this title (or of the selected episode).
     @State private var direct: [DirectStream] = []
@@ -203,7 +205,7 @@ struct DetailView: View {
             titleBlock
             posterBlock
             metaFacts
-            if let description = meta?.description, !description.isEmpty {
+            if let description = localizedOverview ?? meta?.description, !description.isEmpty {
                 Text(description)
                     .font(Theme.Font.body(14))
                     .foregroundStyle(Theme.Palette.heroTextSecondary)
@@ -240,7 +242,7 @@ struct DetailView: View {
                 Text(verbatim: "· " + (meta?.type ?? destination.type).localized.capitalized)
                     .eyebrow(Theme.Palette.textTertiary, tracking: 1.8)
             }
-            Text(meta?.name ?? destination.name)
+            Text(localizedTitle ?? meta?.name ?? destination.name)
                 .font(Theme.Font.displaySerif(42, weight: .bold))
                 .tracking(-1.0)
                 .foregroundStyle(Theme.Palette.heroText)
@@ -1039,6 +1041,12 @@ struct DetailView: View {
         switch result {
         case .success(_, let fetched):
             meta = fetched
+            Task {
+                if let loc = await TmdbService.shared.localize(imdbId: destination.id, type: destination.type) {
+                    localizedTitle = loc.title
+                    localizedOverview = loc.overview
+                }
+            }
             if fetched.videos.isEmpty {
                 await loadStreams(for: destination.id)
             } else if let first = fetched.videos

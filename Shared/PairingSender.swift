@@ -100,6 +100,7 @@ enum PairingSender {
             ("stremio.authkey", "com.veltrio.stremio.authkey"), ("trakt.token", "com.veltrio.trakt.token"),
             ("simkl.token", "com.veltrio.simkl.token"), ("mediaserver.jellyfin", "com.veltrio.jellyfin.token"),
             ("mediaserver.emby", "com.veltrio.emby.token"), ("mediaserver.plex", "com.veltrio.plex.token"),
+            ("tmdb.key", TmdbService.keyService), ("tmdb.lang", TmdbService.langService),
         ]
         for (name, service) in keychain { if let v = Keychain.get(service: service) { secrets[name] = v } }
         if secrets["stremio.authkey"] != nil, let email = defaults.string(forKey: "veltrio.stremio.email") { secrets["stremio.email"] = email }

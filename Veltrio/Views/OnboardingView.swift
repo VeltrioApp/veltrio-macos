@@ -31,6 +31,8 @@ struct OnboardingView: View {
     @State private var isInstallingAddon = false
     @State private var addonFeedback: String?
     @State private var addonError: String?
+    @State private var tmdb = TmdbService.shared
+    @State private var tmdbKey = ""
     @State private var isFinishing = false
 
     private static let cinemetaURL = "https://v3-cinemeta.strem.io/manifest.json"
@@ -381,6 +383,56 @@ struct OnboardingView: View {
                 }
                 if let error = addonError {
                     Label(error, systemImage: "exclamationmark.triangle.fill")
+                        .font(Theme.Font.caption(12))
+                        .foregroundStyle(Theme.Palette.danger)
+                }
+            }
+            .padding(Theme.Spacing.lg)
+            .background(Theme.Palette.surface)
+            .overlay(Rectangle().stroke(Theme.Palette.hairline, lineWidth: 1))
+
+            // Optional TMDB API key for localized titles & synopses
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                Text("Localized synopses & titles (TMDB)")
+                    .font(Theme.Font.label(14, weight: .semibold))
+                    .foregroundStyle(Theme.Palette.textPrimary)
+                Text("Optional: add a free TMDB API key (themoviedb.org/settings/api) to display movie and series descriptions in your preferred language. Transferred automatically to your TV.")
+                    .font(Theme.Font.caption(12))
+                    .foregroundStyle(Theme.Palette.textSecondary)
+
+                HStack(spacing: 8) {
+                    ForEach([("fr-FR", "FR"), ("en-US", "EN"), ("es-ES", "ES"), ("de-DE", "DE")], id: \.0) { code, label in
+                        Chip(label: label, isSelected: tmdb.language == code) {
+                            tmdb.setLanguage(code)
+                        }
+                    }
+                }
+
+                if tmdb.isConnected {
+                    Label("TMDB connected", systemImage: "checkmark.circle.fill")
+                        .font(Theme.Font.caption(12))
+                        .foregroundStyle(Theme.Palette.success)
+                } else {
+                    HStack(spacing: Theme.Spacing.sm) {
+                        SecureField("TMDB API key or token (optional)", text: $tmdbKey)
+                            .textFieldStyle(.plain)
+                            .font(Theme.Font.mono(12))
+                            .padding(10)
+                            .overlay(Rectangle().stroke(Theme.Palette.borderStrong, lineWidth: 1))
+                        FrameButton(
+                            title: "Save",
+                            icon: "checkmark",
+                            isLoading: tmdb.isBusy,
+                            isEnabled: !tmdb.isBusy && !tmdbKey.trimmingCharacters(in: .whitespaces).isEmpty
+                        ) {
+                            Task {
+                                if await tmdb.connect(rawKey: tmdbKey) { tmdbKey = "" }
+                            }
+                        }
+                    }
+                }
+                if let err = tmdb.error {
+                    Label(err, systemImage: "exclamationmark.triangle.fill")
                         .font(Theme.Font.caption(12))
                         .foregroundStyle(Theme.Palette.danger)
                 }
