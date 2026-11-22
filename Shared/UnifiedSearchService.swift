@@ -194,10 +194,9 @@ final class UnifiedSearchService {
                         // Addons also publish "tv" and "channel" catalogs;
                         // search only shows films and series.
                         guard let kind = Self.mediaKind(stremioType: meta.type) else { return nil }
-                        // IMDB titles only: addons that answer with their
-                        // own ids (`kitsu:`, provider-specific…) list
-                        // things the other sources can't be matched to.
-                        guard meta.id.hasPrefix("tt") else { return nil }
+                        // Accept IMDb ids (`tt...`) and native TMDB ids (`tmdb:...`),
+                        // which resolve to canonical IMDb ids when the title opens.
+                        guard meta.id.hasPrefix("tt") || meta.id.hasPrefix("tmdb:") else { return nil }
                         return SearchResult(
                             id: "stremio|\(c.addon.id)|\(meta.id)",
                             source: .stremio,
