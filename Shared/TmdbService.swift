@@ -339,7 +339,13 @@ final class TmdbService {
         let dateStr = detail.release_date ?? detail.first_air_date
         let year = dateStr.flatMap { $0.count >= 4 ? String($0.prefix(4)) : nil }
         let runtimeMin = isSeries ? detail.episode_run_time?.first : detail.runtime
-        let runtime = runtimeMin.flatMap { $0 > 0 ? "\($0) min" : nil }
+        let runtime: String? = runtimeMin.flatMap { m in
+            guard m > 0 else { return nil }
+            let h = m / 60, rem = m % 60
+            if h > 0 && rem > 0 { return "\(h) h \(rem) min" }
+            if h > 0 { return "\(h) h" }
+            return "\(m) min"
+        }
         let genres = (detail.genres ?? []).map(\.name)
         let cast = (detail.credits?.cast ?? []).prefix(12).map(\.name)
         let crew = detail.credits?.crew ?? []
