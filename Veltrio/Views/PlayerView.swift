@@ -248,6 +248,19 @@ struct PlayerView: View {
                     .transition(.opacity)
                     .allowsHitTesting(false)
             }
+            #if os(tvOS)
+            if !controlsVisible && tvPanel == nil && !showMediaInfo && !showChannelList && !showCatchupSheet {
+                Button {
+                    flashControls()
+                } label: {
+                    Color.clear
+                }
+                .buttonStyle(.plain)
+                .focused($focus, equals: .root)
+                .focusEffectDisabled()
+                .onMoveCommand { direction in remoteMove(direction) }
+            }
+            #endif
         }
         .typeErased()
         .ignoresSafeArea()
@@ -257,10 +270,10 @@ struct PlayerView: View {
         .fileImporter(isPresented: $choosingSubtitle, allowedContentTypes: Self.subtitleTypes) { result in
             if case .success(let url) = result { addLocalSubtitle(url) }
         }
-        #endif
         .focusable()
         .focused($focus, equals: .root)
         .focusEffectDisabled()
+        #endif
         .overlay(alignment: .top) { castBanner }
         #if os(iOS)
         .statusBarHidden(true)
@@ -358,12 +371,10 @@ struct PlayerView: View {
             }
         }
         #if os(tvOS)
-        // The Siri Remote: play/pause; left/right skip 10 s (a film) and
-        // focus the seek bar so you can keep scrubbing; up/down change
-        // channel (live) or show the controls; Menu closes panels, hides
-        // the controls, then leaves.
+        // The Siri Remote: play/pause; Menu closes panels, hides the controls,
+        // then leaves. Directional moves when controls are hidden are handled
+        // by the root focus catcher so they never interfere with seekBar or panels.
         .onPlayPauseCommand { controller.togglePause(); flashControls() }
-        .onMoveCommand { direction in remoteMove(direction) }
         .onExitCommand {
             if tvPanel != nil {
                 withAnimation(.easeOut(duration: 0.2)) { tvPanel = nil }
@@ -1458,12 +1469,18 @@ struct PlayerView: View {
             .ignoresSafeArea(edges: .top)
             .allowsHitTesting(false)
         )
+        #if os(tvOS)
+        .focusSection()
+        #endif
     }
 
     private var bottomBar: some View {
         VStack(spacing: Theme.Spacing.md) {
             if !destination.isLive {
                 seekBar
+                    #if os(tvOS)
+                    .focusSection()
+                    #endif
             }
             HStack(spacing: Theme.Spacing.md) {
                 if destination.isLive {
@@ -1490,6 +1507,9 @@ struct PlayerView: View {
                 // A phone's volume is its buttons.
                 if Platform.isMac { volumeControl }
             }
+            #if os(tvOS)
+            .focusSection()
+            #endif
         }
         .padding(.horizontal, Theme.Spacing.xl)
         .padding(.top, Theme.Spacing.lg)
@@ -1548,6 +1568,39 @@ struct PlayerView: View {
                 .frame(width: timeWidth, alignment: .leading)
 
             ZStack(alignment: .topLeading) {
+                #if os(tvOS)
+                Button {
+                    commitTVScrubIfNeeded()
+                    controller.togglePause()
+                    resetHideTimer()
+                } label: {
+                    SeekSlider(
+                        value: Binding(
+                            get: { isScrubbing ? scrubValue : controller.position },
+                            set: { scrubValue = $0 }
+                        ),
+                        range: 0...(duration > 0 ? duration : 1),
+                        hoverTime: $hoverTime,
+                        chapters: controller.chapters.map { ($0.title, $0.startSeconds) },
+                        duration: duration,
+                        isRemoteFocused: focus == .seekBar
+                    )
+                    .frame(height: 44)
+                    .padding(.horizontal, 14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(focus == .seekBar ? Color.white.opacity(0.10) : Color.clear)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(focus == .seekBar ? Theme.Palette.accent : Color.clear, lineWidth: 2)
+                    )
+                }
+                .buttonStyle(.plain)
+                .focused($focus, equals: .seekBar)
+                .focusEffectDisabled()
+                .onMoveCommand { handleSeekBarMove($0) }
+                #else
                 SeekSlider(
                     value: Binding(
                         get: { isScrubbing ? scrubValue : controller.position },
@@ -1566,15 +1619,8 @@ struct PlayerView: View {
                     hoverTime: $hoverTime,
                     chapters: controller.chapters.map { ($0.title, $0.startSeconds) },
                     duration: duration,
-                    isRemoteFocused: focus == .seekBar
+                    isRemoteFocused: false
                 )
-                #if os(tvOS)
-                .frame(height: 36)
-                .focusable()
-                .focused($focus, equals: .seekBar)
-                .focusEffectDisabled()
-                .onMoveCommand { handleSeekBarMove($0) }
-                #else
                 .disabled(duration <= 0)
                 .frame(height: 16)
                 #endif
