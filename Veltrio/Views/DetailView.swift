@@ -36,6 +36,11 @@ struct DetailView: View {
     // episode, with a back link to return.
     private enum RightPane { case episodes, streams }
     @State private var rightPane: RightPane = .episodes
+    #if os(tvOS)
+    private enum TVDetailFocus: Hashable { case play, save, stream(String) }
+    @FocusState private var tvFocus: TVDetailFocus?
+    @State private var didAutoFocusStreams = false
+    #endif
 
     // Manual S/E fallback — used when meta failed but the title looks like
     // a series.
@@ -146,6 +151,29 @@ struct DetailView: View {
         // would show a second one. Hiding the bar also reclaims the ~72pt
         // it was reserving at the top of the page.
         .navigationBarBackButtonHidden(true)
+        #if os(tvOS)
+        .onAppear {
+            DispatchQueue.main.async {
+                if let firstId = visibleEntries.first?.id, (!isSeries || rightPane == .streams) {
+                    tvFocus = .stream(firstId)
+                    didAutoFocusStreams = true
+                } else if !visibleEntries.isEmpty {
+                    tvFocus = .play
+                } else {
+                    tvFocus = .save
+                }
+            }
+        }
+        .onChange(of: visibleEntries.first?.id) { _, newId in
+            guard let newId, !didAutoFocusStreams else { return }
+            if !isSeries || rightPane == .streams {
+                didAutoFocusStreams = true
+                DispatchQueue.main.async { tvFocus = .stream(newId) }
+            } else if tvFocus == .save || tvFocus == nil {
+                DispatchQueue.main.async { tvFocus = .play }
+            }
+        }
+        #endif
         .task { await load() }
         .sheet(item: $selectedPerson) { person in
             PersonFilmographySheet(personName: person.name)
@@ -448,8 +476,11 @@ struct DetailView: View {
             .shadow(color: Theme.Palette.accentGlow, radius: 18, y: 8)
             .opacity(best == nil ? 0.5 : 1)
         }
-        .buttonStyle(.plainRect)
+        .buttonStyle(.plainRectOnAccent)
         .disabled(best == nil)
+        #if os(tvOS)
+        .focused($tvFocus, equals: .play)
+        #endif
     }
 
     private var canonicalId: String { meta?.id ?? destination.id }
@@ -472,6 +503,9 @@ struct DetailView: View {
                 addonName: destination.addon.manifest.name
             )
         }
+        #if os(tvOS)
+        .focused($tvFocus, equals: .save)
+        #endif
     }
 
     private var playButtonText: String {
@@ -774,6 +808,9 @@ struct DetailView: View {
                         isSelected: selectedVideoId == video.id
                     ) {
                         selectedVideoId = video.id
+                        #if os(tvOS)
+                        didAutoFocusStreams = false
+                        #endif
                         withAnimation(.easeOut(duration: 0.18)) {
                             rightPane = .streams
                         }
@@ -834,7 +871,7 @@ struct DetailView: View {
     }
 
     private var streamsBody: some View {
-        LazyVStack(spacing: Platform.isTV ? 18 : 10) {
+        LazyVStack(spacing: 10) {
             ForEach(visibleEntries) { entry in
                 switch entry {
                 case .addon(let labeled):
@@ -842,17 +879,23 @@ struct DetailView: View {
                         StreamRow(labeled: labeled)
                     }
                     .buttonStyle(.plainRect)
+                    #if os(tvOS)
+                    .focused($tvFocus, equals: .stream(entry.id))
+                    #endif
                     .contextMenu { downloadMenu(for: labeled) }
                 case .direct(let d):
                     NavigationLink(value: playerDestination(for: d)) {
                         DirectStreamRow(stream: d)
                     }
                     .buttonStyle(.plainRect)
+                    #if os(tvOS)
+                    .focused($tvFocus, equals: .stream(entry.id))
+                    #endif
                 }
             }
         }
-        .padding(.horizontal, Platform.isTV ? 20 : 0)
-        .padding(.vertical, Platform.isTV ? 14 : 0)
+        .padding(.horizontal, Platform.isTV ? 10 : 0)
+        .padding(.vertical, Platform.isTV ? 8 : 0)
     }
 
     private var streamsSubtitle: String {

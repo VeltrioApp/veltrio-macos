@@ -2436,8 +2436,10 @@ struct PlayerView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         tvPanelBody(panel)
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 6)
                 }
+                .scrollClipDisabled()
             }
             .padding(Theme.Spacing.xl)
             .frame(width: 480, alignment: .leading)

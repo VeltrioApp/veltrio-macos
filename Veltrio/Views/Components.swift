@@ -803,34 +803,31 @@ private struct FocusFrame<Label: View>: View {
 
     var body: some View {
         label
+            .padding(6)
             .contentShape(Rectangle())
             .brightness(highContrast && isFocused ? 0.08 : 0)
             .background(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(!highContrast && isFocused ? Theme.Palette.surfaceHover.opacity(0.65) : .clear)
-                    .padding(-6)
             )
             .overlay {
                 if isFocused {
                     if highContrast {
                         RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .stroke(Color.white, lineWidth: 3)
-                            .padding(-6)
+                            .strokeBorder(Color.white, lineWidth: 3)
                     } else {
                         RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .stroke(Theme.Palette.accent.opacity(0.95), lineWidth: 2.5)
-                            .padding(-6)
+                            .strokeBorder(Theme.Palette.accent.opacity(0.95), lineWidth: 2.5)
                     }
                 }
             }
-            .scaleEffect(isPressed ? 0.98 : (isFocused ? 1.025 : 1))
+            .scaleEffect(isPressed ? 0.98 : (isFocused ? 1.015 : 1))
             .shadow(
                 color: isFocused
-                    ? (highContrast ? Color.white.opacity(0.28) : Theme.Palette.accent.opacity(0.25))
+                    ? (highContrast ? Color.white.opacity(0.25) : Theme.Palette.accent.opacity(0.22))
                     : .clear,
-                radius: 14, y: 4
+                radius: 12, y: 4
             )
-            .shadow(color: Color.black.opacity(isFocused ? 0.55 : 0), radius: 16, y: 8)
             .zIndex(isFocused ? 1 : 0)
             .animation(.easeOut(duration: 0.14), value: isFocused)
     }
