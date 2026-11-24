@@ -128,7 +128,7 @@ struct HomeView: View {
                 subtitle: String(localized: "\(watch.continueWatching.count) in progress")
             )
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .top, spacing: Theme.Spacing.md) {
+                HStack(alignment: .top, spacing: Platform.isTV ? 28 : Theme.Spacing.md) {
                     ForEach(watch.continueWatching) { entry in
                         if let addon = resolveAddon(for: entry) {
                             NavigationLink(value: DetailDestination(
@@ -152,8 +152,10 @@ struct HomeView: View {
                         }
                     }
                 }
-                .padding(.vertical, Theme.Spacing.sm)
+                .padding(.vertical, Platform.isTV ? 16 : Theme.Spacing.sm)
+                .padding(.horizontal, Platform.isTV ? 10 : 0)
             }
+            .scrollClipDisabled()
         }
     }
 
@@ -540,8 +542,10 @@ struct CatalogRow: View {
             }
             ScrollView(.horizontal, showsIndicators: false) {
                 content
-                    .padding(.vertical, Theme.Spacing.sm)
+                    .padding(.vertical, Platform.isTV ? 16 : Theme.Spacing.sm)
+                    .padding(.horizontal, Platform.isTV ? 10 : 0)
             }
+            .scrollClipDisabled()
         }
     }
 
@@ -876,7 +880,7 @@ struct GenreHubView: View {
                         .pageContainer()
                 } else {
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(alignment: .top, spacing: Theme.Spacing.md) {
+                        HStack(alignment: .top, spacing: Platform.isTV ? 28 : Theme.Spacing.md) {
                             ForEach(items, id: \.id) { meta in
                                 NavigationLink(value: DetailDestination(
                                     addon: addon, type: meta.type, id: meta.id, name: meta.name
@@ -887,14 +891,15 @@ struct GenreHubView: View {
                                         subtitle: meta.releaseInfo,
                                         rating: meta.imdbRating
                                     )
-                                    .frame(width: Platform.isMac ? 180 : (Platform.isTV ? 200 : 124))
+                                    .frame(width: Platform.isTV ? 210 : (Platform.isMac ? 180 : 124))
                                 }
                                 .buttonStyle(.plainRect)
                             }
                         }
                         .padding(.horizontal, Theme.Layout.contentInset)
-                        .padding(.vertical, 4)
+                        .padding(.vertical, Platform.isTV ? 18 : 6)
                     }
+                    .scrollClipDisabled()
                 }
             } else {
                 HStack {
@@ -1090,7 +1095,7 @@ struct ProviderHubView: View {
                         .pageContainer()
                 } else {
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(alignment: .top, spacing: Theme.Spacing.md) {
+                        HStack(alignment: .top, spacing: Platform.isTV ? 28 : Theme.Spacing.md) {
                             ForEach(items, id: \.id) { meta in
                                 NavigationLink(value: DetailDestination(
                                     addon: addon, type: meta.type, id: meta.id, name: meta.name
@@ -1101,14 +1106,15 @@ struct ProviderHubView: View {
                                         subtitle: meta.releaseInfo,
                                         rating: meta.imdbRating
                                     )
-                                    .frame(width: Platform.isMac ? 180 : (Platform.isTV ? 200 : 124))
+                                    .frame(width: Platform.isTV ? 210 : (Platform.isMac ? 180 : 124))
                                 }
                                 .buttonStyle(.plainRect)
                             }
                         }
                         .padding(.horizontal, Theme.Layout.contentInset)
-                        .padding(.vertical, 4)
+                        .padding(.vertical, Platform.isTV ? 18 : 6)
                     }
+                    .scrollClipDisabled()
                 }
             } else {
                 HStack {

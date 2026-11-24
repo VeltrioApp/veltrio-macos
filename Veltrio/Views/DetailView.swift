@@ -121,6 +121,9 @@ struct DetailView: View {
                             .padding(.bottom, Theme.Spacing.xl)
                     }
                     .frame(width: leftWidth(for: geo.size.width) + Theme.Layout.contentInset * 2)
+                    #if os(tvOS)
+                    .focusSection()
+                    #endif
 
                     Rule(color: Theme.Palette.border, weight: 1)
                         .frame(width: 1)
@@ -130,6 +133,9 @@ struct DetailView: View {
                         .padding(.horizontal, Theme.Layout.contentInset)
                         .padding(.top, Theme.pushedTopInset + Theme.Spacing.lg)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                        #if os(tvOS)
+                        .focusSection()
+                        #endif
                 }
                 }
             }

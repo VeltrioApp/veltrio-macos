@@ -805,21 +805,32 @@ private struct FocusFrame<Label: View>: View {
         label
             .contentShape(Rectangle())
             .brightness(highContrast && isFocused ? 0.08 : 0)
-            .background(!highContrast && isFocused ? Theme.Palette.surfaceHover : .clear)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(!highContrast && isFocused ? Theme.Palette.surfaceHover.opacity(0.65) : .clear)
+                    .padding(-6)
+            )
             .overlay {
                 if isFocused {
                     if highContrast {
-                        Rectangle()
-                            .stroke(Color.black.opacity(0.75), lineWidth: 1.5)
-                            .padding(3.5)
-                            .overlay(Rectangle().stroke(Color.white, lineWidth: 3.5))
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(Color.white, lineWidth: 3)
+                            .padding(-6)
                     } else {
-                        Rectangle().stroke(Theme.Palette.accent, lineWidth: 3)
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(Theme.Palette.accent.opacity(0.95), lineWidth: 2.5)
+                            .padding(-6)
                     }
                 }
             }
-            .scaleEffect(isPressed ? 0.97 : (isFocused ? (highContrast ? 1.07 : 1.06) : 1))
-            .shadow(color: (highContrast ? Color.white.opacity(isFocused ? 0.35 : 0) : Color.black.opacity(isFocused ? 0.5 : 0)), radius: 14, y: 6)
+            .scaleEffect(isPressed ? 0.97 : (isFocused ? 1.04 : 1))
+            .shadow(
+                color: isFocused
+                    ? (highContrast ? Color.white.opacity(0.28) : Theme.Palette.accent.opacity(0.25))
+                    : .clear,
+                radius: 14, y: 4
+            )
+            .shadow(color: Color.black.opacity(isFocused ? 0.55 : 0), radius: 16, y: 8)
             .zIndex(isFocused ? 1 : 0)
             .animation(.easeOut(duration: 0.14), value: isFocused)
     }
