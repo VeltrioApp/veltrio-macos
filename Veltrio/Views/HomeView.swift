@@ -26,13 +26,22 @@ struct HomeView: View {
                             .transition(.opacity)
                             .animation(.easeInOut(duration: 0.25), value: hero.item.id)
                     } else {
-                        Color.clear.frame(height: 400)
+                        Color.clear.frame(height: 440)
                     }
                     ScrollView {
                         rows
                             .pageContainer()
-                            .padding(.top, Theme.Spacing.md)
+                            .padding(.top, Theme.Spacing.lg)
                             .padding(.bottom, Theme.Spacing.xxl)
+                    }
+                    .clipped()
+                    .overlay(alignment: .top) {
+                        LinearGradient(
+                            colors: [Theme.Palette.background, Theme.Palette.background.opacity(0)],
+                            startPoint: .top, endPoint: .bottom
+                        )
+                        .frame(height: 36)
+                        .allowsHitTesting(false)
                     }
                 }
             }
@@ -128,7 +137,7 @@ struct HomeView: View {
                                 id: entry.contentId,
                                 name: entry.name
                             )) {
-                                ContinueCard(entry: entry).frame(width: Platform.isMac ? 280 : 240)
+                                ContinueCard(entry: entry).frame(width: Platform.isTV ? 340 : (Platform.isMac ? 280 : 240))
                             }
                             .buttonStyle(.plainRect)
                             .contextMenu {
@@ -286,7 +295,7 @@ private struct EditorialHero: View {
     private let prefs = UserPrefs.shared
 
     @State private var kenBurns: Bool = false
-    private let height: CGFloat = Platform.isMac ? 640 : (Platform.isTV ? 400 : 470)
+    private let height: CGFloat = Platform.isMac ? 640 : (Platform.isTV ? 440 : 470)
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -385,8 +394,8 @@ private struct EditorialHero: View {
 
             // Title in serif, tight tracking, large.
             Text(item.name)
-                .font(Theme.Font.displaySerif(Platform.isTV ? 54 : 78, weight: .bold))
-                .tracking(Platform.isTV ? -1.4 : -2.2)
+                .font(Theme.Font.displaySerif(Platform.isTV ? 62 : 78, weight: .bold))
+                .tracking(Platform.isTV ? -1.6 : -2.2)
                 .lineSpacing(Platform.isTV ? -4 : -6)
                 .foregroundStyle(Theme.Palette.heroText)
                 .shadow(color: .black.opacity(0.6), radius: 20, y: 6)
@@ -399,10 +408,10 @@ private struct EditorialHero: View {
 
             if let description = item.description, !description.isEmpty {
                 Text(description)
-                    .font(Theme.Font.body(Platform.isTV ? 16 : 15))
+                    .font(Theme.Font.body(Platform.isTV ? 18 : 15))
                     .foregroundStyle(Theme.Palette.heroTextSecondary)
                     .lineLimit(Platform.isTV ? 2 : 3)
-                    .frame(maxWidth: Platform.isTV ? 760 : 580, alignment: .leading)
+                    .frame(maxWidth: Platform.isTV ? 800 : 580, alignment: .leading)
                     .padding(.top, Platform.isTV ? Theme.Spacing.sm : Theme.Spacing.lg)
             }
 
@@ -549,7 +558,7 @@ struct CatalogRow: View {
                     .font(Theme.Font.caption(12))
                     .foregroundStyle(Theme.Palette.textTertiary)
             } else {
-                HStack(alignment: .top, spacing: Theme.Spacing.md) {
+                HStack(alignment: .top, spacing: Platform.isTV ? 28 : Theme.Spacing.md) {
                     ForEach(metas.prefix(20), id: \.id) { meta in
                         NavigationLink(value: DetailDestination(
                             addon: addon, type: meta.type, id: meta.id, name: meta.name
@@ -560,7 +569,7 @@ struct CatalogRow: View {
                                 subtitle: meta.releaseInfo,
                                 rating: meta.imdbRating
                             )
-                            .frame(width: Platform.isMac ? 180 : 124)
+                            .frame(width: Platform.isTV ? 210 : (Platform.isMac ? 180 : 124))
                         }
                         .buttonStyle(.plainRect)
                         #if os(tvOS)
