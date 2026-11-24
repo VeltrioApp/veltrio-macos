@@ -409,7 +409,7 @@ private struct EditorialHero: View {
             metaFacts.padding(.top, Platform.isTV ? Theme.Spacing.xs : Theme.Spacing.md)
 
             if let description = item.description, !description.isEmpty {
-                Text(description)
+                Text(Self.shortSynopsis(description, maxSentences: 2))
                     .font(Theme.Font.body(Platform.isTV ? 20 : 15))
                     .foregroundStyle(Theme.Palette.heroTextSecondary)
                     .lineLimit(Platform.isTV ? 4 : 3)
@@ -444,6 +444,27 @@ private struct EditorialHero: View {
 
     private var isResuming: Bool {
         watch.entry(type: item.type, id: item.id)?.isStarted ?? false
+    }
+
+    private static func shortSynopsis(_ text: String, maxSentences: Int = 2) -> String {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return "" }
+        var count = 0
+        var i = trimmed.startIndex
+        while i < trimmed.endIndex {
+            let ch = trimmed[i]
+            if ch == "." || ch == "!" || ch == "?" {
+                let next = trimmed.index(after: i)
+                if next == trimmed.endIndex || trimmed[next].isWhitespace {
+                    count += 1
+                    if count >= maxSentences {
+                        return String(trimmed[...i])
+                    }
+                }
+            }
+            i = trimmed.index(after: i)
+        }
+        return trimmed
     }
 
     private var metaFacts: some View {

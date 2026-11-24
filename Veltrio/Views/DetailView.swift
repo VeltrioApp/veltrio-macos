@@ -821,12 +821,13 @@ struct DetailView: View {
                 }
                 .padding(.bottom, Theme.Spacing.xl)
             }
+            .scrollClipDisabled()
         }
         .frame(maxHeight: .infinity, alignment: .top)
     }
 
     private var streamsBody: some View {
-        LazyVStack(spacing: 10) {
+        LazyVStack(spacing: Platform.isTV ? 18 : 10) {
             ForEach(visibleEntries) { entry in
                 switch entry {
                 case .addon(let labeled):
@@ -843,6 +844,8 @@ struct DetailView: View {
                 }
             }
         }
+        .padding(.horizontal, Platform.isTV ? 20 : 0)
+        .padding(.vertical, Platform.isTV ? 14 : 0)
     }
 
     private var streamsSubtitle: String {
@@ -1362,14 +1365,18 @@ private struct StreamRow: View {
                     }
                 }
                 Text(primaryLabel)
-                    .font(Theme.Font.title(13))
+                    .font(Theme.Font.title(Platform.isTV ? 15 : 13))
                     .foregroundStyle(Theme.Palette.textPrimary)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
                 if let subtitle = secondaryLabel {
                     Text(subtitle)
-                        .font(Theme.Font.caption(11))
+                        .font(Theme.Font.caption(Platform.isTV ? 13 : 11))
                         .foregroundStyle(Theme.Palette.textSecondary)
-                        .lineLimit(1)
+                        .lineLimit(4)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 Text(labeled.addonName.uppercased())
                     .font(Theme.Font.mono(9, weight: .semibold))
@@ -1409,7 +1416,11 @@ private struct StreamRow: View {
     }
 
     private var primaryLabel: String {
-        labeled.stream.name ?? labeled.stream.title ?? "Stream"
+        let raw = labeled.stream.name ?? labeled.stream.title ?? "Stream"
+        return raw.components(separatedBy: .newlines)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " · ")
     }
 
     private var secondaryLabel: String? {

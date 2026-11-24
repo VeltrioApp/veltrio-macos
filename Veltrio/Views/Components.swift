@@ -823,7 +823,7 @@ private struct FocusFrame<Label: View>: View {
                     }
                 }
             }
-            .scaleEffect(isPressed ? 0.97 : (isFocused ? 1.04 : 1))
+            .scaleEffect(isPressed ? 0.98 : (isFocused ? 1.025 : 1))
             .shadow(
                 color: isFocused
                     ? (highContrast ? Color.white.opacity(0.28) : Theme.Palette.accent.opacity(0.25))
