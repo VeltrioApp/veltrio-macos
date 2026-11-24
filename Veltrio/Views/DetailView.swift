@@ -1620,6 +1620,9 @@ private struct PersonFilmographySheet: View {
             .navigationDestination(for: DetailDestination.self) { dest in
                 DetailView(destination: dest)
             }
+            .navigationDestination(for: PlayerDestination.self) { dest in
+                PlayerView(destination: dest)
+            }
         }
         #if os(macOS)
         .frame(minWidth: 640, minHeight: 480)

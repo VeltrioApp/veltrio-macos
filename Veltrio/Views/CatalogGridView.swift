@@ -22,7 +22,7 @@ struct CatalogGridView: View {
     // Optional genre filter driven by the catalog's own extras.
     @State private var selectedGenre: String? = nil
 
-    private let pageSize = 100
+    private var pageSize: Int { destination.addon.id == TmdbService.addonId ? 20 : 100 }
 
     var body: some View {
         ScrollView {

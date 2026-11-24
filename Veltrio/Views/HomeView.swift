@@ -294,7 +294,7 @@ private struct HomeDiscoverBar: View {
                 .background(selected ? Theme.Palette.accent : Theme.Palette.surface)
                 .overlay(Rectangle().stroke(selected ? Theme.Palette.accent : Theme.Palette.border, lineWidth: 1))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plainRect)
     }
 }
 

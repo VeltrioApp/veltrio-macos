@@ -149,7 +149,7 @@ struct PlayerView: View {
                 #endif
             }
 
-            if controlsVisible || isResolving || resolveError != nil {
+            if (controlsVisible || isResolving) && resolveError == nil {
                 controlsOverlay
                     .transition(.opacity)
             }
@@ -198,6 +198,7 @@ struct PlayerView: View {
                     key: "\(key)-\(Int(seg.end))",
                     title: title,
                     duration: 5.0,
+                    isPaused: controller.isPaused || isScrubbing || showMediaInfo || showChannelList,
                     onTrigger: {
                         controller.skipIntro()
                         flashControls()
@@ -219,6 +220,7 @@ struct PlayerView: View {
                     key: "outro-\(next.id)",
                     title: (AppLocalization.isFrench ? "Prochain épisode · " : "Next episode · ") + Self.label(for: next),
                     duration: 5.0,
+                    isPaused: controller.isPaused || isScrubbing || showMediaInfo || showChannelList,
                     onTrigger: {
                         playNextEpisode()
                     },
@@ -2597,8 +2599,10 @@ struct PlayerView: View {
     }
 
     /// The player turns the phone to landscape, and gives portrait back.
+    /// iPads keep their natural orientation.
     static func requestOrientation(_ mask: UIInterfaceOrientationMask) {
-        guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return }
+        guard UIDevice.current.userInterfaceIdiom == .phone,
+              let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return }
         scene.requestGeometryUpdate(.iOS(interfaceOrientations: mask))
     }
     #endif
@@ -2619,7 +2623,13 @@ struct PlayerView: View {
     /// never get you out of full screen without also throwing away the
     /// playback position.
     private func handleEscape() {
-        if isWindowFullScreen {
+        if showMediaInfo {
+            showMediaInfo = false
+        } else if showChannelList {
+            showChannelList = false
+        } else if showCatchupSheet {
+            showCatchupSheet = false
+        } else if isWindowFullScreen {
             toggleFullScreen()
         } else {
             dismiss()
@@ -2707,6 +2717,7 @@ struct PlayerView: View {
             let miniSize = NSSize(width: 480, height: 270)
             let screenFrame = (window.screen ?? NSScreen.main)?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1280, height: 800)
             let origin = NSPoint(x: screenFrame.maxX - miniSize.width - 24, y: screenFrame.minY + 24)
+            window.contentMinSize = NSSize(width: 360, height: 202)
             window.level = .floating
             window.collectionBehavior.insert(.canJoinAllSpaces)
             window.setFrame(NSRect(origin: origin, size: miniSize), display: true, animate: true)
@@ -2721,6 +2732,7 @@ struct PlayerView: View {
         }
         window.level = .normal
         window.collectionBehavior.remove(.canJoinAllSpaces)
+        window.contentMinSize = NSSize(width: 960, height: 620)
         if let saved = savedWindowFrame {
             window.setFrame(saved, display: true, animate: true)
             savedWindowFrame = nil
@@ -2734,6 +2746,7 @@ private struct AutoFillActionButton: View {
     let key: String
     let title: String
     let duration: Double
+    var isPaused: Bool = false
     let onTrigger: () -> Void
     let onDismiss: () -> Void
 
@@ -2748,11 +2761,14 @@ private struct AutoFillActionButton: View {
                 onTrigger()
             } label: {
                 ZStack(alignment: .leading) {
-                    Rectangle().fill(Color.black.opacity(0.75))
+                    Rectangle().fill(Color.black.opacity(0.82))
                     GeometryReader { geo in
-                        Rectangle()
-                            .fill(Theme.Palette.accent)
-                            .frame(width: geo.size.width * progress)
+                        VStack {
+                            Spacer()
+                            Rectangle()
+                                .fill(Theme.Palette.accent)
+                                .frame(width: geo.size.width * progress, height: 3)
+                        }
                     }
                     HStack(spacing: 10) {
                         Image(systemName: "forward.end.fill")
@@ -2778,23 +2794,31 @@ private struct AutoFillActionButton: View {
                 Image(systemName: "xmark")
                     .font(.system(size: 11, weight: .bold))
                     .foregroundStyle(.white.opacity(0.85))
-                    .frame(width: 40, height: 42)
-                    .background(Color.black.opacity(0.85))
+                    .frame(width: 40)
+                    .frame(maxHeight: .infinity)
+                    .background(Color.black.opacity(0.88))
             }
             .buttonStyle(.plainRect)
         }
+        .fixedSize(horizontal: false, vertical: true)
         .overlay(Rectangle().stroke(.white.opacity(0.25), lineWidth: 1))
         .shadow(color: Theme.Palette.accentGlow, radius: 18, y: 8)
-        .task(id: key) {
-            progress = 0
-            triggered = false
-            withAnimation(.linear(duration: duration)) {
-                progress = 1.0
+        .task(id: "\(key)|\(isPaused)") {
+            guard !isPaused, !triggered else { return }
+            let remaining = max(0, duration * Double(1.0 - progress))
+            if remaining > 0 {
+                withAnimation(.linear(duration: remaining)) {
+                    progress = 1.0
+                }
+                try? await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000))
             }
-            try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
-            guard !Task.isCancelled, !triggered else { return }
+            guard !Task.isCancelled, !triggered, !isPaused else { return }
             triggered = true
             onTrigger()
+        }
+        .onChange(of: key) { _, _ in
+            progress = 0
+            triggered = false
         }
     }
 }

@@ -143,7 +143,7 @@ final class UserPrefs {
 
     private static let adultGroupKeywords = [
         "adult", "xxx", "18+", "+18", "porn", "erotic", "érotique", "erotique",
-        "charme", "nsfw", "x-rated", "for adults", "adults only", "sex",
+        "charme", "nsfw", "x-rated", "for adults", "adults only",
     ]
 
     static func isAdultIptvGroup(_ group: String) -> Bool {

@@ -19,11 +19,12 @@ struct VeltrioApp: App {
                 .environment(store)
                 .environment(watch)
                 .environment(\.locale, prefs.resolvedLocale)
-                .frame(minWidth: 960, minHeight: 620)
+                .frame(minWidth: 360, minHeight: 202)
                 // The theme preference is applied by RootView, which is
                 // deeper in the hierarchy and therefore wins. Forcing
                 // `.dark` here as well would fight it.
         }
+        .defaultSize(width: 1280, height: 800)
         .windowStyle(.hiddenTitleBar)
         .windowToolbarStyle(.unified(showsTitle: false))
         .commands {

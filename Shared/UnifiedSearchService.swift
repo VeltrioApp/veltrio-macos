@@ -242,7 +242,10 @@ final class UnifiedSearchService {
               let credentials = ref.xtream else { return [] }
 
         let found = await XtreamClient().search(credentials: credentials, query: query, limit: 40)
-        return found.map { channel in
+        let kids = UserPrefs.shared.kidsMode
+        return found
+            .filter { !kids || !UserPrefs.isAdultIptvGroup($0.group ?? "") }
+            .map { channel in
             let isSeries = channel.xtreamSeriesId != nil
             return SearchResult(
                 id: "iptv|\(channel.id)",

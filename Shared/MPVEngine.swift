@@ -59,7 +59,9 @@ final class MPVEngine {
         setOption("input-vo-keyboard", "no")
         // Set default hwdec BEFORE platform videoOutput so iOS/tvOS can
         // enforce zero-copy `videotoolbox` without being overwritten.
-        setOption("hwdec", "auto-safe")
+        let d = UserDefaults.standard
+        let savedHwdec = d.string(forKey: "veltrio.pref.hwdec")?.trimmingCharacters(in: .whitespacesAndNewlines)
+        setOption("hwdec", (savedHwdec?.isEmpty == false) ? savedHwdec! : "auto-safe")
         videoOutput(mpv)
 
         // Lock mpv down to the network protocols we actually route through
@@ -72,10 +74,24 @@ final class MPVEngine {
         setOption("keep-open", "yes")
         setOption("audio-channels", "auto-safe")
         setOption("cache", "yes")
-        setOption("demuxer-max-bytes", "150MiB")
-        setOption("demuxer-max-back-bytes", "75MiB")
+        let cacheMiB = max(32, (d.object(forKey: "veltrio.pref.cacheMiB") as? Int) ?? 150)
+        setOption("demuxer-max-bytes", "\(cacheMiB)MiB")
+        setOption("demuxer-max-back-bytes", "\(max(32, cacheMiB / 2))MiB")
         setOption("ytdl", "no")  // we hand mpv direct URLs, never YouTube pages
         setOption("osc", "no")
+
+        // Apply saved audio/subtitle preferences right before init so they
+        // take effect on the very first file loaded.
+        if let alang = d.string(forKey: "veltrio.pref.audioLang"), !alang.isEmpty {
+            setOption("alang", alang)
+        }
+        if let slang = d.string(forKey: "veltrio.pref.subLang"), !slang.isEmpty {
+            setOption("slang", slang)
+        }
+        let subScale = (d.object(forKey: "veltrio.pref.subtitleScale") as? Double) ?? 1.0
+        let subColor = d.string(forKey: "veltrio.pref.subtitleColor") ?? "#FFFFFFFF"
+        setOption("sub-scale", String(format: "%.2f", subScale))
+        setOption("sub-color", subColor)
 
         mpv_request_log_messages(mpv, "warn")
         guard mpv_initialize(mpv) >= 0 else {
@@ -97,6 +113,7 @@ final class MPVEngine {
         mpv_observe_property(mpv, 11, "sub-delay",  MPV_FORMAT_DOUBLE)
         mpv_observe_property(mpv, 12, "audio-delay", MPV_FORMAT_DOUBLE)
         mpv_observe_property(mpv, 13, "chapter",     MPV_FORMAT_INT64)
+        mpv_observe_property(mpv, 14, "track-list/count", MPV_FORMAT_INT64)
 
         // Wakeup callback → main-thread event drain, through the token so
         // a late callback after teardown resolves to nil safely.
@@ -323,6 +340,8 @@ final class MPVEngine {
             let idx = Int(data?.assumingMemoryBound(to: Int64.self).pointee ?? -1)
             controller.currentChapterIndex = idx
             updateSkipIntroState()
+        case ("track-list/count", MPV_FORMAT_INT64):
+            refreshTracks()
         default:
             break
         }

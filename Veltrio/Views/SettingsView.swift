@@ -1084,7 +1084,7 @@ private struct ParentalControlSettings: View {
                     .buttonStyle(.plainRect)
                     .foregroundStyle(Theme.Palette.textSecondary)
                 }
-            } else {
+            } else if !prefs.kidsMode || prefs.kidsPin.isEmpty {
                 HStack(spacing: 8) {
                     SecureField(
                         prefs.kidsPin.isEmpty
@@ -1167,7 +1167,7 @@ private struct AppearanceSettings: View {
                             .background(selected ? Theme.Palette.accent : Theme.Palette.surface)
                             .overlay(Rectangle().stroke(selected ? Theme.Palette.accent : Theme.Palette.border, lineWidth: 1))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.plainRect)
                 }
                 Spacer()
             }

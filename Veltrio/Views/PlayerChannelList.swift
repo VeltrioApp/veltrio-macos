@@ -15,11 +15,20 @@ struct PlayerChannelList: View {
     private var activeGroup: String? { group ?? current.group }
 
     private var groups: [String] {
-        Array(Set(store.iptvChannels.map { $0.group ?? "Ungrouped" })).sorted()
+        let kids = UserPrefs.shared.kidsMode
+        return Array(Set(store.iptvChannels.map { $0.group ?? "Ungrouped" }))
+            .filter { !store.iptvHiddenGroups.contains($0) && (!kids || !UserPrefs.isAdultIptvGroup($0)) }
+            .sorted()
     }
 
     private var channels: [(number: Int, channel: IptvChannel)] {
-        var all = store.iptvChannels.enumerated().map { (number: $0.offset + 1, channel: $0.element) }
+        let kids = UserPrefs.shared.kidsMode
+        var all = store.iptvChannels.enumerated()
+            .map { (number: $0.offset + 1, channel: $0.element) }
+            .filter {
+                let g = $0.channel.group ?? "Ungrouped"
+                return !store.iptvHiddenGroups.contains(g) && (!kids || !UserPrefs.isAdultIptvGroup(g))
+            }
         if let activeGroup {
             all = all.filter { ($0.channel.group ?? "Ungrouped") == activeGroup }
         }
