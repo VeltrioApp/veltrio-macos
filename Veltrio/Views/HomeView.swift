@@ -10,26 +10,55 @@ struct HomeView: View {
     #endif
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                if homeAddons.isEmpty {
+        Group {
+            #if os(tvOS)
+            if homeAddons.isEmpty {
+                ScrollView {
                     emptyState
                         .padding(.top, Theme.navBarInset + 60)
-                } else {
+                        .padding(.bottom, Theme.Spacing.xxl)
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 0) {
                     if let hero = heroItem {
                         EditorialHero(item: hero.item, addon: hero.addon)
                             .id(hero.item.id)
                             .transition(.opacity)
                             .animation(.easeInOut(duration: 0.25), value: hero.item.id)
                     } else {
-                        Color.clear.frame(height: Theme.navBarInset + 60)
+                        Color.clear.frame(height: 400)
                     }
-                    rows
-                        .pageContainer()
-                        .padding(.top, Theme.Spacing.xxl)
+                    ScrollView {
+                        rows
+                            .pageContainer()
+                            .padding(.top, Theme.Spacing.md)
+                            .padding(.bottom, Theme.Spacing.xxl)
+                    }
                 }
             }
-            .padding(.bottom, Theme.Spacing.xxl)
+            #else
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    if homeAddons.isEmpty {
+                        emptyState
+                            .padding(.top, Theme.navBarInset + 60)
+                    } else {
+                        if let hero = heroItem {
+                            EditorialHero(item: hero.item, addon: hero.addon)
+                                .id(hero.item.id)
+                                .transition(.opacity)
+                                .animation(.easeInOut(duration: 0.25), value: hero.item.id)
+                        } else {
+                            Color.clear.frame(height: Theme.navBarInset + 60)
+                        }
+                        rows
+                            .pageContainer()
+                            .padding(.top, Theme.Spacing.xxl)
+                    }
+                }
+                .padding(.bottom, Theme.Spacing.xxl)
+            }
+            #endif
         }
         .onChange(of: tmdb.revision) { _, _ in
             store.clearCatalogCache()
@@ -257,7 +286,7 @@ private struct EditorialHero: View {
     private let prefs = UserPrefs.shared
 
     @State private var kenBurns: Bool = false
-    private let height: CGFloat = Platform.isMac ? 640 : 470
+    private let height: CGFloat = Platform.isMac ? 640 : (Platform.isTV ? 400 : 470)
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -356,27 +385,28 @@ private struct EditorialHero: View {
 
             // Title in serif, tight tracking, large.
             Text(item.name)
-                .font(Theme.Font.displaySerif(78, weight: .bold))
-                .tracking(-2.2)
-                .lineSpacing(-6)
+                .font(Theme.Font.displaySerif(Platform.isTV ? 54 : 78, weight: .bold))
+                .tracking(Platform.isTV ? -1.4 : -2.2)
+                .lineSpacing(Platform.isTV ? -4 : -6)
                 .foregroundStyle(Theme.Palette.heroText)
                 .shadow(color: .black.opacity(0.6), radius: 20, y: 6)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
 
             // Hairline then meta row.
-            Rule(color: .white.opacity(0.2)).frame(maxWidth: 280).padding(.top, Theme.Spacing.lg)
-            metaFacts.padding(.top, Theme.Spacing.md)
+            Rule(color: .white.opacity(0.2)).frame(maxWidth: 280).padding(.top, Platform.isTV ? Theme.Spacing.sm : Theme.Spacing.lg)
+            metaFacts.padding(.top, Platform.isTV ? Theme.Spacing.xs : Theme.Spacing.md)
 
             if let description = item.description, !description.isEmpty {
                 Text(description)
-                    .font(Theme.Font.body(15))
+                    .font(Theme.Font.body(Platform.isTV ? 16 : 15))
                     .foregroundStyle(Theme.Palette.heroTextSecondary)
-                    .lineLimit(3)
-                    .frame(maxWidth: 580, alignment: .leading)
-                    .padding(.top, Theme.Spacing.lg)
+                    .lineLimit(Platform.isTV ? 2 : 3)
+                    .frame(maxWidth: Platform.isTV ? 760 : 580, alignment: .leading)
+                    .padding(.top, Platform.isTV ? Theme.Spacing.sm : Theme.Spacing.lg)
             }
 
+            #if !os(tvOS)
             HStack(spacing: Theme.Spacing.md) {
                 NavigationLink(value: DetailDestination(
                     addon: addon, type: item.type, id: item.id, name: item.name
@@ -396,6 +426,7 @@ private struct EditorialHero: View {
                 .buttonStyle(.plainRect)
             }
             .padding(.top, Theme.Spacing.lg)
+            #endif
         }
     }
 
