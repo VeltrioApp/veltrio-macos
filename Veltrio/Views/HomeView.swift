@@ -26,7 +26,7 @@ struct HomeView: View {
                             .transition(.opacity)
                             .animation(.easeInOut(duration: 0.25), value: hero.item.id)
                     } else {
-                        Color.clear.frame(height: 440)
+                        Color.clear.frame(height: 500)
                     }
                     ScrollView {
                         rows
@@ -295,7 +295,7 @@ private struct EditorialHero: View {
     private let prefs = UserPrefs.shared
 
     @State private var kenBurns: Bool = false
-    private let height: CGFloat = Platform.isMac ? 640 : (Platform.isTV ? 440 : 470)
+    private let height: CGFloat = Platform.isMac ? 640 : (Platform.isTV ? 500 : 470)
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -337,9 +337,9 @@ private struct EditorialHero: View {
 
             overlay
                 .padding(.horizontal, Theme.Layout.contentInset)
-                .padding(.top, Theme.navBarInset + Theme.Spacing.xl)
-                .padding(.bottom, Theme.Spacing.xl)
-                .frame(maxWidth: 900, maxHeight: height, alignment: .bottomLeading)
+                .padding(.top, Platform.isTV ? 28 : Theme.navBarInset + Theme.Spacing.xl)
+                .padding(.bottom, Platform.isTV ? 24 : Theme.Spacing.xl)
+                .frame(maxWidth: Platform.isTV ? 1040 : 900, maxHeight: height, alignment: .bottomLeading)
         }
         .frame(maxWidth: .infinity)
         .onAppear {
@@ -394,8 +394,8 @@ private struct EditorialHero: View {
 
             // Title in serif, tight tracking, large.
             Text(item.name)
-                .font(Theme.Font.displaySerif(Platform.isTV ? 62 : 78, weight: .bold))
-                .tracking(Platform.isTV ? -1.6 : -2.2)
+                .font(Theme.Font.displaySerif(Platform.isTV ? 58 : 78, weight: .bold))
+                .tracking(Platform.isTV ? -1.5 : -2.2)
                 .lineSpacing(Platform.isTV ? -4 : -6)
                 .foregroundStyle(Theme.Palette.heroText)
                 .shadow(color: .black.opacity(0.6), radius: 20, y: 6)
@@ -408,10 +408,11 @@ private struct EditorialHero: View {
 
             if let description = item.description, !description.isEmpty {
                 Text(description)
-                    .font(Theme.Font.body(Platform.isTV ? 18 : 15))
+                    .font(Theme.Font.body(Platform.isTV ? 20 : 15))
                     .foregroundStyle(Theme.Palette.heroTextSecondary)
-                    .lineLimit(Platform.isTV ? 2 : 3)
-                    .frame(maxWidth: Platform.isTV ? 800 : 580, alignment: .leading)
+                    .lineLimit(Platform.isTV ? 4 : 3)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: Platform.isTV ? 920 : 580, alignment: .leading)
                     .padding(.top, Platform.isTV ? Theme.Spacing.sm : Theme.Spacing.lg)
             }
 
