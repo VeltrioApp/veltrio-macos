@@ -276,7 +276,7 @@ struct DetailView: View {
             Text(AppLocalization.isFrench ? "Titres similaires" : "More like this")
                 .eyebrow(Theme.Palette.textTertiary, tracking: 2.4)
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .top, spacing: Theme.Spacing.md) {
+                HStack(alignment: .top, spacing: Platform.isTV ? 22 : Theme.Spacing.md) {
                     ForEach(items, id: \.id) { item in
                         NavigationLink(value: DetailDestination(
                             addon: tmdbAddon, type: item.type, id: item.id, name: item.name
@@ -287,13 +287,15 @@ struct DetailView: View {
                                 subtitle: item.releaseInfo,
                                 rating: item.imdbRating
                             )
-                            .frame(width: Platform.isMac ? 132 : 112)
+                            .frame(width: Platform.isTV ? 160 : (Platform.isMac ? 132 : 112))
                         }
                         .buttonStyle(.plainRect)
                     }
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, Platform.isTV ? 16 : 4)
+                .padding(.horizontal, Platform.isTV ? 14 : 0)
             }
+            .scrollClipDisabled()
         }
     }
 
@@ -747,7 +749,7 @@ struct DetailView: View {
 
             if seasons.count > 1 {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 4) {
+                    HStack(spacing: Platform.isTV ? 14 : 4) {
                         ForEach(seasons, id: \.self) { season in
                             Chip(
                                 label: String(localized: "Season \(season)"),
@@ -756,12 +758,15 @@ struct DetailView: View {
                             ) { selectedSeason = season }
                         }
                     }
+                    .padding(.vertical, Platform.isTV ? 12 : 4)
+                    .padding(.horizontal, Platform.isTV ? 14 : 0)
                 }
+                .scrollClipDisabled()
             }
 
             LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: 260, maximum: 320), spacing: Theme.Spacing.md)],
-                spacing: Theme.Spacing.md
+                columns: [GridItem(.adaptive(minimum: Platform.isTV ? 300 : 260, maximum: 360), spacing: Platform.isTV ? 24 : Theme.Spacing.md)],
+                spacing: Platform.isTV ? 24 : Theme.Spacing.md
             ) {
                 ForEach(episodesForSeason, id: \.id) { video in
                     EpisodeCard(
@@ -776,6 +781,8 @@ struct DetailView: View {
                     }
                 }
             }
+            .padding(.horizontal, Platform.isTV ? 14 : 0)
+            .padding(.vertical, Platform.isTV ? 12 : 0)
         }
     }
 
@@ -1233,14 +1240,9 @@ private struct EpisodeCard: View {
                             Text(released)
                                 .font(Theme.Font.mono(10))
                                 .foregroundStyle(Theme.Palette.textQuaternary)
+                                .lineLimit(1)
                         }
-                        Spacer()
-                        if isSelected {
-                            Text("NOW SELECTED")
-                                .font(Theme.Font.mono(9, weight: .semibold))
-                                .tracking(1.4)
-                                .foregroundStyle(Theme.Palette.accentText)
-                        }
+                        Spacer(minLength: 4)
                     }
                     Text(video.title)
                         .font(Theme.Font.title(14))
