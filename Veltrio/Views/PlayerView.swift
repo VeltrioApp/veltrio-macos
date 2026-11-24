@@ -255,7 +255,7 @@ struct PlayerView: View {
                 } label: {
                     Color.clear
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(BareFocusButtonStyle())
                 .focused($focus, equals: .root)
                 .focusEffectDisabled()
                 .onMoveCommand { direction in remoteMove(direction) }
@@ -1585,18 +1585,14 @@ struct PlayerView: View {
                         duration: duration,
                         isRemoteFocused: focus == .seekBar
                     )
-                    .frame(height: 44)
-                    .padding(.horizontal, 14)
+                    .frame(height: 36)
+                    .padding(.horizontal, 12)
                     .background(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .fill(focus == .seekBar ? Color.white.opacity(0.10) : Color.clear)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(focus == .seekBar ? Theme.Palette.accent : Color.clear, lineWidth: 2)
+                        Capsule()
+                            .fill(focus == .seekBar ? Color.white.opacity(0.08) : Color.clear)
                     )
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(BareFocusButtonStyle())
                 .focused($focus, equals: .seekBar)
                 .focusEffectDisabled()
                 .onMoveCommand { handleSeekBarMove($0) }
@@ -2875,6 +2871,15 @@ private struct AutoFillActionButton: View {
 /// macOS `Slider` looks out of place over the player's glass controls.
 /// Supports chapter marks painted into the rail and publishes a hover
 /// time so the parent view can show a scrub tooltip.
+#if os(tvOS)
+/// Strips tvOS's default white pill focus effect (which `.buttonStyle(.plain)` still draws).
+private struct BareFocusButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+    }
+}
+#endif
+
 private struct SeekSlider: View {
     @Binding var value: Double
     let range: ClosedRange<Double>
