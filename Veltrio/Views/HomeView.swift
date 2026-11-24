@@ -26,12 +26,12 @@ struct HomeView: View {
                             .transition(.opacity)
                             .animation(.easeInOut(duration: 0.25), value: hero.item.id)
                     } else {
-                        Color.clear.frame(height: 500)
+                        Color.clear.frame(height: 390)
                     }
                     ScrollView {
                         rows
                             .pageContainer()
-                            .padding(.top, Theme.Spacing.lg)
+                            .padding(.top, Theme.Spacing.md)
                             .padding(.bottom, Theme.Spacing.xxl)
                     }
                     .clipped()
@@ -40,7 +40,7 @@ struct HomeView: View {
                             colors: [Theme.Palette.background, Theme.Palette.background.opacity(0)],
                             startPoint: .top, endPoint: .bottom
                         )
-                        .frame(height: 36)
+                        .frame(height: 22)
                         .allowsHitTesting(false)
                     }
                 }
@@ -297,7 +297,7 @@ private struct EditorialHero: View {
     private let prefs = UserPrefs.shared
 
     @State private var kenBurns: Bool = false
-    private let height: CGFloat = Platform.isMac ? 640 : (Platform.isTV ? 500 : 470)
+    private let height: CGFloat = Platform.isMac ? 640 : (Platform.isTV ? 390 : 470)
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -339,8 +339,8 @@ private struct EditorialHero: View {
 
             overlay
                 .padding(.horizontal, Theme.Layout.contentInset)
-                .padding(.top, Platform.isTV ? 28 : Theme.navBarInset + Theme.Spacing.xl)
-                .padding(.bottom, Platform.isTV ? 24 : Theme.Spacing.xl)
+                .padding(.top, Platform.isTV ? 20 : Theme.navBarInset + Theme.Spacing.xl)
+                .padding(.bottom, Platform.isTV ? 16 : Theme.Spacing.xl)
                 .frame(maxWidth: Platform.isTV ? 1040 : 900, maxHeight: height, alignment: .bottomLeading)
         }
         .frame(maxWidth: .infinity)
@@ -396,26 +396,26 @@ private struct EditorialHero: View {
 
             // Title in serif, tight tracking, large.
             Text(item.name)
-                .font(Theme.Font.displaySerif(Platform.isTV ? 58 : 78, weight: .bold))
-                .tracking(Platform.isTV ? -1.5 : -2.2)
-                .lineSpacing(Platform.isTV ? -4 : -6)
+                .font(Theme.Font.displaySerif(Platform.isTV ? 48 : 78, weight: .bold))
+                .tracking(Platform.isTV ? -1.3 : -2.2)
+                .lineSpacing(Platform.isTV ? -3 : -6)
                 .foregroundStyle(Theme.Palette.heroText)
                 .shadow(color: .black.opacity(0.6), radius: 20, y: 6)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
 
             // Hairline then meta row.
-            Rule(color: .white.opacity(0.2)).frame(maxWidth: 280).padding(.top, Platform.isTV ? Theme.Spacing.sm : Theme.Spacing.lg)
+            Rule(color: .white.opacity(0.2)).frame(maxWidth: 280).padding(.top, Platform.isTV ? Theme.Spacing.xs : Theme.Spacing.lg)
             metaFacts.padding(.top, Platform.isTV ? Theme.Spacing.xs : Theme.Spacing.md)
 
             if let description = item.description, !description.isEmpty {
                 Text(Self.shortSynopsis(description, maxSentences: 2))
-                    .font(Theme.Font.body(Platform.isTV ? 20 : 15))
+                    .font(Theme.Font.body(Platform.isTV ? 17 : 15))
                     .foregroundStyle(Theme.Palette.heroTextSecondary)
-                    .lineLimit(Platform.isTV ? 4 : 3)
+                    .lineLimit(Platform.isTV ? 3 : 3)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: Platform.isTV ? 920 : 580, alignment: .leading)
-                    .padding(.top, Platform.isTV ? Theme.Spacing.sm : Theme.Spacing.lg)
+                    .padding(.top, Platform.isTV ? Theme.Spacing.xs : Theme.Spacing.lg)
             }
 
             #if !os(tvOS)
@@ -595,7 +595,7 @@ struct CatalogRow: View {
                                 subtitle: meta.releaseInfo,
                                 rating: meta.imdbRating
                             )
-                            .frame(width: Platform.isTV ? 210 : (Platform.isMac ? 180 : 124))
+                            .frame(width: Platform.isTV ? 190 : (Platform.isMac ? 180 : 124))
                         }
                         .buttonStyle(.plainRect)
                         #if os(tvOS)
@@ -912,7 +912,7 @@ struct GenreHubView: View {
                                         subtitle: meta.releaseInfo,
                                         rating: meta.imdbRating
                                     )
-                                    .frame(width: Platform.isTV ? 210 : (Platform.isMac ? 180 : 124))
+                                    .frame(width: Platform.isTV ? 190 : (Platform.isMac ? 180 : 124))
                                 }
                                 .buttonStyle(.plainRect)
                             }
@@ -1127,7 +1127,7 @@ struct ProviderHubView: View {
                                         subtitle: meta.releaseInfo,
                                         rating: meta.imdbRating
                                     )
-                                    .frame(width: Platform.isTV ? 210 : (Platform.isMac ? 180 : 124))
+                                    .frame(width: Platform.isTV ? 190 : (Platform.isMac ? 180 : 124))
                                 }
                                 .buttonStyle(.plainRect)
                             }
