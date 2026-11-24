@@ -188,161 +188,58 @@ struct HomeView: View {
 private struct HomeDiscoverBar: View {
     var onFocus: ((InstalledAddon, MetaPreview) -> Void)? = nil
 
-    @State private var tmdb = TmdbService.shared
-    @State private var mediaType = "movie"
-    @State private var selectedProvider: Int? = nil
-    @State private var selectedGenre: TmdbService.DiscoverGenre? = nil
-    @State private var results: [MetaPreview]? = nil
-    #if os(tvOS)
-    @FocusState private var focusedId: String?
-    #endif
-
-    private var isActive: Bool { selectedProvider != nil || selectedGenre != nil }
-
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            // Streaming provider logo cards
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
+            // Streaming platform hub cards — full-width row on Mac/TV, scrollable on phone
+            if Platform.isMac || Platform.isTV {
+                HStack(spacing: Platform.isTV ? 18 : 12) {
                     ForEach(TmdbService.discoverProviders) { p in
-                        providerCard(p, selected: selectedProvider == p.id) {
-                            selectedProvider = (selectedProvider == p.id) ? nil : p.id
+                        NavigationLink(value: ProviderDestination(provider: p)) {
+                            ProviderHubCard(provider: p, fullWidth: true)
                         }
+                        .buttonStyle(.plainRect)
                     }
                 }
-                .padding(.vertical, 2)
+                .padding(.vertical, 4)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(TmdbService.discoverProviders) { p in
+                            NavigationLink(value: ProviderDestination(provider: p)) {
+                                ProviderHubCard(provider: p, fullWidth: false)
+                            }
+                            .buttonStyle(.plainRect)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
             }
 
-            // Media type + genre filter chips
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    filterChip(AppLocalization.isFrench ? "Films" : "Movies", selected: mediaType == "movie") {
-                        mediaType = "movie"
-                    }
-                    filterChip(AppLocalization.isFrench ? "Séries" : "Series", selected: mediaType == "series") {
-                        mediaType = "series"
-                    }
+            // Genre hub cards — full-width row on Mac/TV, scrollable on phone
+            if Platform.isMac || Platform.isTV {
+                HStack(spacing: Platform.isTV ? 16 : 10) {
                     ForEach(TmdbService.discoverGenres) { g in
-                        filterChip(g.label, selected: selectedGenre == g) {
-                            selectedGenre = (selectedGenre == g) ? nil : g
+                        NavigationLink(value: GenreDestination(genre: g)) {
+                            GenreHubCard(genre: g, fullWidth: true)
                         }
-                    }
-                    if isActive {
-                        filterChip(AppLocalization.isFrench ? "Effacer" : "Clear", selected: false) {
-                            selectedProvider = nil
-                            selectedGenre = nil
-                        }
+                        .buttonStyle(.plainRect)
                     }
                 }
                 .padding(.vertical, 2)
-            }
-
-            if isActive {
-                let addon = tmdb.virtualAddon()
-                if let results {
-                    if results.isEmpty {
-                        Text("No items.")
-                            .font(Theme.Font.caption(12))
-                            .foregroundStyle(Theme.Palette.textTertiary)
-                    } else {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(alignment: .top, spacing: Theme.Spacing.md) {
-                                ForEach(results, id: \.id) { meta in
-                                    NavigationLink(value: DetailDestination(
-                                        addon: addon, type: meta.type, id: meta.id, name: meta.name
-                                    )) {
-                                        PosterCard(
-                                            title: meta.name,
-                                            posterURL: meta.poster,
-                                            subtitle: meta.releaseInfo,
-                                            rating: meta.imdbRating
-                                        )
-                                        .frame(width: Platform.isMac ? 180 : 124)
-                                    }
-                                    .buttonStyle(.plainRect)
-                                    #if os(tvOS)
-                                    .focused($focusedId, equals: meta.id)
-                                    #endif
-                                }
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(TmdbService.discoverGenres) { g in
+                            NavigationLink(value: GenreDestination(genre: g)) {
+                                GenreHubCard(genre: g, fullWidth: false)
                             }
-                            .padding(.vertical, Theme.Spacing.sm)
+                            .buttonStyle(.plainRect)
                         }
-                        #if os(tvOS)
-                        .onChange(of: focusedId) { _, newId in
-                            if let newId, let hit = results.first(where: { $0.id == newId }) {
-                                onFocus?(addon, hit)
-                            }
-                        }
-                        #endif
                     }
-                } else {
-                    LoadingRow()
+                    .padding(.vertical, 2)
                 }
             }
         }
-        .task(id: "\(mediaType)|\(selectedProvider ?? -1)|\(selectedGenre?.id ?? -1)|\(tmdb.revision)") {
-            guard isActive else {
-                results = nil
-                return
-            }
-            results = nil
-            let gid = selectedGenre.map { mediaType == "series" ? $0.tvId : $0.movieId }
-            results = (try? await tmdb.discover(type: mediaType, genreId: gid, providerId: selectedProvider)) ?? []
-        }
-    }
-
-    private func providerCard(_ provider: TmdbService.DiscoverProvider, selected: Bool, action: @escaping () -> Void) -> some View {
-        let iconSize: CGFloat = Platform.isTV ? 58 : (Platform.isMac ? 44 : 38)
-        return Button(action: action) {
-            HStack(spacing: 10) {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(Theme.Palette.surface)
-                    .frame(width: iconSize, height: iconSize)
-                    .overlay {
-                        if let url = URL(string: provider.logoURL) {
-                            AsyncImage(url: url) { phase in
-                                switch phase {
-                                case .success(let img):
-                                    img.resizable().scaledToFill()
-                                default:
-                                    Color.clear
-                                }
-                            }
-                        }
-                    }
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                Text(provider.name)
-                    .font(Theme.Font.label(Platform.isTV ? 16 : 12, weight: selected ? .bold : .semibold))
-                    .foregroundStyle(selected ? Theme.Palette.accentText : Theme.Palette.textPrimary)
-                    .lineLimit(1)
-            }
-            .padding(.leading, 6)
-            .padding(.trailing, 14)
-            .padding(.vertical, 6)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(selected ? Theme.Palette.accent.opacity(0.16) : Theme.Palette.surface)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(selected ? Theme.Palette.accent : Theme.Palette.border, lineWidth: selected ? 1.8 : 1)
-            )
-        }
-        .buttonStyle(.plainRect)
-    }
-
-    private func filterChip(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(Theme.Font.eyebrow(10, weight: .bold))
-                .tracking(1.4)
-                .foregroundStyle(selected ? Theme.Palette.onAccent : Theme.Palette.textSecondary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 7)
-                .background(selected ? Theme.Palette.accent : Theme.Palette.surface)
-                .overlay(Rectangle().stroke(selected ? Theme.Palette.accent : Theme.Palette.border, lineWidth: 1))
-        }
-        .buttonStyle(.plainRect)
     }
 }
 
@@ -763,5 +660,422 @@ private struct ContinueCard: View {
                 .font(.system(size: 26))
                 .foregroundStyle(Theme.Palette.textQuaternary)
         )
+    }
+}
+
+// MARK: - Streaming Platform Hub Cards & Page
+
+struct ProviderDestination: Hashable {
+    let provider: TmdbService.DiscoverProvider
+}
+
+struct GenreDestination: Hashable {
+    let genre: TmdbService.DiscoverGenre
+}
+
+private struct GenreHubCard: View {
+    let genre: TmdbService.DiscoverGenre
+    var fullWidth: Bool = false
+    @State private var isHovering = false
+
+    private var accentColor: Color {
+        let r = Double((genre.accentHex >> 16) & 0xFF) / 255.0
+        let g = Double((genre.accentHex >> 8) & 0xFF) / 255.0
+        let b = Double(genre.accentHex & 0xFF) / 255.0
+        return Color(red: r, green: g, blue: b)
+    }
+
+    var body: some View {
+        let w: CGFloat = Platform.isTV ? 210 : (Platform.isMac ? 156 : 130)
+        let h: CGFloat = Platform.isTV ? 104 : (Platform.isMac ? 76 : 66)
+
+        ZStack {
+            LinearGradient(
+                colors: [accentColor.opacity(0.42), Theme.Palette.surface],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            VStack(spacing: 6) {
+                Image(systemName: genre.icon)
+                    .font(.system(size: Platform.isTV ? 26 : (Platform.isMac ? 20 : 17), weight: .semibold))
+                    .foregroundStyle(Theme.Palette.textPrimary)
+                Text(genre.label)
+                    .font(.system(size: Platform.isTV ? 17 : (Platform.isMac ? 13 : 12), weight: .semibold))
+                    .foregroundStyle(Theme.Palette.textPrimary)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 8)
+        }
+        .frame(maxWidth: fullWidth ? .infinity : w)
+        .frame(height: h)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(isHovering ? Theme.Palette.accent : Theme.Palette.border, lineWidth: isHovering ? 1.8 : 1)
+        )
+        .scaleEffect(isHovering ? 1.03 : 1.0)
+        .animation(.easeOut(duration: 0.16), value: isHovering)
+        .pointerHover { h in
+            isHovering = h
+            Platform.pointingCursor(h)
+        }
+    }
+}
+
+struct GenreHubView: View {
+    let genre: TmdbService.DiscoverGenre
+    @Environment(\.dismiss) private var dismiss
+    @State private var tmdb = TmdbService.shared
+
+    @State private var popularMovies: [MetaPreview]?
+    @State private var popularSeries: [MetaPreview]?
+    @State private var topMovies: [MetaPreview]?
+    @State private var topSeries: [MetaPreview]?
+
+    private var accentColor: Color {
+        let r = Double((genre.accentHex >> 16) & 0xFF) / 255.0
+        let g = Double((genre.accentHex >> 8) & 0xFF) / 255.0
+        let b = Double(genre.accentHex & 0xFF) / 255.0
+        return Color(red: r, green: g, blue: b)
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xxl) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.left")
+                                .font(.system(size: 11, weight: .bold))
+                            Text(AppLocalization.isFrench ? "RETOUR" : "BACK")
+                                .eyebrow(Theme.Palette.textSecondary, tracking: 2.0)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .background(Theme.Palette.surface)
+                        .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
+                    }
+                    .buttonStyle(.plainRect)
+
+                    HStack(spacing: Theme.Spacing.lg) {
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(accentColor.opacity(0.3))
+                            .frame(width: 72, height: 72)
+                            .overlay {
+                                Image(systemName: genre.icon)
+                                    .font(.system(size: 30, weight: .semibold))
+                                    .foregroundStyle(Theme.Palette.textPrimary)
+                            }
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .stroke(accentColor.opacity(0.6), lineWidth: 1.5)
+                            )
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(AppLocalization.isFrench ? "GENRE" : "GENRE")
+                                .eyebrow(Theme.Palette.accentText, tracking: 2.4)
+                            Text(genre.label)
+                                .font(Theme.Font.display(Platform.isTV ? 48 : 34))
+                                .foregroundStyle(Theme.Palette.textPrimary)
+                        }
+                        Spacer()
+                    }
+                    .padding(Theme.Spacing.lg)
+                    .background(
+                        LinearGradient(
+                            colors: [accentColor.opacity(0.35), Theme.Palette.surface.opacity(0.5)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(Theme.Palette.border, lineWidth: 1)
+                    )
+                }
+                .pageContainer()
+                .padding(.top, Theme.pushedTopInset + Theme.Spacing.md)
+
+                hubRow(number: 1, title: AppLocalization.isFrench ? "Films populaires" : "Popular Movies", items: popularMovies)
+                hubRow(number: 2, title: AppLocalization.isFrench ? "Séries populaires" : "Popular Series", items: popularSeries)
+                hubRow(number: 3, title: AppLocalization.isFrench ? "Films les mieux notés" : "Top Rated Movies", items: topMovies)
+                hubRow(number: 4, title: AppLocalization.isFrench ? "Séries les mieux notées" : "Top Rated Series", items: topSeries)
+            }
+            .padding(.bottom, Theme.Spacing.xxl)
+        }
+        .background(Theme.Palette.background)
+        .navigationBarBackButtonHidden(true)
+        .ignoresTopSafeAreaOnMac()
+        .task(id: "\(genre.movieId)|\(tmdb.revision)") {
+            async let pm = try? tmdb.discover(type: "movie", genreId: genre.movieId, sortBy: "popularity.desc")
+            async let ps = try? tmdb.discover(type: "series", genreId: genre.tvId, sortBy: "popularity.desc")
+            async let tm = try? tmdb.discover(type: "movie", genreId: genre.movieId, sortBy: "vote_average.desc", minVotes: 150)
+            async let ts = try? tmdb.discover(type: "series", genreId: genre.tvId, sortBy: "vote_average.desc", minVotes: 150)
+            popularMovies = await pm ?? []
+            popularSeries = await ps ?? []
+            topMovies = await tm ?? []
+            topSeries = await ts ?? []
+        }
+    }
+
+    @ViewBuilder
+    private func hubRow(number: Int, title: String, items: [MetaPreview]?) -> some View {
+        let addon = tmdb.virtualAddon()
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            SectionHeader(title, number: number)
+                .pageContainer()
+            if let items {
+                if items.isEmpty {
+                    Text("No items.")
+                        .font(Theme.Font.caption(12))
+                        .foregroundStyle(Theme.Palette.textTertiary)
+                        .pageContainer()
+                } else {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(alignment: .top, spacing: Theme.Spacing.md) {
+                            ForEach(items, id: \.id) { meta in
+                                NavigationLink(value: DetailDestination(
+                                    addon: addon, type: meta.type, id: meta.id, name: meta.name
+                                )) {
+                                    PosterCard(
+                                        title: meta.name,
+                                        posterURL: meta.poster,
+                                        subtitle: meta.releaseInfo,
+                                        rating: meta.imdbRating
+                                    )
+                                    .frame(width: Platform.isMac ? 180 : (Platform.isTV ? 200 : 124))
+                                }
+                                .buttonStyle(.plainRect)
+                            }
+                        }
+                        .padding(.horizontal, Theme.Layout.contentInset)
+                        .padding(.vertical, 4)
+                    }
+                }
+            } else {
+                HStack {
+                    ProgressView()
+                    Spacer()
+                }
+                .pageContainer()
+            }
+        }
+    }
+}
+
+private struct ProviderHubCard: View {
+    let provider: TmdbService.DiscoverProvider
+    var fullWidth: Bool = false
+    @State private var isHovering = false
+
+    private var brandColor: Color {
+        let r = Double((provider.brandHex >> 16) & 0xFF) / 255.0
+        let g = Double((provider.brandHex >> 8) & 0xFF) / 255.0
+        let b = Double(provider.brandHex & 0xFF) / 255.0
+        return Color(red: r, green: g, blue: b)
+    }
+
+    var body: some View {
+        let w: CGFloat = Platform.isTV ? 228 : (Platform.isMac ? 176 : 142)
+        let h: CGFloat = Platform.isTV ? 128 : (Platform.isMac ? 104 : 82)
+        let logoSize: CGFloat = Platform.isTV ? 66 : (Platform.isMac ? 54 : 44)
+
+        ZStack {
+            LinearGradient(
+                colors: [brandColor.opacity(0.45), Theme.Palette.surface],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            VStack(spacing: 7) {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Theme.Palette.backgroundAlt)
+                    .frame(width: logoSize, height: logoSize)
+                    .overlay {
+                        if let url = URL(string: provider.logoURL) {
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .success(let img):
+                                    img.resizable().scaledToFill()
+                                default:
+                                    Color.clear
+                                }
+                            }
+                        }
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .shadow(color: .black.opacity(0.45), radius: 10, y: 4)
+                Text(provider.name)
+                    .font(.system(size: Platform.isTV ? 18 : (Platform.isMac ? 13 : 12), weight: .semibold))
+                    .foregroundStyle(Theme.Palette.textPrimary)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 8)
+        }
+        .frame(maxWidth: fullWidth ? .infinity : w)
+        .frame(height: h)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(isHovering ? Theme.Palette.accent : Theme.Palette.border, lineWidth: isHovering ? 1.8 : 1)
+        )
+        .scaleEffect(isHovering ? 1.03 : 1.0)
+        .animation(.easeOut(duration: 0.16), value: isHovering)
+        .pointerHover { h in
+            isHovering = h
+            Platform.pointingCursor(h)
+        }
+    }
+}
+
+struct ProviderHubView: View {
+    let provider: TmdbService.DiscoverProvider
+    @Environment(\.dismiss) private var dismiss
+    @State private var tmdb = TmdbService.shared
+
+    @State private var popularMovies: [MetaPreview]?
+    @State private var popularSeries: [MetaPreview]?
+    @State private var topMovies: [MetaPreview]?
+    @State private var topSeries: [MetaPreview]?
+
+    private var brandColor: Color {
+        let r = Double((provider.brandHex >> 16) & 0xFF) / 255.0
+        let g = Double((provider.brandHex >> 8) & 0xFF) / 255.0
+        let b = Double(provider.brandHex & 0xFF) / 255.0
+        return Color(red: r, green: g, blue: b)
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xxl) {
+                // Branded header
+                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.left")
+                                .font(.system(size: 11, weight: .bold))
+                            Text(AppLocalization.isFrench ? "RETOUR" : "BACK")
+                                .eyebrow(Theme.Palette.textSecondary, tracking: 2.0)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .background(Theme.Palette.surface)
+                        .overlay(Rectangle().stroke(Theme.Palette.border, lineWidth: 1))
+                    }
+                    .buttonStyle(.plainRect)
+
+                    HStack(spacing: Theme.Spacing.lg) {
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(Theme.Palette.surface)
+                            .frame(width: 72, height: 72)
+                            .overlay {
+                                if let url = URL(string: provider.logoURL) {
+                                    AsyncImage(url: url) { phase in
+                                        switch phase {
+                                        case .success(let img):
+                                            img.resizable().scaledToFill()
+                                        default:
+                                            Color.clear
+                                        }
+                                    }
+                                }
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .shadow(color: brandColor.opacity(0.45), radius: 18, y: 6)
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(AppLocalization.isFrench ? "PLATEFORME" : "PLATFORM")
+                                .eyebrow(Theme.Palette.accentText, tracking: 2.4)
+                            Text(provider.name)
+                                .font(Theme.Font.display(Platform.isTV ? 48 : 34))
+                                .foregroundStyle(Theme.Palette.textPrimary)
+                        }
+                        Spacer()
+                    }
+                    .padding(Theme.Spacing.lg)
+                    .background(
+                        LinearGradient(
+                            colors: [brandColor.opacity(0.35), Theme.Palette.surface.opacity(0.5)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(Theme.Palette.border, lineWidth: 1)
+                    )
+                }
+                .pageContainer()
+                .padding(.top, Theme.pushedTopInset + Theme.Spacing.md)
+
+                hubRow(number: 1, title: AppLocalization.isFrench ? "Films populaires" : "Popular Movies", items: popularMovies)
+                hubRow(number: 2, title: AppLocalization.isFrench ? "Séries populaires" : "Popular Series", items: popularSeries)
+                hubRow(number: 3, title: AppLocalization.isFrench ? "Films les mieux notés" : "Top Rated Movies", items: topMovies)
+                hubRow(number: 4, title: AppLocalization.isFrench ? "Séries les mieux notées" : "Top Rated Series", items: topSeries)
+            }
+            .padding(.bottom, Theme.Spacing.xxl)
+        }
+        .background(Theme.Palette.background)
+        .navigationBarBackButtonHidden(true)
+        .ignoresTopSafeAreaOnMac()
+        .task(id: "\(provider.id)|\(tmdb.revision)") {
+            async let pm = try? tmdb.discover(type: "movie", providerId: provider.id, sortBy: "popularity.desc")
+            async let ps = try? tmdb.discover(type: "series", providerId: provider.id, sortBy: "popularity.desc")
+            async let tm = try? tmdb.discover(type: "movie", providerId: provider.id, sortBy: "vote_average.desc", minVotes: 150)
+            async let ts = try? tmdb.discover(type: "series", providerId: provider.id, sortBy: "vote_average.desc", minVotes: 150)
+            popularMovies = await pm ?? []
+            popularSeries = await ps ?? []
+            topMovies = await tm ?? []
+            topSeries = await ts ?? []
+        }
+    }
+
+    @ViewBuilder
+    private func hubRow(number: Int, title: String, items: [MetaPreview]?) -> some View {
+        let addon = tmdb.virtualAddon()
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            SectionHeader(title, number: number)
+                .pageContainer()
+            if let items {
+                if items.isEmpty {
+                    Text("No items.")
+                        .font(Theme.Font.caption(12))
+                        .foregroundStyle(Theme.Palette.textTertiary)
+                        .pageContainer()
+                } else {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(alignment: .top, spacing: Theme.Spacing.md) {
+                            ForEach(items, id: \.id) { meta in
+                                NavigationLink(value: DetailDestination(
+                                    addon: addon, type: meta.type, id: meta.id, name: meta.name
+                                )) {
+                                    PosterCard(
+                                        title: meta.name,
+                                        posterURL: meta.poster,
+                                        subtitle: meta.releaseInfo,
+                                        rating: meta.imdbRating
+                                    )
+                                    .frame(width: Platform.isMac ? 180 : (Platform.isTV ? 200 : 124))
+                                }
+                                .buttonStyle(.plainRect)
+                            }
+                        }
+                        .padding(.horizontal, Theme.Layout.contentInset)
+                        .padding(.vertical, 4)
+                    }
+                }
+            } else {
+                HStack {
+                    ProgressView()
+                    Spacer()
+                }
+                .pageContainer()
+            }
+        }
     }
 }

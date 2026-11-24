@@ -96,6 +96,12 @@ struct RootView: View {
             .navigationDestination(for: CatalogDestination.self) { dest in
                 CatalogGridView(destination: dest)
             }
+            .navigationDestination(for: ProviderDestination.self) { dest in
+                ProviderHubView(provider: dest.provider)
+            }
+            .navigationDestination(for: GenreDestination.self) { dest in
+                GenreHubView(genre: dest.genre)
+            }
         }
         .tint(Theme.Palette.accent)
         .preferredColorScheme(preferredScheme)

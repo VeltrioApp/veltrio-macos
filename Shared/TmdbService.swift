@@ -214,15 +214,16 @@ final class TmdbService {
         let id: Int
         let name: String
         let logoURL: String
+        let brandHex: UInt32
     }
 
     static let discoverProviders: [DiscoverProvider] = [
-        .init(id: 8,    name: "Netflix",     logoURL: "https://image.tmdb.org/t/p/w154/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg"),
-        .init(id: 350,  name: "Apple TV+",   logoURL: "https://image.tmdb.org/t/p/w154/2E03IAZsX4ZaUqM7tXlctEPMGWS.jpg"),
-        .init(id: 337,  name: "Disney+",     logoURL: "https://image.tmdb.org/t/p/w154/97yvRBw1GzX7fXprcF80er19ot.jpg"),
-        .init(id: 119,  name: "Prime Video", logoURL: "https://image.tmdb.org/t/p/w154/pvske1MyAoymrs5bguRfVqYiM9a.jpg"),
-        .init(id: 1899, name: "Max",         logoURL: "https://image.tmdb.org/t/p/w154/jbe4gVSfRlbPTdESXhEKpornsfu.jpg"),
-        .init(id: 381,  name: "Canal+",      logoURL: "https://image.tmdb.org/t/p/w154/eBXzkFEupZjKaIKY7zBUaSdCY8I.jpg"),
+        .init(id: 8,    name: "Netflix",     logoURL: "https://image.tmdb.org/t/p/w154/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg", brandHex: 0xE50914),
+        .init(id: 350,  name: "Apple TV+",   logoURL: "https://image.tmdb.org/t/p/w154/2E03IAZsX4ZaUqM7tXlctEPMGWS.jpg", brandHex: 0x2C2C2E),
+        .init(id: 337,  name: "Disney+",     logoURL: "https://image.tmdb.org/t/p/w154/97yvRBw1GzX7fXprcF80er19ot.jpg", brandHex: 0x113CCF),
+        .init(id: 119,  name: "Prime Video", logoURL: "https://image.tmdb.org/t/p/w154/pvske1MyAoymrs5bguRfVqYiM9a.jpg", brandHex: 0x00A8E1),
+        .init(id: 1899, name: "Max",         logoURL: "https://image.tmdb.org/t/p/w154/jbe4gVSfRlbPTdESXhEKpornsfu.jpg", brandHex: 0x002BE7),
+        .init(id: 381,  name: "Canal+",      logoURL: "https://image.tmdb.org/t/p/w154/eBXzkFEupZjKaIKY7zBUaSdCY8I.jpg", brandHex: 0x1C1C1E),
     ]
 
     struct DiscoverGenre: Identifiable, Hashable {
@@ -230,22 +231,24 @@ final class TmdbService {
         let tvId: Int
         let fr: String
         let en: String
+        let icon: String
+        let accentHex: UInt32
         var id: Int { movieId }
         var label: String { AppLocalization.isFrench ? fr : en }
     }
 
     static let discoverGenres: [DiscoverGenre] = [
-        .init(movieId: 28, tvId: 10759, fr: "Action", en: "Action"),
-        .init(movieId: 878, tvId: 10765, fr: "Sci-Fi", en: "Sci-Fi"),
-        .init(movieId: 35, tvId: 35, fr: "Comédie", en: "Comedy"),
-        .init(movieId: 18, tvId: 18, fr: "Drame", en: "Drama"),
-        .init(movieId: 53, tvId: 9648, fr: "Thriller", en: "Thriller"),
-        .init(movieId: 16, tvId: 16, fr: "Animation", en: "Animation"),
-        .init(movieId: 27, tvId: 9648, fr: "Horreur", en: "Horror"),
-        .init(movieId: 99, tvId: 99, fr: "Documentaire", en: "Documentary"),
+        .init(movieId: 28,  tvId: 10759, fr: "Action",       en: "Action",      icon: "flame.fill",               accentHex: 0xD94E28),
+        .init(movieId: 878, tvId: 10765, fr: "Sci-Fi",       en: "Sci-Fi",      icon: "sparkles",                 accentHex: 0x3B82F6),
+        .init(movieId: 35,  tvId: 35,    fr: "Comédie",      en: "Comedy",      icon: "theatermasks.fill",        accentHex: 0xEAB308),
+        .init(movieId: 18,  tvId: 18,    fr: "Drame",        en: "Drama",       icon: "film.fill",                accentHex: 0xA855F7),
+        .init(movieId: 53,  tvId: 9648,  fr: "Thriller",     en: "Thriller",    icon: "eye.fill",                 accentHex: 0x64748B),
+        .init(movieId: 16,  tvId: 16,    fr: "Animation",    en: "Animation",   icon: "wand.and.stars",           accentHex: 0xEC4899),
+        .init(movieId: 27,  tvId: 9648,  fr: "Horreur",      en: "Horror",      icon: "moon.stars.fill",          accentHex: 0x991B1B),
+        .init(movieId: 99,  tvId: 99,    fr: "Documentaire", en: "Documentary", icon: "globe.europe.africa.fill", accentHex: 0x10B981),
     ]
 
-    func discover(type: String, genreId: Int? = nil, providerId: Int? = nil, page: Int = 1) async throws -> [MetaPreview] {
+    func discover(type: String, genreId: Int? = nil, providerId: Int? = nil, page: Int = 1, sortBy: String = "popularity.desc", minVotes: Int? = nil) async throws -> [MetaPreview] {
         guard let key = currentKey() else { return [] }
         let lang = effectiveLanguage()
         let region = lang.split(separator: "-").last.map(String.init) ?? "FR"
@@ -254,10 +257,11 @@ final class TmdbService {
         let kids = UserPrefs.shared.kidsMode
         var params = [
             "language=\(lang)",
-            "sort_by=popularity.desc",
+            "sort_by=\(sortBy)",
             "include_adult=false",
             "page=\(page)",
         ]
+        if let minVotes { params.append("vote_count.gte=\(minVotes)") }
         if kids {
             params.append("with_genres=10751|16")
             if !isSeries { params.append("certification_country=US&certification.lte=PG") }
