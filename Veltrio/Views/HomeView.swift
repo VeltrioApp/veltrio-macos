@@ -201,6 +201,19 @@ private struct HomeDiscoverBar: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            // Streaming provider logo cards
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(TmdbService.discoverProviders) { p in
+                        providerCard(p, selected: selectedProvider == p.id) {
+                            selectedProvider = (selectedProvider == p.id) ? nil : p.id
+                        }
+                    }
+                }
+                .padding(.vertical, 2)
+            }
+
+            // Media type + genre filter chips
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     filterChip(AppLocalization.isFrench ? "Films" : "Movies", selected: mediaType == "movie") {
@@ -208,11 +221,6 @@ private struct HomeDiscoverBar: View {
                     }
                     filterChip(AppLocalization.isFrench ? "Séries" : "Series", selected: mediaType == "series") {
                         mediaType = "series"
-                    }
-                    ForEach(TmdbService.discoverProviders, id: \.id) { p in
-                        filterChip(p.name, selected: selectedProvider == p.id) {
-                            selectedProvider = (selectedProvider == p.id) ? nil : p.id
-                        }
                     }
                     ForEach(TmdbService.discoverGenres) { g in
                         filterChip(g.label, selected: selectedGenre == g) {
@@ -281,6 +289,46 @@ private struct HomeDiscoverBar: View {
             let gid = selectedGenre.map { mediaType == "series" ? $0.tvId : $0.movieId }
             results = (try? await tmdb.discover(type: mediaType, genreId: gid, providerId: selectedProvider)) ?? []
         }
+    }
+
+    private func providerCard(_ provider: TmdbService.DiscoverProvider, selected: Bool, action: @escaping () -> Void) -> some View {
+        let iconSize: CGFloat = Platform.isTV ? 58 : (Platform.isMac ? 44 : 38)
+        return Button(action: action) {
+            HStack(spacing: 10) {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Theme.Palette.surface)
+                    .frame(width: iconSize, height: iconSize)
+                    .overlay {
+                        if let url = URL(string: provider.logoURL) {
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .success(let img):
+                                    img.resizable().scaledToFill()
+                                default:
+                                    Color.clear
+                                }
+                            }
+                        }
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                Text(provider.name)
+                    .font(Theme.Font.label(Platform.isTV ? 16 : 12, weight: selected ? .bold : .semibold))
+                    .foregroundStyle(selected ? Theme.Palette.accentText : Theme.Palette.textPrimary)
+                    .lineLimit(1)
+            }
+            .padding(.leading, 6)
+            .padding(.trailing, 14)
+            .padding(.vertical, 6)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(selected ? Theme.Palette.accent.opacity(0.16) : Theme.Palette.surface)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(selected ? Theme.Palette.accent : Theme.Palette.border, lineWidth: selected ? 1.8 : 1)
+            )
+        }
+        .buttonStyle(.plainRect)
     }
 
     private func filterChip(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {

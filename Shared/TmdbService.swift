@@ -210,13 +210,19 @@ final class TmdbService {
             .compactMap { parsePreview($0, type: isSeries ? "series" : "movie", genres: genres) }
     }
 
-    static let discoverProviders: [(id: Int, name: String)] = [
-        (8, "Netflix"),
-        (350, "Apple TV+"),
-        (337, "Disney+"),
-        (119, "Prime Video"),
-        (1899, "Max"),
-        (381, "Canal+"),
+    struct DiscoverProvider: Identifiable, Hashable {
+        let id: Int
+        let name: String
+        let logoURL: String
+    }
+
+    static let discoverProviders: [DiscoverProvider] = [
+        .init(id: 8,    name: "Netflix",     logoURL: "https://image.tmdb.org/t/p/w154/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg"),
+        .init(id: 350,  name: "Apple TV+",   logoURL: "https://image.tmdb.org/t/p/w154/2E03IAZsX4ZaUqM7tXlctEPMGWS.jpg"),
+        .init(id: 337,  name: "Disney+",     logoURL: "https://image.tmdb.org/t/p/w154/97yvRBw1GzX7fXprcF80er19ot.jpg"),
+        .init(id: 119,  name: "Prime Video", logoURL: "https://image.tmdb.org/t/p/w154/pvske1MyAoymrs5bguRfVqYiM9a.jpg"),
+        .init(id: 1899, name: "Max",         logoURL: "https://image.tmdb.org/t/p/w154/jbe4gVSfRlbPTdESXhEKpornsfu.jpg"),
+        .init(id: 381,  name: "Canal+",      logoURL: "https://image.tmdb.org/t/p/w154/eBXzkFEupZjKaIKY7zBUaSdCY8I.jpg"),
     ]
 
     struct DiscoverGenre: Identifiable, Hashable {
