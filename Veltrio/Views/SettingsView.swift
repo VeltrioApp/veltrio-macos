@@ -74,9 +74,10 @@ struct SettingsView: View {
                                     .foregroundStyle(Theme.Palette.textQuaternary)
                             }
                             .padding(.vertical, 14)
+                            .padding(.horizontal, Platform.isTV ? 10 : 0)
                             .contentShape(Rectangle())
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.plainRect)
                         Rule(color: Theme.Palette.hairline)
                     }
                 }
@@ -1442,7 +1443,7 @@ private struct DevicesSettings: View {
                         .overlay(Rectangle().stroke(t == target ? Theme.Palette.accent : Theme.Palette.border, lineWidth: 1))
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.plainRect)
                 }
                 Text("Not in the list? The address shown on the TV:")
                     .font(Theme.Font.caption(12)).foregroundStyle(Theme.Palette.textTertiary)

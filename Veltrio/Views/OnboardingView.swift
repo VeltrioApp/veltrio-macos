@@ -89,7 +89,7 @@ struct OnboardingView: View {
                     .textCase(.uppercase)
                     .foregroundStyle(Theme.Palette.textTertiary)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.plainRect)
         }
         .padding(.horizontal, isCompact ? Theme.Spacing.lg : Theme.Spacing.xxl)
         .padding(.vertical, isCompact ? 14 : 18)
@@ -282,7 +282,7 @@ struct OnboardingView: View {
                                 .background(selected ? Theme.Palette.accent : Theme.Palette.background)
                                 .overlay(Rectangle().stroke(selected ? Theme.Palette.accent : Theme.Palette.border, lineWidth: 1))
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.plainRect)
                     }
                 }
 
