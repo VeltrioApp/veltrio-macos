@@ -16,7 +16,7 @@ enum Keychain {
 
     @discardableResult
     static func set(_ value: String, service: String, account: String = "default") -> Bool {
-        #if os(macOS)
+        #if os(macOS) || targetEnvironment(simulator)
         return MacSecretFile.set(value, service: service, account: account)
         #else
         let data = Data(value.utf8)
@@ -37,7 +37,7 @@ enum Keychain {
     }
 
     static func get(service: String, account: String = "default") -> String? {
-        #if os(macOS)
+        #if os(macOS) || targetEnvironment(simulator)
         return MacSecretFile.get(service: service, account: account)
         #else
         var query = baseQuery(service: service, account: account)
@@ -52,14 +52,14 @@ enum Keychain {
     }
 
     static func delete(service: String, account: String = "default") {
-        #if os(macOS)
+        #if os(macOS) || targetEnvironment(simulator)
         MacSecretFile.delete(service: service, account: account)
         #else
         SecItemDelete(baseQuery(service: service, account: account) as CFDictionary)
         #endif
     }
 
-    #if !os(macOS)
+    #if !os(macOS) && !targetEnvironment(simulator)
     private static func baseQuery(service: String, account: String) -> [String: Any] {
         var q: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -72,13 +72,18 @@ enum Keychain {
     #endif
 }
 
-#if os(macOS)
+#if os(macOS) || targetEnvironment(simulator)
 private enum MacSecretFile {
     private static let lock = NSLock()
 
     private static var dir: URL {
+        #if os(tvOS)
+        let base = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory
+        #else
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
+        #endif
         let folder = base.appendingPathComponent("Veltrio", isDirectory: true)
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         return folder

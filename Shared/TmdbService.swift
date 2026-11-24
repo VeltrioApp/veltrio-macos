@@ -92,11 +92,19 @@ final class TmdbService {
     }
 
     func reload() {
+        let wasConnected = isConnected
+        let prevLang = language
         let key = Keychain.get(service: Self.keyService)?.trimmingCharacters(in: .whitespacesAndNewlines)
         isConnected = key != nil && !(key?.isEmpty ?? true)
         let saved = Keychain.get(service: Self.langService)?.trimmingCharacters(in: .whitespacesAndNewlines)
         language = (saved?.isEmpty == false) ? saved! : defaultLanguage()
         error = nil
+        if isConnected != wasConnected || language != prevLang {
+            localizeCache.removeAll()
+            genreCache.removeAll()
+            extrasCache.removeAll()
+            revision += 1
+        }
     }
 
     func setLanguage(_ lang: String) {
